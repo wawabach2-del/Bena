@@ -1,76 +1,363 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" data-theme="ungu">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#5b35c9">
-<meta name="description" content="Asisten konten promosi untuk jualan online">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<title>Jualin AI — Konten Jualan</title>
+<meta name="theme-color" content="#5b35c9" id="metaTheme">
+<title>BENA — Asisten Konten Jualan</title>
 <style>
-:root{--p:#5b35c9;--p2:#7c5ce7;--bg:#f6f5fb;--card:#fff;--ink:#211b35;--muted:#746e86;--line:#e8e3f2;--good:#16845b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-header{background:linear-gradient(135deg,#4d28b7,#8768ee);color:#fff;padding:24px 18px 22px;border-radius:0 0 24px 24px}
-.brand{font-size:25px;font-weight:850;letter-spacing:-.7px}.sub{opacity:.9;margin-top:4px;font-size:13px}
-.wrap{max-width:720px;margin:auto;padding:14px 14px 90px}.tabs{display:flex;gap:8px;margin:0 0 14px;overflow:auto}
-.tab{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 13px;font-weight:700;color:var(--muted);white-space:nowrap}
-.tab.active{background:var(--p);border-color:var(--p);color:#fff}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:13px;box-shadow:0 3px 14px #32205a08}
-h2{font-size:18px;margin:0 0 5px}p.hint{margin:0 0 15px;color:var(--muted);font-size:13px}
-label{display:block;font-size:13px;font-weight:750;margin:12px 0 6px}
-input,select,textarea{width:100%;font:inherit;color:var(--ink);border:1px solid #ddd6ec;border-radius:11px;background:#fff;padding:12px;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px #5b35c91a}
+/* ============ TEMA ============ */
+:root,[data-theme="ungu"]{
+  --p:#5b35c9;--p2:#8768ee;--bg:#f6f5fb;--card:#fff;--ink:#211b35;--muted:#746e86;
+  --line:#e8e3f2;--soft:#f5f1ff;--good:#16845b;--bad:#c0392b;
+  --warn-bg:#fff8df;--warn-line:#f1df9a;--warn-ink:#6b5311;
+  --head-grad:linear-gradient(135deg,#4d28b7,#8768ee);
+}
+[data-theme="dark"]{
+  --p:#8b6cf6;--p2:#4d28b7;--bg:#100e18;--card:#1b1826;--ink:#efeaff;--muted:#a29ab8;
+  --line:#2e2942;--soft:#241f36;--good:#4ade80;--bad:#f87171;
+  --warn-bg:#2a2410;--warn-line:#4a3f17;--warn-ink:#e8d68a;
+  --head-grad:linear-gradient(135deg,#231449,#6b4ae0);
+}
+[data-theme="ocean"]{
+  --p:#0e7490;--p2:#22d3ee;--bg:#f0f9ff;--card:#fff;--ink:#0c2e3a;--muted:#4b7285;
+  --line:#d3ebf5;--soft:#e6f6fd;--good:#0f766e;--bad:#be123c;
+  --warn-bg:#fff8df;--warn-line:#f1df9a;--warn-ink:#6b5311;
+  --head-grad:linear-gradient(135deg,#0b5c74,#22d3ee);
+}
+[data-theme="sunset"]{
+  --p:#c2410c;--p2:#fb923c;--bg:#fff7ed;--card:#fff;--ink:#2c1a10;--muted:#8a6a55;
+  --line:#f5e0cc;--soft:#fff1e2;--good:#15803d;--bad:#b91c1c;
+  --warn-bg:#fff8df;--warn-line:#f1df9a;--warn-ink:#6b5311;
+  --head-grad:linear-gradient(135deg,#9a2f06,#fb923c);
+}
+[data-theme="hijau"]{
+  --p:#0f766e;--p2:#34d399;--bg:#f0fdf9;--card:#fff;--ink:#0d2b26;--muted:#5a7a72;
+  --line:#d3ece5;--soft:#e6faf3;--good:#15803d;--bad:#b91c1c;
+  --warn-bg:#fff8df;--warn-line:#f1df9a;--warn-ink:#6b5311;
+  --head-grad:linear-gradient(135deg,#0b5c56,#34d399);
+}
+
+/* ============ DASAR ============ */
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;transition:background .3s,color .3s;overflow-x:hidden}
+body.no-scroll{overflow:hidden}
+.wrap,header{opacity:0;transition:opacity .7s ease}
+body.ready .wrap,body.ready header{opacity:1}
+.hidden{display:none!important}
+
+/* ============ SPLASH ============ */
+#splash{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;background:#0b0912;color:#fff;
+  transition:opacity .55s ease,visibility .55s ease;cursor:pointer}
+#splash.out{opacity:0;visibility:hidden;pointer-events:none}
+.splash-glow{position:absolute;width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle,#7c5ce74d,transparent 68%);
+  filter:blur(18px);animation:glowPulse 2.6s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{transform:scale(.9);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+.splash-logo{position:relative;display:flex;font-weight:900;
+  font-size:clamp(46px,17vw,72px);letter-spacing:-4px;line-height:1;
+  background:linear-gradient(110deg,#fff 0%,#c9b6ff 22%,#8b6cf6 45%,#c9b6ff 68%,#fff 100%);
+  background-size:250% 100%;-webkit-background-clip:text;background-clip:text;
+  color:transparent;animation:shine 3.2s linear infinite}
+@keyframes shine{from{background-position:0% 50%}to{background-position:250% 50%}}
+.splash-logo span{display:inline-block;opacity:0;transform:translateY(30px) scale(.9);
+  animation:letterIn .78s cubic-bezier(.16,.84,.3,1) forwards}
+.splash-logo span:nth-child(1){animation-delay:.06s}
+.splash-logo span:nth-child(2){animation-delay:.16s}
+.splash-logo span:nth-child(3){animation-delay:.26s}
+.splash-logo span:nth-child(4){animation-delay:.36s}
+@keyframes letterIn{to{opacity:1;transform:translateY(0) scale(1)}}
+.splash-tag{font-size:12.5px;letter-spacing:3.4px;text-transform:uppercase;
+  color:#a99cd6;opacity:0;animation:fadeUp .8s ease .9s forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:.95;transform:none}}
+.splash-bar{width:132px;height:3px;border-radius:99px;background:#ffffff1c;
+  overflow:hidden;margin-top:14px;opacity:0;animation:fadeUp .6s ease 1.05s forwards}
+.splash-bar i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,#7c5ce7,#c9b6ff,#fff);animation:fill 1.5s ease 1.1s forwards}
+@keyframes fill{to{width:100%}}
+
+/* ============ HEADER ============ */
+header{background:var(--head-grad);color:#fff;padding:20px 18px 18px;
+  border-radius:0 0 26px 26px;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;width:230px;height:230px;right:-80px;top:-100px;
+  background:radial-gradient(circle,#ffffff30,transparent 70%);pointer-events:none}
+.head-row{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:10px;position:relative;z-index:1}
+.brand{font-size:28px;font-weight:900;letter-spacing:-1.6px;line-height:1}
+.brand em{font-style:normal;opacity:.75}
+.sub{opacity:.9;margin-top:5px;font-size:12.5px}
+.head-actions{display:flex;gap:8px;flex-shrink:0}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:#ffffff26;color:#fff;
+  font-size:16px;border:1px solid #ffffff33;display:grid;place-items:center;
+  cursor:pointer;padding:0;transition:transform .15s,background .2s}
+.icon-btn:active{transform:scale(.93)}
+.theme-bar{display:flex;gap:10px;margin-top:14px;position:relative;z-index:1;flex-wrap:wrap}
+.swatch{width:32px;height:32px;border-radius:50%;border:2px solid #ffffff55;
+  cursor:pointer;padding:0;transition:transform .18s,outline .2s}
+.swatch.active{outline:2px solid #fff;outline-offset:2px;transform:scale(1.07)}
+.swatch[data-theme="ungu"]{background:linear-gradient(135deg,#4d28b7,#8768ee)}
+.swatch[data-theme="dark"]{background:linear-gradient(135deg,#1b1826,#8b6cf6)}
+.swatch[data-theme="ocean"]{background:linear-gradient(135deg,#0e7490,#22d3ee)}
+.swatch[data-theme="sunset"]{background:linear-gradient(135deg,#c2410c,#fb923c)}
+.swatch[data-theme="hijau"]{background:linear-gradient(135deg,#0f766e,#34d399)}
+
+/* ============ LAYOUT ============ */
+.wrap{max-width:720px;margin:auto;padding:14px 14px 90px}
+.tabs{display:flex;gap:8px;margin:0 0 14px;overflow:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:1px solid var(--line);border-radius:12px;background:var(--card);
+  padding:10px 13px;font-weight:700;color:var(--muted);white-space:nowrap;
+  cursor:pointer;font-size:13.5px;transition:.2s}
+.tab.active{background:var(--p);border-color:var(--p);color:#fff;
+  box-shadow:0 8px 20px -10px var(--p)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:16px;margin-bottom:13px;box-shadow:0 3px 16px #32205a0a;
+  transition:background .3s,border-color .3s}
+h2{font-size:18px;margin:0 0 5px;letter-spacing:-.3px}
+p.hint{margin:0 0 15px;color:var(--muted);font-size:13px}
+label{display:block;font-size:13px;font-weight:750;margin:13px 0 6px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);border:1px solid var(--line);
+  border-radius:11px;background:var(--card);padding:12px;outline:none;transition:.18s}
+input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px #5b35c91f}
 textarea{min-height:78px;resize:vertical}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{font:inherit;font-weight:750;border:0;border-radius:12px;padding:12px 14px;cursor:pointer}
-.primary{background:var(--p);color:#fff;width:100%;margin-top:15px}
-.secondary{background:#eee9fb;color:var(--p)}.ghost{background:#f5f2fa;color:var(--ink);border:1px solid var(--line)}
-.result{white-space:pre-wrap;background:#faf9fe;border:1px solid var(--line);padding:13px;border-radius:12px;margin:10px 0;color:#2b2342}
-.result-title{font-weight:800;margin-top:15px}
-.rowbtn{display:flex;gap:8px;flex-wrap:wrap}.rowbtn button{flex:1}
-.small{font-size:12px;color:var(--muted)}.notice{background:#fff8df;border:1px solid #f1df9a;border-radius:12px;padding:11px;font-size:12px;color:#6b5311;margin-top:12px}
-.hidden{display:none!important}.metric{background:#f5f1ff;border-radius:12px;padding:12px}.metric .num{font-size:21px;font-weight:850;color:var(--p)}.metric .lbl{font-size:12px;color:var(--muted)}
-.history-item{border-bottom:1px solid var(--line);padding:10px 0}.history-item:last-child{border-bottom:0}
-footer{text-align:center;font-size:11px;color:var(--muted);padding:10px}
-@media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.wrap{padding-left:11px;padding-right:11px}.card{padding:14px}}
+button{font:inherit;font-weight:750;border:0;border-radius:12px;padding:12px 14px;
+  cursor:pointer;transition:transform .12s,filter .2s}
+button:active{transform:scale(.985)}
+.primary{background:var(--p);color:#fff;width:100%;margin-top:16px;
+  box-shadow:0 10px 24px -12px var(--p)}
+.primary:hover{filter:brightness(1.07)}
+.secondary{background:var(--soft);color:var(--p)}
+.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.small-btn{padding:8px 12px;font-size:12.5px;width:auto}
+.btn-inline{width:auto;margin-bottom:12px;font-size:12.5px;padding:7px 12px}
+.result{white-space:pre-wrap;background:var(--soft);border:1px solid var(--line);
+  padding:13px;border-radius:12px;margin:0 0 10px;color:var(--ink);font-size:14.2px}
+.result-title{font-weight:800;margin:16px 0 7px;font-size:13.5px;color:var(--p)}
+.result-title:first-child{margin-top:4px}
+.result-img{max-width:100%;max-height:230px;border-radius:14px;display:block;
+  margin:4px 0 14px;border:1px solid var(--line);object-fit:cover}
+.rowbtn{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.rowbtn button{flex:1}
+.small{font-size:12px;color:var(--muted)}
+.good{color:var(--good);font-weight:700}
+.bad{color:var(--bad);font-weight:700}
+.notice{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:12px;
+  padding:11px;font-size:12px;color:var(--warn-ink);margin-top:12px}
+
+/* ============ UPLOAD ============ */
+.upload{border:1.6px dashed var(--line);border-radius:14px;background:var(--soft);
+  padding:16px;text-align:center;cursor:pointer;transition:.2s}
+.upload:hover,.upload.dragover{border-color:var(--p);background:var(--soft);
+  box-shadow:0 0 0 3px #5b35c91a}
+.upload img{max-width:100%;max-height:200px;border-radius:11px;
+  display:block;margin:0 auto 10px;object-fit:cover}
+
+/* ============ METRIK ============ */
+.metric{background:var(--soft);border-radius:13px;padding:13px}
+.metric .num{font-size:21px;font-weight:850;color:var(--p);letter-spacing:-.6px}
+.metric .lbl{font-size:11.5px;color:var(--muted);margin-bottom:2px}
+
+/* ============ RIWAYAT ============ */
+.history-item{border-bottom:1px solid var(--line);padding:12px 0}
+.history-item:last-child{border-bottom:0}
+.hrow{display:flex;gap:10px;align-items:flex-start}
+.thumb{width:54px;height:54px;object-fit:cover;border-radius:11px;
+  border:1px solid var(--line);flex-shrink:0}
+.badge{font-size:10px;background:var(--soft);color:var(--p);border-radius:7px;
+  padding:2px 7px;margin-left:6px;font-weight:850;vertical-align:middle}
+
+/* ============ LOADER ============ */
+.overlay{position:fixed;inset:0;z-index:200;background:#0b0912d9;
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;padding:24px;text-align:center;color:#fff}
+.load-logo{font-size:clamp(44px,15vw,62px);font-weight:900;letter-spacing:-4px;line-height:1;
+  background:linear-gradient(90deg,#ff6b9a,#ffd166,#6ee7b7,#60a5fa,#c084fc,#ff6b9a);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
+  color:transparent;animation:rainbow 1.05s linear infinite,breathe 1.5s ease-in-out infinite}
+@keyframes rainbow{from{background-position:0% 50%}to{background-position:300% 50%}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.load-text{margin-top:8px;font-size:14px;font-weight:700;letter-spacing:.2px}
+.load-sub{font-size:12px;color:#a99cd6}
+.load-dots{display:flex;gap:7px;margin-top:14px}
+.load-dots i{width:8px;height:8px;border-radius:50%;background:#c9b6ff;
+  animation:dot 1s ease-in-out infinite}
+.load-dots i:nth-child(2){animation-delay:.15s}
+.load-dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-6px)}}
+
+footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
+@media(max-width:420px){
+  .wrap{padding-left:11px;padding-right:11px}
+  .card{padding:14px}
+  .metric .num{font-size:19px}
+}
 </style>
 </head>
 <body>
-<header><div class="brand">✦ Jualin AI</div><div class="sub">Asisten konten promosi untuk jualan online</div></header>
+
+<!-- ========== SPLASH ========== -->
+<div id="splash">
+  <div class="splash-glow"></div>
+  <div class="splash-logo" aria-label="BENA"><span>B</span><span>E</span><span>N</span><span>A</span></div>
+  <div class="splash-tag">Asisten Konten Jualan</div>
+  <div class="splash-bar"><i></i></div>
+</div>
+
+<!-- ========== HEADER ========== -->
+<header>
+  <div class="head-row">
+    <div>
+      <div class="brand">BENA<em>.</em></div>
+      <div class="sub">Asisten konten promosi untuk jualan online</div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn" id="soundToggle" title="Suara selesai">🔔</button>
+      <button class="icon-btn" id="themeToggle" title="Ganti tema">🎨</button>
+    </div>
+  </div>
+  <div id="themeBar" class="theme-bar hidden">
+    <button class="swatch active" data-theme="ungu" title="Ungu"></button>
+    <button class="swatch" data-theme="dark" title="Gelap"></button>
+    <button class="swatch" data-theme="ocean" title="Laut"></button>
+    <button class="swatch" data-theme="sunset" title="Senja"></button>
+    <button class="swatch" data-theme="hijau" title="Hijau"></button>
+  </div>
+</header>
+
 <div class="wrap">
   <div class="tabs">
     <button class="tab active" data-tab="konten">✍️ Buat Konten</button>
+    <button class="tab" data-tab="story">🎬 Ide Storytelling</button>
     <button class="tab" data-tab="kalkulator">🧮 Kalkulator Laba</button>
     <button class="tab" data-tab="riwayat">📚 Riwayat</button>
   </div>
+
+  <!-- ================= KONTEN ================= -->
   <section id="konten">
     <div class="card">
-      <h2>Buat konten promosi</h2><p class="hint">Isi detail produk, lalu buat beberapa pilihan teks jualan.</p>
-      <label for="produk">Nama produk *</label><input id="produk" placeholder="Contoh: Parfum Amber Noir">
-      <div class="grid">
-        <div><label for="platform">Platform</label><select id="platform"><option>Threads</option><option>Shopee</option><option>TikTok</option><option>WhatsApp</option><option>Instagram</option><option>Facebook</option></select></div>
-        <div><label for="gaya">Gaya bahasa</label><select id="gaya"><option value="santai">Santai & jujur</option><option value="soft">Soft selling</option><option value="heboh">Enerjik & menarik</option><option value="profesional">Profesional</option><option value="lucu">Lucu & gaul</option></select></div>
+      <h2>Buat konten promosi</h2>
+      <p class="hint">Isi detail produk, tambahkan gambar bila ada, lalu buat beberapa pilihan teks jualan.</p>
+
+      <label for="produk">Nama produk *</label>
+      <input id="produk" placeholder="Contoh: Parfum Amber Noir">
+
+      <label>Gambar produk (opsional)</label>
+      <div class="upload" id="dropzone">
+        <input type="file" id="imgInput" accept="image/*" hidden>
+        <div id="uploadEmpty">
+          <div style="font-size:24px;line-height:1.2">📷</div>
+          <div style="font-weight:800;font-size:13px;margin-top:2px">Ketuk atau tarik gambar produk</div>
+          <div class="small">JPG/PNG • otomatis diperkecil</div>
+        </div>
+        <div id="uploadPreview" class="hidden">
+          <img id="imgPreview" alt="Pratinjau produk">
+          <button type="button" class="ghost small-btn" id="removeImg">Hapus gambar</button>
+        </div>
       </div>
-      <label for="manfaat">Manfaat/keunggulan produk</label><textarea id="manfaat" placeholder="Contoh: aroma tahan lama, ukuran praktis, cocok untuk harian"></textarea>
+
       <div class="grid">
-        <div><label for="target">Target pembeli</label><input id="target" placeholder="Contoh: pekerja aktif"></div>
-        <div><label for="harga">Harga (opsional)</label><input id="harga" inputmode="numeric" placeholder="Contoh: 25000"></div>
+        <div><label for="platform">Platform</label>
+          <select id="platform">
+            <option>Threads</option><option>Shopee</option><option>TikTok</option>
+            <option>WhatsApp</option><option>Instagram</option><option>Facebook</option>
+          </select>
+        </div>
+        <div><label for="gaya">Gaya bahasa</label>
+          <select id="gaya">
+            <option value="santai">Santai & jujur</option>
+            <option value="soft">Soft selling</option>
+            <option value="heboh">Enerjik & menarik</option>
+            <option value="profesional">Profesional</option>
+            <option value="lucu">Lucu & gaul</option>
+          </select>
+        </div>
       </div>
-      <label for="promo">Promo atau penawaran (opsional)</label><input id="promo" placeholder="Contoh: diskon 10%, gratis ongkir">
-      <label for="jenis">Jenis konten</label><select id="jenis"><option value="paket">Paket lengkap (hook, caption, CTA)</option><option value="hook">Hook saja</option><option value="caption">Caption promosi</option><option value="thread">Utas 4 bagian</option><option value="deskripsi">Deskripsi produk marketplace</option><option value="video">Skrip video 15 detik</option></select>
+
+      <label for="manfaat">Manfaat/keunggulan produk</label>
+      <textarea id="manfaat" placeholder="Contoh: aroma tahan lama, ukuran praktis, cocok untuk harian"></textarea>
+
+      <div class="grid">
+        <div><label for="target">Target pembeli</label>
+          <input id="target" placeholder="Contoh: pekerja aktif"></div>
+        <div><label for="harga">Harga (opsional)</label>
+          <input id="harga" inputmode="numeric" placeholder="Contoh: 25000"></div>
+      </div>
+
+      <label for="promo">Promo atau penawaran (opsional)</label>
+      <input id="promo" placeholder="Contoh: diskon 10%, gratis ongkir">
+
+      <label for="jenis">Jenis konten</label>
+      <select id="jenis">
+        <option value="paket">Paket lengkap (hook, caption, CTA)</option>
+        <option value="hook">Hook saja</option>
+        <option value="caption">Caption promosi</option>
+        <option value="thread">Utas 4 bagian</option>
+        <option value="deskripsi">Deskripsi produk marketplace</option>
+        <option value="video">Skrip video 15 detik</option>
+      </select>
+
       <button class="primary" id="generate">✦ Buat Konten</button>
-      <div class="notice">AI online aktif setelah URL Worker dipasang pada konfigurasi. Sebelum itu, aplikasi memakai template lokal. Jangan memasukkan klaim manfaat yang belum terbukti.</div>
+      <div class="notice">Versi prototipe ini bekerja offline dengan pola teks otomatis, bukan AI online. Hindari klaim manfaat yang belum terbukti.</div>
     </div>
+
     <div class="card hidden" id="hasilCard">
-      <h2>Hasil konten</h2><p class="hint">Edit bila perlu, lalu salin untuk diposting.</p>
+      <h2>Hasil konten</h2>
+      <p class="hint">Edit bila perlu, lalu salin untuk diposting.</p>
       <div id="hasil"></div>
-      <div class="rowbtn"><button class="secondary" id="copyAll">Salin semua</button><button class="ghost" id="save">Simpan riwayat</button></div>
+      <div class="rowbtn">
+        <button class="secondary" id="copyAll">Salin semua</button>
+        <button class="ghost" id="save">Simpan riwayat</button>
+      </div>
     </div>
   </section>
+
+  <!-- ================= STORYTELLING ================= -->
+  <section id="story" class="hidden">
+    <div class="card">
+      <h2>Ide storytelling</h2>
+      <p class="hint">Ubah produk menjadi cerita yang bikin orang berhenti scroll.</p>
+
+      <label for="storyAngle">Sudut cerita</label>
+      <select id="storyAngle">
+        <option value="pas">Masalah → Solusi</option>
+        <option value="pengalaman">Pengalaman pribadi</option>
+        <option value="bts">Behind the scene</option>
+        <option value="mitos">Mitos vs fakta</option>
+        <option value="beforeafter">Sebelum & sesudah</option>
+        <option value="testimoni">Cerita pelanggan</option>
+      </select>
+
+      <label for="storyMasalah">Masalah / keluhan pelanggan</label>
+      <textarea id="storyMasalah" placeholder="Contoh: parfum cepat hilang, bikin nggak pede"></textarea>
+
+      <label for="storySolusi">Solusi / manfaat utama</label>
+      <input id="storySolusi" placeholder="Contoh: aroma tahan sampai 8 jam">
+
+      <p class="small" style="margin-top:12px">Nama produk, target, dan gambar diambil dari tab <b>Buat Konten</b>.</p>
+      <button class="primary" id="genStory">🎬 Buat ide cerita</button>
+    </div>
+
+    <div class="card hidden" id="storyCard">
+      <h2>Ide storytelling</h2>
+      <div id="storyHasil"></div>
+      <div class="rowbtn">
+        <button class="secondary" id="copyStory">Salin semua</button>
+        <button class="ghost" id="saveStory">Simpan riwayat</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= KALKULATOR ================= -->
   <section id="kalkulator" class="hidden">
     <div class="card">
-      <h2>Kalkulator laba jualan</h2><p class="hint">Perkiraan sederhana per produk. Masukkan biaya dalam rupiah.</p>
+      <h2>Kalkulator laba jualan</h2>
+      <p class="hint">Perkiraan sederhana per produk. Masukkan biaya dalam rupiah.</p>
       <label>Harga jual (Rp)</label><input id="jual" inputmode="numeric" placeholder="25000">
       <label>HPP produk (Rp)</label><input id="hpp" inputmode="numeric" placeholder="12000">
       <div class="grid">
@@ -88,79 +375,633 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px}
       <p id="statusLaba" class="small"></p>
     </div>
   </section>
+
+  <!-- ================= RIWAYAT ================= -->
   <section id="riwayat" class="hidden">
-    <div class="card"><h2>Riwayat konten</h2><p class="hint">Disimpan di browser perangkat ini.</p><div id="riwayatList"></div><button class="ghost" id="hapusRiwayat">Hapus semua riwayat</button></div>
+    <div class="card">
+      <h2>Riwayat konten</h2>
+      <p class="hint">Disimpan di browser perangkat ini.</p>
+      <div id="riwayatList"></div>
+      <button class="ghost" id="hapusRiwayat" style="width:100%;margin-top:12px">Hapus semua riwayat</button>
+    </div>
   </section>
-  <footer>Jualin AI • Prototipe awal • Data riwayat tersimpan lokal di perangkat</footer>
+
+  <footer>BENA • Prototipe awal • Data riwayat tersimpan lokal di perangkat</footer>
 </div>
+
+<!-- ========== LOADER ========== -->
+<div id="loader" class="overlay hidden">
+  <div class="load-logo">BENA</div>
+  <div class="load-text" id="loadText">Menyusun konten...</div>
+  <div class="load-sub">Sebentar ya, BENA sedang bekerja ✨</div>
+  <div class="load-dots"><i></i><i></i><i></i></div>
+</div>
+
 <script>
-const $=id=>document.getElementById(id);
-let latest='';
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
- document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));
- ['konten','kalkulator','riwayat'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab));
- if(b.dataset.tab==='riwayat') renderHistory();
-}));
-const rupiah=n=>'Rp'+Math.round(n).toLocaleString('id-ID');
-const AI_ENDPOINT = "PASTE_CLOUDFLARE_WORKER_URL_HERE";
-async function generate(){
- const p=$('produk').value.trim(), m=$('manfaat').value.trim(), t=$('target').value.trim()||'pembeli online', h=$('harga').value.trim(), promo=$('promo').value.trim(), platform=$('platform').value, gaya=$('gaya').value, jenis=$('jenis').value;
- if(!p){$('produk').focus();alert('Isi nama produk dulu ya.');return;}
- const btn=$('generate'); btn.disabled=true; btn.textContent='Sedang membuat konten…';
- try{
-   if(AI_ENDPOINT.startsWith('https://') && !AI_ENDPOINT.includes('PASTE_')){
-     const resp=await fetch(AI_ENDPOINT.replace(/\/$/,'')+'/api/generate',{
-       method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({product:p,benefits:m,target:t,platform,style:gaya,price:h,promo,type:jenis})
-     });
-     const data=await resp.json();
-     if(!resp.ok) throw new Error(data.error||'Layanan AI belum bisa digunakan.');
-     latest=data.text||'Tidak ada hasil dari AI.';
-     $('hasil').innerHTML='';
-     const title=document.createElement('div');title.className='result-title';title.textContent='Hasil dari AI';
-     const body=document.createElement('div');body.className='result';body.textContent=latest;
-     $('hasil').append(title,body);
-     $('hasilCard').classList.remove('hidden');
-     return;
-   }
-   // Fallback local template so the interface can be tested before the AI backend is configured.
-   const benefit=m||'praktis untuk menemani aktivitas sehari-hari';
-   const price=h?` Harga: ${rupiah(Number(h.replace(/[^0-9]/g,'')))}.`:'';
-   const offer=promo?` ✨ ${promo}.`:'';
-   const hooks={
-    santai:[`Lagi cari ${p} buat kebutuhan harian? Coba cek yang satu ini 👀`,`Jujur, kadang hal sederhana seperti ${p} bisa bikin aktivitas terasa lebih praktis.`],
-    soft:[`Kenalan dulu dengan ${p} — pilihan menarik untuk melengkapi kebutuhanmu.`,`Sedang mencari pilihan ${p}? Ini salah satu produk yang bisa kamu pertimbangkan.`],
-    heboh:[`STOP SCROLL! 👀 Yuk kenalan dengan ${p}!`,`Ada yang lagi cari ${p}? Simpan info ini dulu, siapa tahu cocok!`],
-    profesional:[`Perkenalkan ${p}, pilihan untuk membantu memenuhi kebutuhan Anda.`,`Pertimbangkan ${p} untuk melengkapi kebutuhan Anda secara praktis.`],
-    lucu:[`Dompet bilang santai, keranjang bilang: ${p} dulu nggak sih? 😂`,`Niatnya cuma lihat-lihat, eh malah ketemu ${p} 👀`]
-   };
-   const ctas={Threads:'Kalau mau detailnya, komen “INFO” ya 👇',Shopee:'Cek detail produk di etalase dan sesuaikan dengan kebutuhanmu 🛒',TikTok:'Simpan dulu videonya dan cek detail produk ya!',WhatsApp:'Mau tanya detail atau pesan? Chat aku ya 😊',Instagram:'Simpan postingan ini dan DM untuk tanya detailnya 💬',Facebook:'Tulis “INFO” di komentar kalau ingin detail produk.'};
-   const hook=hooks[gaya][0], caption=`${hook}\n\n${p} — ${benefit}.${price}${offer}\n\n${ctas[platform]}`;
-   let parts=[];
-   if(jenis==='hook') parts=[['Hook',hook]];
-   else if(jenis==='caption') parts=[['Caption',caption]];
-   else if(jenis==='deskripsi') parts=[['Deskripsi produk',`${p}\n\nKeunggulan: ${benefit}.\n${h?'Harga: '+rupiah(Number(h.replace(/[^0-9]/g,'')))+'.\n':''}${promo?'Promo: '+promo+'.\n':''}\nPilih produk sesuai kebutuhan. Pastikan membaca informasi produk sebelum membeli.`]];
-   else if(jenis==='video') parts=[['Skrip video 15 detik',`[0–3 detik] ${hook}\n[3–9 detik] Tampilkan produk ${p} dan jelaskan: ${benefit}.\n[9–12 detik] Tampilkan detail produk${h?' dan harga '+rupiah(Number(h.replace(/[^0-9]/g,''))):''}.${offer}\n[12–15 detik] ${ctas[platform]}`]];
-   else if(jenis==='thread') parts=[['Utas 1/4',hook],['Utas 2/4',`Kenalan dengan ${p}. ${benefit}.`],['Utas 3/4',`${h?'Harga '+rupiah(Number(h.replace(/[^0-9]/g,'')))+'. ':''}${promo?promo+'. ':''}Cek detail dan pastikan cocok dengan kebutuhanmu.`],['Utas 4/4',ctas[platform]]];
-   else parts=[['Hook',hook],['Caption',caption],['CTA',ctas[platform]],['Hashtag',`#${p.replace(/[^a-zA-Z0-9]/g,'')} #JualanOnline #RekomendasiProduk`]];
-   latest=parts.map(a=>a[0]+'\n'+a[1]).join('\n\n');
-   $('hasil').innerHTML='';
-   parts.forEach(a=>{const title=document.createElement('div');title.className='result-title';title.textContent=a[0];const body=document.createElement('div');body.className='result';body.textContent=a[1];const btn2=document.createElement('button');btn2.className='secondary';btn2.textContent='Salin bagian ini';btn2.onclick=()=>copy(a[1]);$('hasil').append(title,body,btn2);});
-   $('hasilCard').classList.remove('hidden');
- }catch(err){alert('AI belum berhasil: '+err.message+'. Periksa URL Worker, koneksi internet, dan kuota API.');}
- finally{btn.disabled=false;btn.textContent='✦ Buat Konten';}
+/* =========================================================
+   UTIL
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+};
+const rupiah = n => 'Rp' + Math.round(n).toLocaleString('id-ID');
+const num = id => Number((($(id)||{}).value || '0').replace(/[^0-9.-]/g,'')) || 0;
+
+/* =========================================================
+   SPLASH
+   ========================================================= */
+function endSplash(){
+  const s = $('splash');
+  if(!s || s.classList.contains('out')) return;
+  s.classList.add('out');
+  document.body.classList.add('ready');
+  setTimeout(()=>{ s.style.display='none'; }, 650);
+}
+setTimeout(endSplash, 2400);
+setTimeout(()=>{ document.body.classList.add('ready'); }, 3600); // safety
+$('splash').addEventListener('click', endSplash);
+
+/* =========================================================
+   TEMA
+   ========================================================= */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  $$('.swatch').forEach(s => s.classList.toggle('active', s.dataset.theme === t));
+  LS.set('bena_theme', t);
+  const c = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
+  if(c) $('metaTheme').setAttribute('content', c);
+}
+$('themeToggle').onclick = () => $('themeBar').classList.toggle('hidden');
+$$('.swatch').forEach(s => s.onclick = () => setTheme(s.dataset.theme));
+setTheme(LS.get('bena_theme','ungu'));
+
+/* =========================================================
+   SUARA SELESAI (Web Audio, tanpa file eksternal)
+   ========================================================= */
+let soundOn = LS.get('bena_sound', true);
+let actx = null;
+function paintSound(){ $('soundToggle').textContent = soundOn ? '🔔' : '🔕'; }
+paintSound();
+$('soundToggle').onclick = () => {
+  soundOn = !soundOn; LS.set('bena_sound', soundOn); paintSound();
+  if(soundOn) playChime();
+};
+function playChime(){
+  if(!soundOn) return;
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if(actx.state === 'suspended') actx.resume();
+    const now = actx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+    notes.forEach((f, i) => {
+      const t = now + i * 0.095;
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+      o.connect(g).connect(actx.destination);
+      o.start(t); o.stop(t + 0.6);
+    });
+    // kilau lembut di akhir
+    const o2 = actx.createOscillator(), g2 = actx.createGain();
+    o2.type = 'sine'; o2.frequency.setValueAtTime(1567.98, now + 0.42);
+    g2.gain.setValueAtTime(0.0001, now + 0.42);
+    g2.gain.exponentialRampToValueAtTime(0.06, now + 0.45);
+    g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
+    o2.connect(g2).connect(actx.destination);
+    o2.start(now + 0.42); o2.stop(now + 1);
+  }catch(e){ /* diamkan bila browser tidak mendukung */ }
 }
 
-function copy(s){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s).then(()=>alert('Teks disalin.')).catch(()=>fallbackCopy(s));}else fallbackCopy(s)}
-function fallbackCopy(s){const x=document.createElement('textarea');x.value=s;document.body.appendChild(x);x.select();try{document.execCommand('copy');alert('Teks disalin.')}catch(e){alert('Silakan pilih dan salin teks secara manual.')}x.remove()}
-$('generate').onclick=generate;$('copyAll').onclick=()=>copy(latest);
-function getHistory(){try{return JSON.parse(localStorage.getItem('jualin_history')||'[]')}catch(e){return []}}
-$('save').onclick=()=>{if(!latest)return;let a=getHistory();a.unshift({date:new Date().toLocaleString('id-ID'),product:$('produk').value.trim(),content:latest});localStorage.setItem('jualin_history',JSON.stringify(a.slice(0,30)));alert('Konten disimpan di perangkat ini.');};
-function renderHistory(){const a=getHistory(),box=$('riwayatList');box.innerHTML='';if(!a.length){box.textContent='Belum ada konten tersimpan.';return;}a.forEach((item,i)=>{const d=document.createElement('div');d.className='history-item';const title=document.createElement('strong');title.textContent=item.product+' • '+item.date;const body=document.createElement('p');body.className='small';body.textContent=item.content.slice(0,180)+(item.content.length>180?'…':'');const row=document.createElement('div');row.className='rowbtn';const cp=document.createElement('button');cp.className='secondary';cp.textContent='Salin';cp.onclick=()=>copy(item.content);const del=document.createElement('button');del.className='ghost';del.textContent='Hapus';del.onclick=()=>{let h=getHistory();h.splice(i,1);localStorage.setItem('jualin_history',JSON.stringify(h));renderHistory()};row.append(cp,del);d.append(title,body,row);box.append(d);});}
-$('hapusRiwayat').onclick=()=>{if(confirm('Hapus semua riwayat konten di perangkat ini?')){localStorage.removeItem('jualin_history');renderHistory()}};
-const num=id=>Number(($(id).value||'0').replace(/[^0-9.-]/g,''))||0;
-$('hitung').onclick=()=>{let jual=num('jual'),cost=num('hpp')+num('admin')+num('iklan')+num('lain'),laba=jual-cost,margin=jual?laba/jual*100:0;$('laba').textContent=rupiah(laba);$('margin').textContent=margin.toFixed(1)+'%';$('statusLaba').textContent=jual<=0?'Masukkan harga jual untuk menghitung.':laba<0?'Perhatian: biaya lebih besar daripada harga jual.':'Perkiraan setelah biaya yang dimasukkan; biaya lain yang belum dicatat belum termasuk.';$('hasilLaba').classList.remove('hidden')};
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
+/* =========================================================
+   TAB
+   ========================================================= */
+$$('.tab').forEach(b => b.addEventListener('click', () => {
+  $$('.tab').forEach(x => x.classList.toggle('active', x === b));
+  ['konten','story','kalkulator','riwayat'].forEach(id =>
+    $(id).classList.toggle('hidden', id !== b.dataset.tab));
+  if(b.dataset.tab === 'riwayat') renderHistory();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}));
+
+/* =========================================================
+   LOADER
+   ========================================================= */
+function showLoader(text){
+  $('loadText').textContent = text || 'Menyusun konten...';
+  $('loader').classList.remove('hidden');
+  document.body.classList.add('no-scroll');
+}
+function hideLoader(){
+  $('loader').classList.add('hidden');
+  document.body.classList.remove('no-scroll');
+}
+
+/* =========================================================
+   GAMBAR PRODUK
+   ========================================================= */
+let currentImage = '';
+
+function compressImage(file, maxSize = 600, quality = 0.78){
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        const scale = Math.min(1, maxSize / Math.max(w, h));
+        w = Math.round(w * scale); h = Math.round(h * scale);
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        try{ resolve(c.toDataURL('image/jpeg', quality)); }
+        catch(e){ reject(e); }
+      };
+      img.onerror = reject;
+      img.src = fr.result;
+    };
+    fr.onerror = reject;
+    fr.readAsDataURL(file);
+  });
+}
+
+async function handleImageFile(file){
+  if(!file || !file.type.startsWith('image/')) return;
+  try{
+    const data = await compressImage(file);
+    currentImage = data;
+    $('imgPreview').src = data;
+    $('uploadPreview').classList.remove('hidden');
+    $('uploadEmpty').classList.add('hidden');
+  }catch(e){
+    alert('Gagal membaca gambar. Coba file lain ya.');
+  }
+}
+
+const dz = $('dropzone');
+dz.addEventListener('click', e => {
+  if(e.target.id === 'removeImg') return;
+  $('imgInput').click();
+});
+$('imgInput').addEventListener('change', e => {
+  handleImageFile(e.target.files && e.target.files[0]);
+  e.target.value = '';
+});
+$('removeImg').addEventListener('click', e => {
+  e.stopPropagation();
+  currentImage = '';
+  $('uploadPreview').classList.add('hidden');
+  $('uploadEmpty').classList.remove('hidden');
+});
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => {
+  e.preventDefault(); dz.classList.add('dragover');
+}));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+}));
+dz.addEventListener('drop', e => {
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  handleImageFile(f);
+});
+
+/* =========================================================
+   RENDER HASIL
+   ========================================================= */
+function renderParts(box, parts){
+  box.innerHTML = '';
+  if(currentImage){
+    const im = document.createElement('img');
+    im.src = currentImage;
+    im.className = 'result-img';
+    im.alt = 'Gambar produk';
+    box.appendChild(im);
+  }
+  parts.forEach(([title, body]) => {
+    const tt = document.createElement('div');
+    tt.className = 'result-title';
+    tt.textContent = title;
+
+    const bd = document.createElement('div');
+    bd.className = 'result';
+    bd.textContent = body;
+
+    const btn = document.createElement('button');
+    btn.className = 'secondary btn-inline';
+    btn.textContent = 'Salin bagian ini';
+    btn.onclick = () => copyText(body);
+
+    box.append(tt, bd, btn);
+  });
+  return parts.map(a => a[0] + '\n' + a[1]).join('\n\n');
+}
+
+/* =========================================================
+   GENERATE KONTEN
+   ========================================================= */
+let latest = '';
+let storyLatest = '';
+
+$('generate').onclick = () => {
+  const p = $('produk').value.trim();
+  if(!p){ $('produk').focus(); alert('Isi nama produk dulu ya.'); return; }
+  showLoader('Menyusun konten promosi...');
+  setTimeout(() => {
+    buildContent();
+    hideLoader();
+    playChime();
+    $('hasilCard').classList.remove('hidden');
+    setTimeout(() => $('hasilCard').scrollIntoView({ behavior:'smooth', block:'start' }), 120);
+  }, 1500);
+};
+
+function buildContent(){
+  const p = $('produk').value.trim();
+  const m = $('manfaat').value.trim();
+  const t = $('target').value.trim();
+  const h = $('harga').value.trim();
+  const promo = $('promo').value.trim();
+  const platform = $('platform').value;
+  const gaya = $('gaya').value;
+  const jenis = $('jenis').value;
+
+  const benefit = m || 'praktis untuk menemani aktivitas sehari-hari';
+  const hargaNum = Number(h.replace(/[^0-9]/g,''));
+  const price = h ? ` Harga: ${rupiah(hargaNum)}.` : '';
+  const offer = promo ? ` ✨ ${promo}.` : '';
+  const targetLine = t ? ` Cocok untuk ${t}.` : '';
+
+  const hooks = {
+    santai:[
+      `Lagi cari ${p} buat kebutuhan harian? Coba cek yang satu ini 👀`,
+      `Jujur, kadang hal sederhana seperti ${p} bisa bikin aktivitas terasa lebih praktis.`
+    ],
+    soft:[
+      `Kenalan dulu dengan ${p} — pilihan menarik untuk melengkapi kebutuhanmu.`,
+      `Sedang mencari pilihan ${p}? Ini salah satu produk yang bisa kamu pertimbangkan.`
+    ],
+    heboh:[
+      `STOP SCROLL! 👀 Yuk kenalan dengan ${p}!`,
+      `Ada yang lagi cari ${p}? Simpan info ini dulu, siapa tahu cocok!`
+    ],
+    profesional:[
+      `Perkenalkan ${p}, pilihan untuk membantu memenuhi kebutuhan Anda.`,
+      `Pertimbangkan ${p} untuk melengkapi kebutuhan Anda secara praktis.`
+    ],
+    lucu:[
+      `Dompet bilang santai, keranjang bilang: ${p} dulu nggak sih? 😂`,
+      `Niatnya cuma lihat-lihat, eh malah ketemu ${p} 👀`
+    ]
+  };
+
+  const ctas = {
+    Threads:'Kalau mau detailnya, komen "INFO" ya 👇',
+    Shopee:'Cek detail produk di etalase dan sesuaikan dengan kebutuhanmu 🛒',
+    TikTok:'Simpan dulu videonya dan cek detail produk ya!',
+    WhatsApp:'Mau tanya detail atau pesan? Chat aku ya 😊',
+    Instagram:'Simpan postingan ini dan DM untuk tanya detailnya 💬',
+    Facebook:'Tulis "INFO" di komentar kalau ingin detail produk.'
+  };
+
+  const hook = (hooks[gaya] || hooks.santai)[0];
+  const caption = `${hook}\n\n${p} — ${benefit}.${targetLine}${price}${offer}\n\n${ctas[platform]}`;
+
+  let parts = [];
+  if(jenis === 'hook'){
+    parts = [['Hook', hook]];
+  } else if(jenis === 'caption'){
+    parts = [['Caption', caption]];
+  } else if(jenis === 'deskripsi'){
+    parts = [['Deskripsi produk',
+      `${p}\n\nKeunggulan: ${benefit}.\n` +
+      (h ? `Harga: ${rupiah(hargaNum)}.\n` : '') +
+      (promo ? `Promo: ${promo}.\n` : '') +
+      `\nPilih produk sesuai kebutuhan. Pastikan membaca informasi produk sebelum membeli.`
+    ]];
+  } else if(jenis === 'video'){
+    parts = [['Skrip video 15 detik',
+      `[0–3 detik] ${hook}\n` +
+      `[3–9 detik] Tampilkan produk ${p} dan jelaskan: ${benefit}.\n` +
+      `[9–12 detik] Tampilkan detail produk${h ? ' dan harga ' + rupiah(hargaNum) : ''}.${offer}\n` +
+      `[12–15 detik] ${ctas[platform]}`
+    ]];
+  } else if(jenis === 'thread'){
+    parts = [
+      ['Utas 1/4', hook],
+      ['Utas 2/4', `Kenalan dengan ${p}. ${benefit}.${targetLine}`],
+      ['Utas 3/4', `${h ? 'Harga ' + rupiah(hargaNum) + '. ' : ''}${promo ? promo + '. ' : ''}Cek detail dan pastikan cocok dengan kebutuhanmu.`],
+      ['Utas 4/4', ctas[platform]]
+    ];
+  } else {
+    parts = [
+      ['Hook', hook],
+      ['Caption', caption],
+      ['CTA', ctas[platform]],
+      ['Hashtag', `#${p.replace(/[^a-zA-Z0-9]/g,'')} #JualanOnline #RekomendasiProduk`]
+    ];
+  }
+
+  if(currentImage){
+    parts.push(['Ide konten visual',
+      `• Slide/gambar 1: foto produk + hook utama\n` +
+      `• Slide 2: detail produk (tekstur/ukuran) + manfaat utama\n` +
+      `• Slide 3: harga/promo + ajakan\n` +
+      `Gunakan gambar yang sudah kamu unggah, tambahkan teks besar dan singkat.`
+    ]);
+  }
+
+  latest = renderParts($('hasil'), parts);
+}
+
+/* =========================================================
+   STORYTELLING
+   ========================================================= */
+const ANGLE_TITLE = {
+  pas:'Masalah → Solusi',
+  pengalaman:'Pengalaman pribadi',
+  bts:'Behind the scene',
+  mitos:'Mitos vs fakta',
+  beforeafter:'Sebelum & sesudah',
+  testimoni:'Cerita pelanggan'
+};
+
+function storyBeats(angle, p, M, S, T){
+  switch(angle){
+    case 'pengalaman': return [
+      ['Hook (0–3 dtk)', `“Aku nggak nyangka hal sekecil ini bisa ngaruh banget.”`],
+      ['Konflik (3–9 dtk)', `Ceritakan momen jujur sebelum kamu pakai ${p}. Sebutkan hal spesifik: ${M}.`],
+      ['Keputusan (9–14 dtk)', `“Akhirnya aku coba ${p}.” Tunjukkan produk pertama kali dibuka/dipegang.`],
+      ['Hasil (14–21 dtk)', `${p} bikin ${S}. Bandingkan kondisi sebelum dan sesudah dengan bahasa sederhana.`],
+      ['Refleksi + ajakan (21–27 dtk)', `“Kalau kamu juga ngalamin ${M}, mungkin ini bisa jadi jawabannya.” Ajak DM/simpan.`]
+    ];
+    case 'bts': return [
+      ['Hook (0–3 dtk)', `“Ini yang nggak kamu lihat sebelum ${p} sampai di tanganmu.”`],
+      ['Proses (3–9 dtk)', `Tunjukkan proses packing/persiapan ${p}: cek kualitas, kemas, tulis kartu ucapan.`],
+      ['Detail (9–15 dtk)', `Sorot satu detail kecil yang bikin beda: bahan, wangi, jahitan, atau kemasan.`],
+      ['Kenapa penting (15–21 dtk)', `Jelaskan alasan kamu repot di bagian ini. Hubungkan dengan manfaat: ${S}.`],
+      ['Ajakan (21–26 dtk)', `“Mau lihat versi lengkapnya? Komen/DM ya.”`]
+    ];
+    case 'mitos': return [
+      ['Hook (0–3 dtk)', `“Mitos: ${M}.”`],
+      ['Bantahan (3–9 dtk)', `“Faktanya nggak selalu begitu.” Jelaskan singkat dan jujur, hindari klaim berlebihan.`],
+      ['Bukti (9–16 dtk)', `Tunjukkan bukti sederhana: demo, uji coba, atau perbandingan langsung.`],
+      ['Solusi (16–22 dtk)', `Di sinilah ${p} membantu: ${S}.`],
+      ['Ajakan (22–27 dtk)', `“Simpan biar nggak lupa, dan cek detail produknya ya.”`]
+    ];
+    case 'beforeafter': return [
+      ['Hook (0–3 dtk)', `“Sebelum: ${M}.” Tampilkan kondisi awal.`],
+      ['Sesudah (3–9 dtk)', `“Sesudah pakai ${p}: ${S}.” Tampilkan hasil dengan jujur, tanpa filter berlebihan.`],
+      ['Apa yang berubah (9–15 dtk)', `Sebutkan 2–3 perubahan konkret yang benar-benar kamu alami.`],
+      ['Kenapa bisa begitu (15–21 dtk)', `Jelaskan alasan sederhana di balik perubahan itu.`],
+      ['Ajakan (21–26 dtk)', `“Kalau kamu pengin perubahan yang sama, cek ${p}.”`]
+    ];
+    case 'testimoni': return [
+      ['Hook (0–3 dtk)', `“Kata pelanggan: ‘${M} itu bikin males… sampai aku coba ${p}.’”`],
+      ['Awal cerita (3–9 dtk)', `Ceritakan kondisi pelanggan sebelum menemukan ${p}.`],
+      ['Momen coba (9–15 dtk)', `Kapan dan kenapa dia memutuskan mencoba ${p}.`],
+      ['Hasil (15–21 dtk)', `${S}. Tampilkan foto/chat asli bila sudah mendapat izin.`],
+      ['Ajakan (21–26 dtk)', `“Mau cerita versimu? Komen atau DM ya.”`]
+    ];
+    default: return [
+      ['Hook (0–3 dtk)', `“${M}? Aku juga pernah di posisi itu.”`],
+      ['Agitasi (3–9 dtk)', `Tunjukkan momen ketika ${M} bikin ${T} rugi waktu, uang, atau mood. Bahasa sehari-hari, jangan lebay.`],
+      ['Titik balik (9–14 dtk)', `“Sampai akhirnya aku coba ${p}.” Perlihatkan produk pertama kali dipegang.`],
+      ['Solusi (14–21 dtk)', `${p} — ${S}. Tunjukkan produk dipakai di aktivitas nyata.`],
+      ['Ajakan (21–26 dtk)', `“Kalau kamu juga sering ngalamin ${M}, cek ${p} di keranjang kuning/DM.”`]
+    ];
+  }
+}
+
+$('genStory').onclick = () => {
+  const p = $('produk').value.trim();
+  if(!p){
+    alert('Isi nama produk di tab "Buat Konten" dulu ya.');
+    document.querySelector('.tab[data-tab="konten"]').click();
+    $('produk').focus();
+    return;
+  }
+  showLoader('Merangkai ide cerita...');
+  setTimeout(() => {
+    buildStory();
+    hideLoader();
+    playChime();
+    $('storyCard').classList.remove('hidden');
+    setTimeout(() => $('storyCard').scrollIntoView({ behavior:'smooth', block:'start' }), 120);
+  }, 1500);
+};
+
+function buildStory(){
+  const p = $('produk').value.trim();
+  const T = $('target').value.trim() || 'pelanggan';
+  const M = $('storyMasalah').value.trim() || 'kebutuhan harian yang bikin repot';
+  const S = $('storySolusi').value.trim() || $('manfaat').value.trim() || 'praktis dipakai setiap hari';
+  const angle = $('storyAngle').value;
+  const title = ANGLE_TITLE[angle];
+
+  const beats = storyBeats(angle, p, M, S, T);
+
+  const parts = [
+    ['Judul ide', `${title} — ${p}`],
+    ...beats,
+    ['Checklist visual',
+      `• 1 shot pembuka yang menunjukkan masalah\n` +
+      `• 1 shot produk ${p} di tangan\n` +
+      `• 1 shot detail produk (tekstur/ukuran)\n` +
+      `• 1 shot produk dipakai oleh ${T}\n` +
+      (currentImage
+        ? `• Pakai gambar produk yang sudah kamu unggah sebagai slide utama`
+        : `• Tambahkan foto produk asli (bukan foto katalog) supaya lebih dipercaya`)
+    ],
+    ['Caption pembuka',
+      `Aku nggak nyangka ${p} bisa bikin perubahan kecil yang kerasa. ` +
+      `Kalau kamu juga sering ngalamin ${M}, mungkin ini bisa jadi jawabannya. 💬`
+    ],
+    ['Catatan jujur',
+      `Ceritakan pengalaman nyata. Jangan klaim hal yang belum terbukti, dan minta izin sebelum memakai cerita/foto pelanggan.`
+    ]
+  ];
+
+  storyLatest = renderParts($('storyHasil'), parts);
+}
+
+/* =========================================================
+   COPY
+   ========================================================= */
+function copyText(s){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(s)
+      .then(() => alert('Teks disalin.'))
+      .catch(() => fallbackCopy(s));
+  } else fallbackCopy(s);
+}
+function fallbackCopy(s){
+  const x = document.createElement('textarea');
+  x.value = s;
+  x.style.position = 'fixed';
+  x.style.opacity = '0';
+  document.body.appendChild(x);
+  x.select();
+  try{ document.execCommand('copy'); alert('Teks disalin.'); }
+  catch(e){ alert('Silakan pilih dan salin teks secara manual.'); }
+  x.remove();
+}
+$('copyAll').onclick = () => { if(latest) copyText(latest); };
+$('copyStory').onclick = () => { if(storyLatest) copyText(storyLatest); };
+
+/* =========================================================
+   RIWAYAT
+   ========================================================= */
+function getHistory(){ return LS.get('bena_history', []); }
+
+function addHistory(item){
+  const a = getHistory();
+  a.unshift(item);
+  const trimmed = a.slice(0, 20);
+  if(!LS.set('bena_history', trimmed)){
+    // Kuota penuh → simpan tanpa gambar
+    const slim = trimmed.map(x => ({ ...x, image:'' }));
+    if(!LS.set('bena_history', slim)){
+      alert('Penyimpanan perangkat penuh. Hapus beberapa riwayat dulu ya.');
+      return false;
+    }
+  }
+  return true;
+}
+
+$('save').onclick = () => {
+  if(!latest) return;
+  const ok = addHistory({
+    type:'konten',
+    date:new Date().toLocaleString('id-ID'),
+    product:$('produk').value.trim() || 'Tanpa judul',
+    content:latest,
+    image:currentImage || ''
+  });
+  if(ok) alert('Konten disimpan di perangkat ini.');
+};
+
+$('saveStory').onclick = () => {
+  if(!storyLatest) return;
+  const ok = addHistory({
+    type:'story',
+    date:new Date().toLocaleString('id-ID'),
+    product:$('produk').value.trim() || 'Tanpa judul',
+    content:storyLatest,
+    image:currentImage || ''
+  });
+  if(ok) alert('Ide cerita disimpan di perangkat ini.');
+};
+
+function renderHistory(){
+  const a = getHistory();
+  const box = $('riwayatList');
+  box.innerHTML = '';
+  if(!a.length){
+    box.innerHTML = '<p class="small">Belum ada konten tersimpan.</p>';
+    return;
+  }
+  a.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'history-item';
+
+    const row = document.createElement('div');
+    row.className = 'hrow';
+
+    if(item.image){
+      const th = document.createElement('img');
+      th.src = item.image;
+      th.className = 'thumb';
+      th.alt = 'Gambar produk';
+      row.appendChild(th);
+    }
+
+    const mid = document.createElement('div');
+    mid.style.flex = '1';
+    mid.style.minWidth = '0';
+
+    const title = document.createElement('div');
+    title.style.fontSize = '13.5px';
+    title.innerHTML = '<strong>' + escapeHtml(item.product) + '</strong>' +
+      '<span class="badge">' + (item.type === 'story' ? 'Cerita' : 'Konten') + '</span>';
+
+    const date = document.createElement('div');
+    date.className = 'small';
+    date.textContent = item.date;
+
+    const body = document.createElement('p');
+    body.className = 'small';
+    body.style.margin = '6px 0 8px';
+    body.textContent = item.content.slice(0, 170) + (item.content.length > 170 ? '…' : '');
+
+    const rowBtn = document.createElement('div');
+    rowBtn.className = 'rowbtn';
+
+    const cp = document.createElement('button');
+    cp.className = 'secondary small-btn';
+    cp.textContent = 'Salin';
+    cp.onclick = () => copyText(item.content);
+
+    const del = document.createElement('button');
+    del.className = 'ghost small-btn';
+    del.textContent = 'Hapus';
+    del.onclick = () => {
+      const h = getHistory();
+      h.splice(i, 1);
+      LS.set('bena_history', h);
+      renderHistory();
+    };
+
+    rowBtn.append(cp, del);
+    mid.append(title, date, body, rowBtn);
+    row.appendChild(mid);
+    d.appendChild(row);
+    box.appendChild(d);
+  });
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+$('hapusRiwayat').onclick = () => {
+  if(confirm('Hapus semua riwayat konten di perangkat ini?')){
+    localStorage.removeItem('bena_history');
+    renderHistory();
+  }
+};
+
+/* =========================================================
+   KALKULATOR LABA
+   ========================================================= */
+$('hitung').onclick = () => {
+  const jual = num('jual');
+  const biaya = num('hpp') + num('admin') + num('iklan') + num('lain');
+  const laba = jual - biaya;
+  const margin = jual ? (laba / jual) * 100 : 0;
+
+  $('laba').textContent = rupiah(laba);
+  $('margin').textContent = margin.toFixed(1) + '%';
+
+  const st = $('statusLaba');
+  if(jual <= 0){
+    st.textContent = 'Masukkan harga jual untuk menghitung.';
+    st.className = 'small';
+  } else if(laba < 0){
+    st.textContent = 'Perhatian: biaya lebih besar daripada harga jual. Cek ulang HPP, biaya marketplace, dan iklan.';
+    st.className = 'small bad';
+  } else {
+    st.textContent = 'Perkiraan setelah biaya yang dimasukkan; biaya lain yang belum dicatat belum termasuk.';
+    st.className = 'small good';
+  }
+  $('hasilLaba').classList.remove('hidden');
+  playChime();
+};
 </script>
 </body>
 </html>
