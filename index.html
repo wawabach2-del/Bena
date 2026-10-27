@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#5b35c9" id="metaTheme">
 <title>BENA — Asisten Konten Jualan</title>
+
+<!-- ============ PWA META ============ -->
+<link rel="manifest" id="manifestLink">
+<meta name="application-name" content="BENA">
+<meta name="description" content="Asisten konten promosi untuk jualan online">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BENA">
+
 <style>
 /* ============ TEMA ============ */
 :root,[data-theme="ungu"]{
@@ -38,7 +48,6 @@
   --head-grad:linear-gradient(135deg,#0b5c56,#34d399);
 }
 
-/* ============ DASAR ============ */
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);
@@ -93,8 +102,11 @@ header::after{content:"";position:absolute;width:230px;height:230px;right:-80px;
 .head-actions{display:flex;gap:8px;flex-shrink:0}
 .icon-btn{width:40px;height:40px;border-radius:12px;background:#ffffff26;color:#fff;
   font-size:16px;border:1px solid #ffffff33;display:grid;place-items:center;
-  cursor:pointer;padding:0;transition:transform .15s,background .2s}
+  cursor:pointer;padding:0;transition:transform .15s,background .2s;position:relative}
 .icon-btn:active{transform:scale(.93)}
+.icon-btn.pulse::after{content:"";position:absolute;inset:-3px;border-radius:14px;
+  border:2px solid #ffffffaa;animation:ringPulse 1.6s ease-out infinite;pointer-events:none}
+@keyframes ringPulse{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
 .theme-bar{display:flex;gap:10px;margin-top:14px;position:relative;z-index:1;flex-wrap:wrap}
 .swatch{width:32px;height:32px;border-radius:50%;border:2px solid #ffffff55;
   cursor:pointer;padding:0;transition:transform .18s,outline .2s}
@@ -191,11 +203,33 @@ button:active{transform:scale(.985)}
 .load-dots i:nth-child(3){animation-delay:.3s}
 @keyframes dot{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-6px)}}
 
+/* ============ INSTALL BANNER ============ */
+.install-banner{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;
+  padding:12px 14px;border-radius:14px;margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 20px -10px var(--p);animation:slideDown .4s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.install-banner .ib-text{flex:1;min-width:0}
+.install-banner strong{display:block;font-size:13.5px}
+.install-banner .small{color:#ffffffd0;font-size:11.5px;margin-top:2px}
+.install-banner button{background:#fff!important;color:var(--p)!important;
+  padding:8px 14px!important;font-size:12.5px!important;flex-shrink:0;margin:0!important}
+
+/* ============ TOAST ============ */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:#1b1826;color:#fff;padding:12px 20px;border-radius:99px;
+  font-size:13px;font-weight:700;box-shadow:0 12px 30px rgba(0,0,0,.4);
+  z-index:1000;transition:transform .35s cubic-bezier(.16,.84,.3,1),opacity .35s;
+  opacity:0;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px);
+  overflow:hidden;text-overflow:ellipsis}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
 footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
 @media(max-width:420px){
   .wrap{padding-left:11px;padding-right:11px}
   .card{padding:14px}
   .metric .num{font-size:19px}
+  .brand{font-size:25px}
 }
 </style>
 </head>
@@ -217,6 +251,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
       <div class="sub">Asisten konten promosi untuk jualan online</div>
     </div>
     <div class="head-actions">
+      <button class="icon-btn hidden" id="installBtnHeader" title="Pasang aplikasi">📲</button>
       <button class="icon-btn" id="soundToggle" title="Suara selesai">🔔</button>
       <button class="icon-btn" id="themeToggle" title="Ganti tema">🎨</button>
     </div>
@@ -231,6 +266,15 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
 </header>
 
 <div class="wrap">
+  <!-- BANNER INSTALL -->
+  <div id="installBanner" class="install-banner hidden">
+    <div class="ib-text">
+      <strong>📲 Pasang BENA di perangkatmu</strong>
+      <div class="small">Akses cepat dari layar utama, tanpa buka browser.</div>
+    </div>
+    <button id="installBannerBtn">Pasang</button>
+  </div>
+
   <div class="tabs">
     <button class="tab active" data-tab="konten">✍️ Buat Konten</button>
     <button class="tab" data-tab="story">🎬 Ide Storytelling</button>
@@ -238,7 +282,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
     <button class="tab" data-tab="riwayat">📚 Riwayat</button>
   </div>
 
-  <!-- ================= KONTEN ================= -->
+  <!-- KONTEN -->
   <section id="konten">
     <div class="card">
       <h2>Buat konten promosi</h2>
@@ -317,7 +361,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
     </div>
   </section>
 
-  <!-- ================= STORYTELLING ================= -->
+  <!-- STORYTELLING -->
   <section id="story" class="hidden">
     <div class="card">
       <h2>Ide storytelling</h2>
@@ -353,7 +397,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
     </div>
   </section>
 
-  <!-- ================= KALKULATOR ================= -->
+  <!-- KALKULATOR -->
   <section id="kalkulator" class="hidden">
     <div class="card">
       <h2>Kalkulator laba jualan</h2>
@@ -376,7 +420,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
     </div>
   </section>
 
-  <!-- ================= RIWAYAT ================= -->
+  <!-- RIWAYAT -->
   <section id="riwayat" class="hidden">
     <div class="card">
       <h2>Riwayat konten</h2>
@@ -384,9 +428,21 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
       <div id="riwayatList"></div>
       <button class="ghost" id="hapusRiwayat" style="width:100%;margin-top:12px">Hapus semua riwayat</button>
     </div>
+
+    <div class="card" id="installCard">
+      <h2>📲 Status pemasangan</h2>
+      <p class="hint" id="installStatus">Memeriksa status pemasangan…</p>
+      <button class="primary" id="installCardBtn">Pasang BENA</button>
+      <div class="notice" id="installHint" style="display:none">
+        <b>Cara pasang manual:</b><br>
+        • <b>Chrome/Edge Android:</b> menu ⋮ → "Tambahkan ke layar utama" / "Instal aplikasi"<br>
+        • <b>Safari iOS:</b> tombol Bagikan → "Tambah ke Layar Utama"<br>
+        • <b>Chrome Desktop:</b> ikon instal di address bar
+      </div>
+    </div>
   </section>
 
-  <footer>BENA • Prototipe awal • Data riwayat tersimpan lokal di perangkat</footer>
+  <footer>BENA • Prototipe PWA • Data tersimpan lokal di perangkat</footer>
 </div>
 
 <!-- ========== LOADER ========== -->
@@ -396,6 +452,8 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
   <div class="load-sub">Sebentar ya, BENA sedang bekerja ✨</div>
   <div class="load-dots"><i></i><i></i><i></i></div>
 </div>
+
+<div id="toast" class="toast"></div>
 
 <script>
 /* =========================================================
@@ -411,6 +469,17 @@ const rupiah = n => 'Rp' + Math.round(n).toLocaleString('id-ID');
 const num = id => Number((($(id)||{}).value || '0').replace(/[^0-9.-]/g,'')) || 0;
 
 /* =========================================================
+   TOAST
+   ========================================================= */
+function showToast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+/* =========================================================
    SPLASH
    ========================================================= */
 function endSplash(){
@@ -421,7 +490,7 @@ function endSplash(){
   setTimeout(()=>{ s.style.display='none'; }, 650);
 }
 setTimeout(endSplash, 2400);
-setTimeout(()=>{ document.body.classList.add('ready'); }, 3600); // safety
+setTimeout(()=>{ document.body.classList.add('ready'); }, 3600);
 $('splash').addEventListener('click', endSplash);
 
 /* =========================================================
@@ -439,7 +508,7 @@ $$('.swatch').forEach(s => s.onclick = () => setTheme(s.dataset.theme));
 setTheme(LS.get('bena_theme','ungu'));
 
 /* =========================================================
-   SUARA SELESAI (Web Audio, tanpa file eksternal)
+   SUARA
    ========================================================= */
 let soundOn = LS.get('bena_sound', true);
 let actx = null;
@@ -455,7 +524,7 @@ function playChime(){
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if(actx.state === 'suspended') actx.resume();
     const now = actx.currentTime;
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+    const notes = [523.25, 659.25, 783.99, 1046.50];
     notes.forEach((f, i) => {
       const t = now + i * 0.095;
       const o = actx.createOscillator();
@@ -468,7 +537,6 @@ function playChime(){
       o.connect(g).connect(actx.destination);
       o.start(t); o.stop(t + 0.6);
     });
-    // kilau lembut di akhir
     const o2 = actx.createOscillator(), g2 = actx.createGain();
     o2.type = 'sine'; o2.frequency.setValueAtTime(1567.98, now + 0.42);
     g2.gain.setValueAtTime(0.0001, now + 0.42);
@@ -476,7 +544,211 @@ function playChime(){
     g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
     o2.connect(g2).connect(actx.destination);
     o2.start(now + 0.42); o2.stop(now + 1);
-  }catch(e){ /* diamkan bila browser tidak mendukung */ }
+  }catch(e){}
+}
+
+/* =========================================================
+   PWA — IKON, MANIFEST, INSTALL
+   ========================================================= */
+// Deteksi standalone
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches
+    || window.matchMedia('(display-mode: fullscreen)').matches
+    || window.matchMedia('(display-mode: minimal-ui)').matches
+    || window.navigator.standalone === true;
+}
+
+// Generator ikon PNG dari canvas
+function generateIcon(size, maskable){
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  grad.addColorStop(0, '#4d28b7');
+  grad.addColorStop(1, '#8768ee');
+
+  if(maskable){
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+  } else {
+    const r = size * 0.22;
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(size - r, 0);
+    ctx.quadraticCurveTo(size, 0, size, r);
+    ctx.lineTo(size, size - r);
+    ctx.quadraticCurveTo(size, size, size - r, size);
+    ctx.lineTo(r, size);
+    ctx.quadraticCurveTo(0, size, 0, size - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // Huruf BENA
+  ctx.fillStyle = '#ffffff';
+  const fs = size * (maskable ? 0.24 : 0.28);
+  ctx.font = '900 ' + fs + 'px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('BENA', size/2, size/2 + fs * 0.02);
+
+  return c.toDataURL('image/png');
+}
+
+// Build manifest data URI
+function buildManifest(){
+  try{
+    const startUrl = location.href.split('?')[0].split('#')[0];
+    const path = location.pathname;
+    const scope = path.substring(0, path.lastIndexOf('/') + 1) || '/';
+
+    const icon192  = generateIcon(192, false);
+    const icon512  = generateIcon(512, false);
+    const icon512m = generateIcon(512, true);
+
+    const manifest = {
+      name: 'BENA — Asisten Konten Jualan',
+      short_name: 'BENA',
+      description: 'Asisten konten promosi untuk jualan online',
+      lang: 'id',
+      dir: 'ltr',
+      start_url: startUrl,
+      scope: scope,
+      display: 'standalone',
+      display_override: ['standalone', 'minimal-ui', 'browser'],
+      orientation: 'portrait',
+      background_color: '#0b0912',
+      theme_color: '#4d28b7',
+      categories: ['business', 'productivity'],
+      prefer_related_applications: false,
+      icons: [
+        { src: icon192,  sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: icon512,  sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: icon512m, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+      ]
+    };
+
+    const url = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+    $('manifestLink').href = url;
+
+    // Apple touch icon
+    const apple = document.createElement('link');
+    apple.rel = 'apple-touch-icon';
+    apple.href = generateIcon(180, false);
+    document.head.appendChild(apple);
+
+    // Favicon (browser tab)
+    const fav = document.createElement('link');
+    fav.rel = 'icon';
+    fav.type = 'image/png';
+    fav.href = generateIcon(64, false);
+    document.head.appendChild(fav);
+
+  }catch(e){
+    console.warn('Manifest generation failed:', e);
+  }
+}
+buildManifest();
+
+// Install prompt
+let deferredPrompt = null;
+
+function showInstallUI(){
+  if(isStandalone()) return;
+  $('installBtnHeader').classList.remove('hidden');
+  $('installBtnHeader').classList.add('pulse');
+  $('installBanner').classList.remove('hidden');
+  $('installCardBtn').textContent = 'Pasang BENA';
+  $('installStatus').textContent = 'BENA siap dipasang. Klik tombol di bawah untuk memasang.';
+  $('installHint').style.display = 'none';
+}
+
+function hideInstallUI(){
+  $('installBtnHeader').classList.add('hidden');
+  $('installBtnHeader').classList.remove('pulse');
+  $('installBanner').classList.add('hidden');
+  $('installCardBtn').style.display = 'none';
+  $('installHint').style.display = 'none';
+  $('installStatus').textContent = '✅ BENA sudah terpasang. Kamu membuka versi aplikasi.';
+  $('installStatus').className = 'hint good';
+}
+
+function updateInstallCardForUnsupported(){
+  if(isStandalone()){ hideInstallUI(); return; }
+  $('installBtnHeader').classList.remove('hidden');
+  $('installStatus').textContent = 'Browser ini belum mendukung pemasangan otomatis. Ikuti cara manual di bawah.';
+  $('installCardBtn').style.display = 'none';
+  $('installHint').style.display = 'block';
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallUI();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  hideInstallUI();
+  showToast('🎉 BENA berhasil dipasang!');
+  playChime();
+});
+
+async function promptInstall(){
+  if(isStandalone()){
+    showToast('✅ BENA sudah terpasang');
+    return;
+  }
+  if(deferredPrompt){
+    try{
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if(choice.outcome === 'accepted'){
+        showToast('🎉 Memasang BENA…');
+      }
+      deferredPrompt = null;
+      hideInstallUI();
+    }catch(err){
+      updateInstallCardForUnsupported();
+    }
+  } else {
+    // Browser tidak mendukung prompt otomatis → tampilkan instruksi
+    updateInstallCardForUnsupported();
+    document.querySelector('.tab[data-tab="riwayat"]').click();
+    setTimeout(()=>{
+      const el = $('installCard');
+      if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 150);
+  }
+}
+
+$('installBtnHeader').addEventListener('click', promptInstall);
+$('installBannerBtn').addEventListener('click', promptInstall);
+$('installCardBtn').addEventListener('click', promptInstall);
+
+// Jika tidak ada prompt (mis. Firefox/iOS), tetap tampilkan instruksi manual di card
+setTimeout(() => {
+  if(!deferredPrompt && !isStandalone()){
+    // Biarkan tombol header tetap visible agar user bisa lihat instruksi
+    $('installBtnHeader').classList.remove('hidden');
+    updateInstallCardForUnsupported();
+  } else if(isStandalone()){
+    hideInstallUI();
+  }
+}, 2500);
+
+// Deteksi perubahan display-mode
+window.matchMedia('(display-mode: standalone)').addEventListener('change', e => {
+  if(e.matches) hideInstallUI();
+});
+
+// Best-effort Service Worker (jika file sw.js tersedia di hosting)
+if('serviceWorker' in navigator && location.protocol === 'https:'){
+  navigator.serviceWorker.register('sw.js').catch(() => { /* offline opsional */ });
 }
 
 /* =========================================================
@@ -835,7 +1107,7 @@ function buildStory(){
 function copyText(s){
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(s)
-      .then(() => alert('Teks disalin.'))
+      .then(() => showToast('📋 Teks disalin'))
       .catch(() => fallbackCopy(s));
   } else fallbackCopy(s);
 }
@@ -846,7 +1118,7 @@ function fallbackCopy(s){
   x.style.opacity = '0';
   document.body.appendChild(x);
   x.select();
-  try{ document.execCommand('copy'); alert('Teks disalin.'); }
+  try{ document.execCommand('copy'); showToast('📋 Teks disalin'); }
   catch(e){ alert('Silakan pilih dan salin teks secara manual.'); }
   x.remove();
 }
@@ -863,7 +1135,6 @@ function addHistory(item){
   a.unshift(item);
   const trimmed = a.slice(0, 20);
   if(!LS.set('bena_history', trimmed)){
-    // Kuota penuh → simpan tanpa gambar
     const slim = trimmed.map(x => ({ ...x, image:'' }));
     if(!LS.set('bena_history', slim)){
       alert('Penyimpanan perangkat penuh. Hapus beberapa riwayat dulu ya.');
@@ -882,7 +1153,7 @@ $('save').onclick = () => {
     content:latest,
     image:currentImage || ''
   });
-  if(ok) alert('Konten disimpan di perangkat ini.');
+  if(ok) showToast('💾 Konten disimpan');
 };
 
 $('saveStory').onclick = () => {
@@ -894,7 +1165,7 @@ $('saveStory').onclick = () => {
     content:storyLatest,
     image:currentImage || ''
   });
-  if(ok) alert('Ide cerita disimpan di perangkat ini.');
+  if(ok) showToast('💾 Ide cerita disimpan');
 };
 
 function renderHistory(){
