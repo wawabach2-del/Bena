@@ -1,1 +1,10 @@
-const CACHE='jualin-ai-v1';const FILES=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-512.png'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).catch(()=>caches.match('./index.html'))))});
+self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.open('bena-v1').then(c =>
+      fetch(e.request).then(r => { c.put(e.request, r.clone()); return r; })
+        .catch(() => c.match(e.request))
+    )
+  );
+});
