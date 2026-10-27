@@ -1,1278 +1,1654 @@
-<!doctype html>
-<html lang="id" data-theme="ungu">
+<!DOCTYPE html>
+<html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#5b35c9" id="metaTheme">
-<title>BENA — Asisten Konten Jualan</title>
-
-<!-- ============ PWA META ============ -->
-<link rel="manifest" id="manifestLink">
-<meta name="application-name" content="BENA">
-<meta name="description" content="Asisten konten promosi untuk jualan online">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BENA">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<title>Jualan DIEN — AI Auto Content Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Playfair+Display:wght@400;700&family=Bebas+Neue&family=Dancing+Script:wght@400;700&family=Fredoka:wght@400;600;700&family=Cormorant+Garamond:wght@400;700&family=Righteous&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-/* ============ TEMA ============ */
-:root,[data-theme="ungu"]{
-  --p:#5b35c9;--p2:#8768ee;--bg:#f6f5fb;--card:#fff;--ink:#211b35;--muted:#746e86;
-  --line:#e8e3f2;--soft:#f5f1ff;--good:#16845b;--bad:#c0392b;
-  --warn-bg:#fff8df;--warn-line:#f1df9a;--warn-ink:#6b5311;
-  --head-grad:linear-gradient(135deg,#4d28b7,#8768ee);
-}
-[data-theme="dark"]{
-  --p:#8b6cf6;--p2:#4d28b7;--bg:#100e18;--card:#1b1826;--ink:#efeaff;--muted:#a29ab8;
-  --line:#2e2942;--soft:#241f36;--good:#4ade80;--bad:#f87171;
-  --warn-bg:#2a2410;--warn-line:#4a3f17;--warn-ink:#e8d68a;
-  --head-grad:linear-gradient(135deg,#231449,#6b4ae0);
-}
-[data-theme="ocean"]{
-  --p:#0e7490;--p2:#22d3ee;--bg:#f0f9ff;--card:#fff;--ink:#0c2e3a;--muted:#4b7285;
-  --line:#d3ebf5;--soft:#e6f6fd;--good:#0f766e;--bad:#be123c;
-  --warn-bg:#fff8df;--warn-line:#f1df9a;--warn-ink:#6b5311;
-  --head-grad:linear-gradient(135deg,#0b5c74,#22d3ee);
-}
-[data-theme="sunset"]{
-  --p:#c2410c;--p2:#fb923c;--bg:#fff7ed;--card:#fff;--ink:#2c1a10;--muted:#8a6a55;
-  --line:#f5e0cc;--soft:#fff1e2;--good:#15803d;--bad:#b91c1c;
-  --warn-bg:#fff8df;--warn-line:#f1df9a;--warn-ink:#6b5311;
-  --head-grad:linear-gradient(135deg,#9a2f06,#fb923c);
-}
-[data-theme="hijau"]{
-  --p:#0f766e;--p2:#34d399;--bg:#f0fdf9;--card:#fff;--ink:#0d2b26;--muted:#5a7a72;
-  --line:#d3ece5;--soft:#e6faf3;--good:#15803d;--bad:#b91c1c;
-  --warn-bg:#fff8df;--warn-line:#f1df9a;--warn-ink:#6b5311;
-  --head-grad:linear-gradient(135deg,#0b5c56,#34d399);
-}
+:root{--bg:#0a0a0f;--s1:#141419;--s2:#1c1c24;--s3:#25252f;--bd:#2a2a35;--tx:#e8e8f0;--tx2:#9090a8;--ac:#a855f7;--ac2:#ec4899;--grad:linear-gradient(135deg,#a855f7,#ec4899);--ok:#22c55e;--err:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;overscroll-behavior:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;width:100%;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--ac)}
+textarea{resize:none;min-height:70px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
 
-*{box-sizing:border-box}
-html,body{min-height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased;transition:background .3s,color .3s;overflow-x:hidden}
-body.no-scroll{overflow:hidden}
-.wrap,header{opacity:0;transition:opacity .7s ease}
-body.ready .wrap,body.ready header{opacity:1}
-.hidden{display:none!important}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;z-index:50;position:relative}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;font-weight:900;font-size:18px;color:#fff;flex-shrink:0}
+.brand-name{font-weight:800;font-size:14px;letter-spacing:-.2px}
+.brand-tag{font-size:10px;color:var(--tx2);margin-top:1px}
+.hdr-actions{display:flex;gap:4px;flex-shrink:0}
+.icon-btn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:16px;background:var(--s2);border:1px solid var(--bd);transition:background .15s}
+.icon-btn:active{background:var(--s3)}
+.icon-btn.primary{background:var(--grad);border:none;color:#fff}
+.icon-btn.small{width:34px;height:34px;font-size:14px}
 
-/* ============ SPLASH ============ */
-#splash{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:12px;background:#0b0912;color:#fff;
-  transition:opacity .55s ease,visibility .55s ease;cursor:pointer}
-#splash.out{opacity:0;visibility:hidden;pointer-events:none}
-.splash-glow{position:absolute;width:320px;height:320px;border-radius:50%;
-  background:radial-gradient(circle,#7c5ce74d,transparent 68%);
-  filter:blur(18px);animation:glowPulse 2.6s ease-in-out infinite}
-@keyframes glowPulse{0%,100%{transform:scale(.9);opacity:.7}50%{transform:scale(1.15);opacity:1}}
-.splash-logo{position:relative;display:flex;font-weight:900;
-  font-size:clamp(46px,17vw,72px);letter-spacing:-4px;line-height:1;
-  background:linear-gradient(110deg,#fff 0%,#c9b6ff 22%,#8b6cf6 45%,#c9b6ff 68%,#fff 100%);
-  background-size:250% 100%;-webkit-background-clip:text;background-clip:text;
-  color:transparent;animation:shine 3.2s linear infinite}
-@keyframes shine{from{background-position:0% 50%}to{background-position:250% 50%}}
-.splash-logo span{display:inline-block;opacity:0;transform:translateY(30px) scale(.9);
-  animation:letterIn .78s cubic-bezier(.16,.84,.3,1) forwards}
-.splash-logo span:nth-child(1){animation-delay:.06s}
-.splash-logo span:nth-child(2){animation-delay:.16s}
-.splash-logo span:nth-child(3){animation-delay:.26s}
-.splash-logo span:nth-child(4){animation-delay:.36s}
-@keyframes letterIn{to{opacity:1;transform:translateY(0) scale(1)}}
-.splash-tag{font-size:12.5px;letter-spacing:3.4px;text-transform:uppercase;
-  color:#a99cd6;opacity:0;animation:fadeUp .8s ease .9s forwards}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:.95;transform:none}}
-.splash-bar{width:132px;height:3px;border-radius:99px;background:#ffffff1c;
-  overflow:hidden;margin-top:14px;opacity:0;animation:fadeUp .6s ease 1.05s forwards}
-.splash-bar i{display:block;height:100%;width:0;border-radius:99px;
-  background:linear-gradient(90deg,#7c5ce7,#c9b6ff,#fff);animation:fill 1.5s ease 1.1s forwards}
-@keyframes fill{to{width:100%}}
+.stage-wrap{flex:1;position:relative;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden;background:radial-gradient(circle at 50% 50%,#1a1a22 0%,#0a0a0f 100%)}
+.stage{position:relative;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;overflow:hidden;background:#fff}
+.canvas{position:relative;background:#fff;overflow:hidden;transform-origin:top left}
+.canvas-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.el{position:absolute;cursor:grab;will-change:left,top,transform;touch-action:none;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;transform-origin:50% 0}
+.el:active{cursor:grabbing}
+.el.selected{outline:2px dashed var(--ac);outline-offset:2px}
+.el.locked{cursor:not-allowed}
 
-/* ============ HEADER ============ */
-header{background:var(--head-grad);color:#fff;padding:20px 18px 18px;
-  border-radius:0 0 26px 26px;position:relative;overflow:hidden}
-header::after{content:"";position:absolute;width:230px;height:230px;right:-80px;top:-100px;
-  background:radial-gradient(circle,#ffffff30,transparent 70%);pointer-events:none}
-.head-row{display:flex;justify-content:space-between;align-items:flex-start;
-  gap:10px;position:relative;z-index:1}
-.brand{font-size:28px;font-weight:900;letter-spacing:-1.6px;line-height:1}
-.brand em{font-style:normal;opacity:.75}
-.sub{opacity:.9;margin-top:5px;font-size:12.5px}
-.head-actions{display:flex;gap:8px;flex-shrink:0}
-.icon-btn{width:40px;height:40px;border-radius:12px;background:#ffffff26;color:#fff;
-  font-size:16px;border:1px solid #ffffff33;display:grid;place-items:center;
-  cursor:pointer;padding:0;transition:transform .15s,background .2s;position:relative}
-.icon-btn:active{transform:scale(.93)}
-.icon-btn.pulse::after{content:"";position:absolute;inset:-3px;border-radius:14px;
-  border:2px solid #ffffffaa;animation:ringPulse 1.6s ease-out infinite;pointer-events:none}
-@keyframes ringPulse{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
-.theme-bar{display:flex;gap:10px;margin-top:14px;position:relative;z-index:1;flex-wrap:wrap}
-.swatch{width:32px;height:32px;border-radius:50%;border:2px solid #ffffff55;
-  cursor:pointer;padding:0;transition:transform .18s,outline .2s}
-.swatch.active{outline:2px solid #fff;outline-offset:2px;transform:scale(1.07)}
-.swatch[data-theme="ungu"]{background:linear-gradient(135deg,#4d28b7,#8768ee)}
-.swatch[data-theme="dark"]{background:linear-gradient(135deg,#1b1826,#8b6cf6)}
-.swatch[data-theme="ocean"]{background:linear-gradient(135deg,#0e7490,#22d3ee)}
-.swatch[data-theme="sunset"]{background:linear-gradient(135deg,#c2410c,#fb923c)}
-.swatch[data-theme="hijau"]{background:linear-gradient(135deg,#0f766e,#34d399)}
+.stage-actions{position:absolute;top:10px;left:10px;display:flex;gap:4px;z-index:15}
+.float-tb{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(20,20,25,.95);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:14px;padding:6px;display:none;gap:2px;box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:20;max-width:calc(100% - 20px);overflow-x:auto;scrollbar-width:none}
+.float-tb::-webkit-scrollbar{display:none}
+.float-tb.show{display:flex}
+.float-tb button{min-width:38px;height:36px;padding:0 10px;border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:600;white-space:nowrap;transition:background .15s}
+.float-tb button:active{background:var(--s3)}
+.float-tb .sep{width:1px;background:var(--bd);margin:4px 2px;flex-shrink:0}
 
-/* ============ LAYOUT ============ */
-.wrap{max-width:720px;margin:auto;padding:14px 14px 90px}
-.tabs{display:flex;gap:8px;margin:0 0 14px;overflow:auto;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{border:1px solid var(--line);border-radius:12px;background:var(--card);
-  padding:10px 13px;font-weight:700;color:var(--muted);white-space:nowrap;
-  cursor:pointer;font-size:13.5px;transition:.2s}
-.tab.active{background:var(--p);border-color:var(--p);color:#fff;
-  box-shadow:0 8px 20px -10px var(--p)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;
-  padding:16px;margin-bottom:13px;box-shadow:0 3px 16px #32205a0a;
-  transition:background .3s,border-color .3s}
-h2{font-size:18px;margin:0 0 5px;letter-spacing:-.3px}
-p.hint{margin:0 0 15px;color:var(--muted);font-size:13px}
-label{display:block;font-size:13px;font-weight:750;margin:13px 0 6px}
-input,select,textarea{width:100%;font:inherit;color:var(--ink);border:1px solid var(--line);
-  border-radius:11px;background:var(--card);padding:12px;outline:none;transition:.18s}
-input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px #5b35c91f}
-textarea{min-height:78px;resize:vertical}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{font:inherit;font-weight:750;border:0;border-radius:12px;padding:12px 14px;
-  cursor:pointer;transition:transform .12s,filter .2s}
-button:active{transform:scale(.985)}
-.primary{background:var(--p);color:#fff;width:100%;margin-top:16px;
-  box-shadow:0 10px 24px -12px var(--p)}
-.primary:hover{filter:brightness(1.07)}
-.secondary{background:var(--soft);color:var(--p)}
-.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.small-btn{padding:8px 12px;font-size:12.5px;width:auto}
-.btn-inline{width:auto;margin-bottom:12px;font-size:12.5px;padding:7px 12px}
-.result{white-space:pre-wrap;background:var(--soft);border:1px solid var(--line);
-  padding:13px;border-radius:12px;margin:0 0 10px;color:var(--ink);font-size:14.2px}
-.result-title{font-weight:800;margin:16px 0 7px;font-size:13.5px;color:var(--p)}
-.result-title:first-child{margin-top:4px}
-.result-img{max-width:100%;max-height:230px;border-radius:14px;display:block;
-  margin:4px 0 14px;border:1px solid var(--line);object-fit:cover}
-.rowbtn{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.rowbtn button{flex:1}
-.small{font-size:12px;color:var(--muted)}
-.good{color:var(--good);font-weight:700}
-.bad{color:var(--bad);font-weight:700}
-.notice{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:12px;
-  padding:11px;font-size:12px;color:var(--warn-ink);margin-top:12px}
+.tabs{display:flex;background:var(--s1);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);flex-shrink:0}
+.tab{flex:1;padding:11px 4px;font-size:12px;font-weight:600;color:var(--tx2);text-align:center;position:relative;transition:color .15s}
+.tab.active{color:var(--tx)}
+.tab.active::after{content:'';position:absolute;bottom:-1px;left:20%;right:20%;height:2px;background:var(--grad);border-radius:1px}
 
-/* ============ UPLOAD ============ */
-.upload{border:1.6px dashed var(--line);border-radius:14px;background:var(--soft);
-  padding:16px;text-align:center;cursor:pointer;transition:.2s}
-.upload:hover,.upload.dragover{border-color:var(--p);background:var(--soft);
-  box-shadow:0 0 0 3px #5b35c91a}
-.upload img{max-width:100%;max-height:200px;border-radius:11px;
-  display:block;margin:0 auto 10px;object-fit:cover}
+.panel{background:var(--s1);overflow-y:auto;overflow-x:hidden;flex-shrink:0;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom));height:44vh;min-height:220px;max-height:50vh}
+.panel-section{display:none}
+.panel-section.active{display:block}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.field .hint{font-size:10px;color:var(--tx2);margin-top:4px;line-height:1.4}
 
-/* ============ METRIK ============ */
-.metric{background:var(--soft);border-radius:13px;padding:13px}
-.metric .num{font-size:21px;font-weight:850;color:var(--p);letter-spacing:-.6px}
-.metric .lbl{font-size:11.5px;color:var(--muted);margin-bottom:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;background:var(--s2);border:1px solid var(--bd);transition:background .15s;white-space:nowrap}
+.btn:active{background:var(--s3)}
+.btn.primary{background:var(--grad);border:none;color:#fff}
+.btn.primary:active{opacity:.9}
+.btn.small{padding:7px 10px;font-size:12px}
+.btn.full{width:100%}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row>.btn{flex:1;min-width:0}
+.grid{display:grid;gap:8px}
+.grid.g3{grid-template-columns:repeat(3,1fr)}
 
-/* ============ RIWAYAT ============ */
-.history-item{border-bottom:1px solid var(--line);padding:12px 0}
-.history-item:last-child{border-bottom:0}
-.hrow{display:flex;gap:10px;align-items:flex-start}
-.thumb{width:54px;height:54px;object-fit:cover;border-radius:11px;
-  border:1px solid var(--line);flex-shrink:0}
-.badge{font-size:10px;background:var(--soft);color:var(--p);border-radius:7px;
-  padding:2px 7px;margin-left:6px;font-weight:850;vertical-align:middle}
+.fmt-btn{padding:10px 6px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);text-align:center;font-size:11px;font-weight:600;transition:all .15s}
+.fmt-btn.active{background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(236,72,153,.2));border-color:var(--ac)}
+.fmt-btn .ratio-icon{width:32px;height:32px;margin:0 auto 6px;border:2px solid currentColor;border-radius:3px;opacity:.6}
 
-/* ============ LOADER ============ */
-.overlay{position:fixed;inset:0;z-index:200;background:#0b0912d9;
-  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:6px;padding:24px;text-align:center;color:#fff}
-.load-logo{font-size:clamp(44px,15vw,62px);font-weight:900;letter-spacing:-4px;line-height:1;
-  background:linear-gradient(90deg,#ff6b9a,#ffd166,#6ee7b7,#60a5fa,#c084fc,#ff6b9a);
-  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
-  color:transparent;animation:rainbow 1.05s linear infinite,breathe 1.5s ease-in-out infinite}
-@keyframes rainbow{from{background-position:0% 50%}to{background-position:300% 50%}}
-@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
-.load-text{margin-top:8px;font-size:14px;font-weight:700;letter-spacing:.2px}
-.load-sub{font-size:12px;color:#a99cd6}
-.load-dots{display:flex;gap:7px;margin-top:14px}
-.load-dots i{width:8px;height:8px;border-radius:50%;background:#c9b6ff;
-  animation:dot 1s ease-in-out infinite}
-.load-dots i:nth-child(2){animation-delay:.15s}
-.load-dots i:nth-child(3){animation-delay:.3s}
-@keyframes dot{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-6px)}}
+.color-input{display:flex;align-items:center;gap:8px}
+.color-input input[type=color]{width:44px;height:44px;padding:0;border-radius:10px;cursor:pointer;background:transparent;border:1px solid var(--bd);flex-shrink:0}
+.color-input input[type=text]{flex:1;font-family:monospace;font-size:12px}
 
-/* ============ INSTALL BANNER ============ */
-.install-banner{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;
-  padding:12px 14px;border-radius:14px;margin-bottom:14px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 8px 20px -10px var(--p);animation:slideDown .4s ease}
-@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
-.install-banner .ib-text{flex:1;min-width:0}
-.install-banner strong{display:block;font-size:13.5px}
-.install-banner .small{color:#ffffffd0;font-size:11.5px;margin-top:2px}
-.install-banner button{background:#fff!important;color:var(--p)!important;
-  padding:8px 14px!important;font-size:12.5px!important;flex-shrink:0;margin:0!important}
+.toggle-row{display:flex;gap:6px}
+.tog{flex:1;padding:9px 6px;border-radius:8px;text-align:center;font-size:12px;font-weight:600;background:var(--s2);border:1px solid var(--bd);transition:all .15s}
+.tog.active{background:var(--s3);border-color:var(--ac);color:var(--tx)}
 
-/* ============ TOAST ============ */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
-  background:#1b1826;color:#fff;padding:12px 20px;border-radius:99px;
-  font-size:13px;font-weight:700;box-shadow:0 12px 30px rgba(0,0,0,.4);
-  z-index:1000;transition:transform .35s cubic-bezier(.16,.84,.3,1),opacity .35s;
-  opacity:0;pointer-events:none;white-space:nowrap;max-width:calc(100vw - 40px);
-  overflow:hidden;text-overflow:ellipsis}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+input[type=range]{width:100%;padding:0;background:transparent;border:none;-webkit-appearance:none;appearance:none;height:24px}
+input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--s3);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--grad);margin-top:-7px;cursor:pointer;box-shadow:0 2px 6px rgba(168,85,247,.5)}
+.range-row{display:flex;align-items:center;gap:10px}
+.range-row input[type=range]{flex:1}
+.range-val{min-width:44px;text-align:right;font-size:12px;color:var(--tx2);font-variant-numeric:tabular-nums}
 
-footer{text-align:center;font-size:11px;color:var(--muted);padding:10px 0 4px}
-@media(max-width:420px){
-  .wrap{padding-left:11px;padding-right:11px}
-  .card{padding:14px}
-  .metric .num{font-size:19px}
-  .brand{font-size:25px}
-}
+.layer-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);margin-bottom:6px;transition:border-color .15s}
+.layer-item.selected{border-color:var(--ac)}
+.layer-item .l-name{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.layer-item .l-actions{display:flex;gap:1px}
+.layer-item .l-actions button{width:28px;height:28px;border-radius:6px;font-size:12px;display:grid;place-items:center}
+.layer-item .l-actions button:active{background:var(--s3)}
+
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-back.show{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bd);border-radius:16px;width:100%;max-width:460px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal-hd{padding:16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.modal-hd h3{font-size:15px;font-weight:700}
+.modal-bd{padding:16px;overflow-y:auto;flex:1}
+.modal-ft{padding:16px;border-top:1px solid var(--bd);display:flex;gap:8px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--s3);border:1px solid var(--bd);color:var(--tx);padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:200;transition:transform .3s cubic-bezier(.4,0,.2,1);max-width:calc(100% - 40px);box-shadow:0 10px 30px rgba(0,0,0,.4);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--err);border-color:var(--err)}
+.toast.ok{background:var(--ok);border-color:var(--ok)}
+
+.empty{text-align:center;padding:30px 20px;color:var(--tx2);font-size:12px}
+.empty .icon{font-size:32px;margin-bottom:8px;opacity:.5}
+.font-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);margin-bottom:6px}
+.font-item .f-preview{font-size:16px;color:var(--tx);flex:1}
+.font-item .f-name{font-size:10px;color:var(--tx2);margin-top:2px}
+.ai-sug{padding:12px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);margin-bottom:6px;font-size:13px;line-height:1.4;cursor:pointer;transition:border-color .15s}
+.ai-sug:active{border-color:var(--ac)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--grad);color:#fff}
+.badge.local{background:var(--s3);color:var(--tx2)}
+@media (max-height:700px){.panel{height:40vh;min-height:180px}}
 </style>
 </head>
 <body>
 
-<!-- ========== SPLASH ========== -->
-<div id="splash">
-  <div class="splash-glow"></div>
-  <div class="splash-logo" aria-label="BENA"><span>B</span><span>E</span><span>N</span><span>A</span></div>
-  <div class="splash-tag">Asisten Konten Jualan</div>
-  <div class="splash-bar"><i></i></div>
-</div>
-
-<!-- ========== HEADER ========== -->
-<header>
-  <div class="head-row">
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark">D</div>
     <div>
-      <div class="brand">BENA<em>.</em></div>
-      <div class="sub">Asisten konten promosi untuk jualan online</div>
-    </div>
-    <div class="head-actions">
-      <button class="icon-btn hidden" id="installBtnHeader" title="Pasang aplikasi">📲</button>
-      <button class="icon-btn" id="soundToggle" title="Suara selesai">🔔</button>
-      <button class="icon-btn" id="themeToggle" title="Ganti tema">🎨</button>
+      <div class="brand-name">Jualan DIEN</div>
+      <div class="brand-tag">AI Auto Content Designer</div>
     </div>
   </div>
-  <div id="themeBar" class="theme-bar hidden">
-    <button class="swatch active" data-theme="ungu" title="Ungu"></button>
-    <button class="swatch" data-theme="dark" title="Gelap"></button>
-    <button class="swatch" data-theme="ocean" title="Laut"></button>
-    <button class="swatch" data-theme="sunset" title="Senja"></button>
-    <button class="swatch" data-theme="hijau" title="Hijau"></button>
+  <div class="hdr-actions">
+    <button class="icon-btn" id="btnAI" title="AI">✨</button>
+    <button class="icon-btn" id="btnSave" title="Simpan">💾</button>
+    <button class="icon-btn primary" id="btnExport" title="Ekspor">⬇</button>
   </div>
 </header>
 
-<div class="wrap">
-  <!-- BANNER INSTALL -->
-  <div id="installBanner" class="install-banner hidden">
-    <div class="ib-text">
-      <strong>📲 Pasang BENA di perangkatmu</strong>
-      <div class="small">Akses cepat dari layar utama, tanpa buka browser.</div>
+<main class="stage-wrap">
+  <div class="stage" id="stage">
+    <div class="canvas" id="canvas">
+      <img class="canvas-img" id="canvasImg" alt="">
     </div>
-    <button id="installBannerBtn">Pasang</button>
+  </div>
+  <div class="stage-actions">
+    <button class="icon-btn small" id="btnUndo" title="Undo">↶</button>
+    <button class="icon-btn small" id="btnRedo" title="Redo">↷</button>
+  </div>
+  <div class="float-tb" id="floatTb">
+    <button data-cmd="size-">A−</button>
+    <button data-cmd="size+">A+</button>
+    <span class="sep"></span>
+    <button data-cmd="bold">B</button>
+    <button data-cmd="color">🎨</button>
+    <span class="sep"></span>
+    <button data-cmd="dup">⧉</button>
+    <button data-cmd="del">🗑</button>
+  </div>
+</main>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="content">Konten</button>
+  <button class="tab" data-tab="text">Teks</button>
+  <button class="tab" data-tab="design">Desain</button>
+  <button class="tab" data-tab="layers">Lapisan</button>
+</nav>
+
+<section class="panel" id="panel">
+  <div class="panel-section active" data-panel="content">
+    <div class="field">
+      <label>Foto Produk</label>
+      <div class="btn-row">
+        <button class="btn" id="btnCamera">📷 Kamera</button>
+        <button class="btn" id="btnGallery">🖼️ Galeri</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="inputCamera" hidden>
+      <input type="file" accept="image/*" id="inputGallery" hidden>
+      <div class="hint" id="imgInfo">Belum ada foto</div>
+    </div>
+    <div class="field"><label>Headline</label><input type="text" id="inHeadline" placeholder="Contoh: PROMO SPESIAL 50%"></div>
+    <div class="field"><label>Subheadline</label><input type="text" id="inSub" placeholder="Contoh: Hanya hari ini!"></div>
+    <div class="field"><label>Isi Konten</label><textarea id="inContent" placeholder="Deskripsi produk, manfaat, promo, harga..."></textarea></div>
+    <div class="field">
+      <label>Tulisan Manual</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="inManual" placeholder="Teks bebas..." style="flex:1">
+        <button class="btn" id="btnAddManual" style="padding:10px 14px">+</button>
+      </div>
+      <div class="hint">Teks bebas yang bisa dipindah ke mana saja</div>
+    </div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn primary" id="btnAuto">✨ AUTO DESAIN</button>
+      <button class="btn" id="btnVariasi">🎲 VARIASI</button>
+    </div>
   </div>
 
-  <div class="tabs">
-    <button class="tab active" data-tab="konten">✍️ Buat Konten</button>
-    <button class="tab" data-tab="story">🎬 Ide Storytelling</button>
-    <button class="tab" data-tab="kalkulator">🧮 Kalkulator Laba</button>
-    <button class="tab" data-tab="riwayat">📚 Riwayat</button>
+  <div class="panel-section" data-panel="text">
+    <div id="textTabEmpty" class="empty">
+      <div class="icon">✏️</div>
+      <div>Ketuk tulisan di kanvas untuk mengedit</div>
+      <div style="margin-top:12px"><button class="btn primary" id="btnAddText">+ Tambah Tulisan</button></div>
+    </div>
+    <div id="textTabControls" style="display:none">
+      <div class="field"><label>Teks</label><textarea id="inElText" placeholder="Isi teks..."></textarea></div>
+      <div class="field"><label>Font</label><select id="selFont"></select></div>
+      <div class="field">
+        <label>Ukuran</label>
+        <div class="range-row">
+          <button class="btn small" id="btnSizeMinus">−</button>
+          <input type="range" id="rangeSize" min="12" max="220" step="2">
+          <span class="range-val" id="valSize">32</span>
+          <button class="btn small" id="btnSizePlus">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Warna</label>
+        <div class="color-input">
+          <input type="color" id="inColor" value="#ffffff">
+          <input type="text" id="inColorHex" value="#ffffff">
+        </div>
+      </div>
+      <div class="field">
+        <label>Perataan</label>
+        <div class="toggle-row">
+          <button class="tog" data-align="left">Kiri</button>
+          <button class="tog" data-align="center">Tengah</button>
+          <button class="tog" data-align="right">Kanan</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ketebalan</label>
+        <div class="toggle-row">
+          <button class="tog" data-weight="400">Regular</button>
+          <button class="tog" data-weight="600">Semi</button>
+          <button class="tog" data-weight="700">Bold</button>
+          <button class="tog" data-weight="900">Black</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Lebar Kotak</label>
+        <div class="range-row"><input type="range" id="rangeWidth" min="10" max="100" step="1"><span class="range-val" id="valWidth">100%</span></div>
+      </div>
+      <div class="field">
+        <label>Rotasi</label>
+        <div class="range-row"><input type="range" id="rangeRotate" min="-45" max="45" step="1"><span class="range-val" id="valRotate">0°</span></div>
+      </div>
+      <div class="field">
+        <label>Spasi Huruf & Baris</label>
+        <div class="range-row"><input type="range" id="rangeLS" min="-2" max="20" step="0.5" value="0"><span class="range-val" id="valLS">0</span></div>
+        <div class="range-row" style="margin-top:6px"><input type="range" id="rangeLH" min="0.8" max="2.2" step="0.05" value="1.2"><span class="range-val" id="valLH">1.2</span></div>
+      </div>
+      <div class="field">
+        <label>Transparansi</label>
+        <div class="range-row"><input type="range" id="rangeOpacity" min="0.1" max="1" step="0.05" value="1"><span class="range-val" id="valOpacity">100%</span></div>
+      </div>
+      <div class="field">
+        <label>Efek</label>
+        <div class="toggle-row">
+          <button class="tog" data-efek="shadow">Bayangan</button>
+          <button class="tog" data-efek="outline">Outline</button>
+          <button class="tog" data-efek="bg">Latar</button>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="btnDup">⧉ Duplikat</button>
+        <button class="btn" id="btnLock">🔒 Kunci</button>
+        <button class="btn" id="btnDelEl" style="color:var(--err)">🗑 Hapus</button>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--bd);margin:16px 0">
+    <div class="field">
+      <label>Font Tambahan</label>
+      <button class="btn full" id="btnUploadFont">📁 Unggah Font (TTF/OTF/WOFF)</button>
+      <input type="file" accept=".ttf,.otf,.woff,.woff2" id="inputFont" hidden>
+      <div class="hint">Font tersimpan di penyimpanan browser</div>
+    </div>
+    <div id="customFontsList"></div>
   </div>
 
-  <!-- KONTEN -->
-  <section id="konten">
-    <div class="card">
-      <h2>Buat konten promosi</h2>
-      <p class="hint">Isi detail produk, tambahkan gambar bila ada, lalu buat beberapa pilihan teks jualan.</p>
-
-      <label for="produk">Nama produk *</label>
-      <input id="produk" placeholder="Contoh: Parfum Amber Noir">
-
-      <label>Gambar produk (opsional)</label>
-      <div class="upload" id="dropzone">
-        <input type="file" id="imgInput" accept="image/*" hidden>
-        <div id="uploadEmpty">
-          <div style="font-size:24px;line-height:1.2">📷</div>
-          <div style="font-weight:800;font-size:13px;margin-top:2px">Ketuk atau tarik gambar produk</div>
-          <div class="small">JPG/PNG • otomatis diperkecil</div>
-        </div>
-        <div id="uploadPreview" class="hidden">
-          <img id="imgPreview" alt="Pratinjau produk">
-          <button type="button" class="ghost small-btn" id="removeImg">Hapus gambar</button>
-        </div>
-      </div>
-
-      <div class="grid">
-        <div><label for="platform">Platform</label>
-          <select id="platform">
-            <option>Threads</option><option>Shopee</option><option>TikTok</option>
-            <option>WhatsApp</option><option>Instagram</option><option>Facebook</option>
-          </select>
-        </div>
-        <div><label for="gaya">Gaya bahasa</label>
-          <select id="gaya">
-            <option value="santai">Santai & jujur</option>
-            <option value="soft">Soft selling</option>
-            <option value="heboh">Enerjik & menarik</option>
-            <option value="profesional">Profesional</option>
-            <option value="lucu">Lucu & gaul</option>
-          </select>
-        </div>
-      </div>
-
-      <label for="manfaat">Manfaat/keunggulan produk</label>
-      <textarea id="manfaat" placeholder="Contoh: aroma tahan lama, ukuran praktis, cocok untuk harian"></textarea>
-
-      <div class="grid">
-        <div><label for="target">Target pembeli</label>
-          <input id="target" placeholder="Contoh: pekerja aktif"></div>
-        <div><label for="harga">Harga (opsional)</label>
-          <input id="harga" inputmode="numeric" placeholder="Contoh: 25000"></div>
-      </div>
-
-      <label for="promo">Promo atau penawaran (opsional)</label>
-      <input id="promo" placeholder="Contoh: diskon 10%, gratis ongkir">
-
-      <label for="jenis">Jenis konten</label>
-      <select id="jenis">
-        <option value="paket">Paket lengkap (hook, caption, CTA)</option>
-        <option value="hook">Hook saja</option>
-        <option value="caption">Caption promosi</option>
-        <option value="thread">Utas 4 bagian</option>
-        <option value="deskripsi">Deskripsi produk marketplace</option>
-        <option value="video">Skrip video 15 detik</option>
-      </select>
-
-      <button class="primary" id="generate">✦ Buat Konten</button>
-      <div class="notice">Versi prototipe ini bekerja offline dengan pola teks otomatis, bukan AI online. Hindari klaim manfaat yang belum terbukti.</div>
-    </div>
-
-    <div class="card hidden" id="hasilCard">
-      <h2>Hasil konten</h2>
-      <p class="hint">Edit bila perlu, lalu salin untuk diposting.</p>
-      <div id="hasil"></div>
-      <div class="rowbtn">
-        <button class="secondary" id="copyAll">Salin semua</button>
-        <button class="ghost" id="save">Simpan riwayat</button>
+  <div class="panel-section" data-panel="design">
+    <div class="field">
+      <label>Format Kanvas</label>
+      <div class="grid g3">
+        <button class="fmt-btn active" data-format="1:1"><div class="ratio-icon" style="aspect-ratio:1/1"></div>1:1<br><span style="font-size:9px;opacity:.6">Feed</span></button>
+        <button class="fmt-btn" data-format="4:5"><div class="ratio-icon" style="aspect-ratio:4/5;width:26px;height:32px"></div>4:5<br><span style="font-size:9px;opacity:.6">IG</span></button>
+        <button class="fmt-btn" data-format="9:16"><div class="ratio-icon" style="width:20px;height:32px"></div>9:16<br><span style="font-size:9px;opacity:.6">Story</span></button>
       </div>
     </div>
-  </section>
-
-  <!-- STORYTELLING -->
-  <section id="story" class="hidden">
-    <div class="card">
-      <h2>Ide storytelling</h2>
-      <p class="hint">Ubah produk menjadi cerita yang bikin orang berhenti scroll.</p>
-
-      <label for="storyAngle">Sudut cerita</label>
-      <select id="storyAngle">
-        <option value="pas">Masalah → Solusi</option>
-        <option value="pengalaman">Pengalaman pribadi</option>
-        <option value="bts">Behind the scene</option>
-        <option value="mitos">Mitos vs fakta</option>
-        <option value="beforeafter">Sebelum & sesudah</option>
-        <option value="testimoni">Cerita pelanggan</option>
-      </select>
-
-      <label for="storyMasalah">Masalah / keluhan pelanggan</label>
-      <textarea id="storyMasalah" placeholder="Contoh: parfum cepat hilang, bikin nggak pede"></textarea>
-
-      <label for="storySolusi">Solusi / manfaat utama</label>
-      <input id="storySolusi" placeholder="Contoh: aroma tahan sampai 8 jam">
-
-      <p class="small" style="margin-top:12px">Nama produk, target, dan gambar diambil dari tab <b>Buat Konten</b>.</p>
-      <button class="primary" id="genStory">🎬 Buat ide cerita</button>
-    </div>
-
-    <div class="card hidden" id="storyCard">
-      <h2>Ide storytelling</h2>
-      <div id="storyHasil"></div>
-      <div class="rowbtn">
-        <button class="secondary" id="copyStory">Salin semua</button>
-        <button class="ghost" id="saveStory">Simpan riwayat</button>
+    <div class="field">
+      <label>Ukuran Khusus (px)</label>
+      <div style="display:flex;gap:8px">
+        <input type="number" id="inCustomW" placeholder="Lebar" value="1080">
+        <input type="number" id="inCustomH" placeholder="Tinggi" value="1080">
+        <button class="btn" id="btnApplyCustom" style="flex-shrink:0;padding:10px 14px">Set</button>
       </div>
     </div>
-  </section>
-
-  <!-- KALKULATOR -->
-  <section id="kalkulator" class="hidden">
-    <div class="card">
-      <h2>Kalkulator laba jualan</h2>
-      <p class="hint">Perkiraan sederhana per produk. Masukkan biaya dalam rupiah.</p>
-      <label>Harga jual (Rp)</label><input id="jual" inputmode="numeric" placeholder="25000">
-      <label>HPP produk (Rp)</label><input id="hpp" inputmode="numeric" placeholder="12000">
-      <div class="grid">
-        <div><label>Biaya marketplace (Rp)</label><input id="admin" inputmode="numeric" placeholder="2000"></div>
-        <div><label>Iklan per pesanan (Rp)</label><input id="iklan" inputmode="numeric" placeholder="1500"></div>
-      </div>
-      <label>Biaya lain (Rp)</label><input id="lain" inputmode="numeric" placeholder="0">
-      <button class="primary" id="hitung">Hitung laba</button>
-    </div>
-    <div class="card hidden" id="hasilLaba">
-      <div class="grid">
-        <div class="metric"><div class="lbl">Laba bersih estimasi</div><div class="num" id="laba">Rp0</div></div>
-        <div class="metric"><div class="lbl">Margin laba</div><div class="num" id="margin">0%</div></div>
-      </div>
-      <p id="statusLaba" class="small"></p>
-    </div>
-  </section>
-
-  <!-- RIWAYAT -->
-  <section id="riwayat" class="hidden">
-    <div class="card">
-      <h2>Riwayat konten</h2>
-      <p class="hint">Disimpan di browser perangkat ini.</p>
-      <div id="riwayatList"></div>
-      <button class="ghost" id="hapusRiwayat" style="width:100%;margin-top:12px">Hapus semua riwayat</button>
-    </div>
-
-    <div class="card" id="installCard">
-      <h2>📲 Status pemasangan</h2>
-      <p class="hint" id="installStatus">Memeriksa status pemasangan…</p>
-      <button class="primary" id="installCardBtn">Pasang BENA</button>
-      <div class="notice" id="installHint" style="display:none">
-        <b>Cara pasang manual:</b><br>
-        • <b>Chrome/Edge Android:</b> menu ⋮ → "Tambahkan ke layar utama" / "Instal aplikasi"<br>
-        • <b>Safari iOS:</b> tombol Bagikan → "Tambah ke Layar Utama"<br>
-        • <b>Chrome Desktop:</b> ikon instal di address bar
+    <div class="field">
+      <label>Penyesuaian Foto</label>
+      <div class="toggle-row">
+        <button class="tog active" data-fit="cover">Isi Penuh</button>
+        <button class="tog" data-fit="contain">Pas (Fit)</button>
       </div>
     </div>
-  </section>
+    <div class="field">
+      <label>Warna Latar</label>
+      <div class="color-input">
+        <input type="color" id="inBg" value="#ffffff">
+        <input type="text" id="inBgHex" value="#ffffff">
+      </div>
+    </div>
+    <div class="field"><button class="btn full" id="btnRemoveImg">Hapus Foto</button></div>
+  </div>
 
-  <footer>BENA • Prototipe PWA • Data tersimpan lokal di perangkat</footer>
+  <div class="panel-section" data-panel="layers">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--tx2)"><span id="layerCount">0</span> elemen</div>
+      <button class="btn small" id="btnAddText2">+ Tambah</button>
+    </div>
+    <div id="layerList"></div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-back" id="aiModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3>✨ AI Konten & Desain</h3>
+      <button class="icon-btn" onclick="document.getElementById('aiModal').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div style="margin-bottom:14px;padding:10px;background:var(--s2);border-radius:10px;font-size:11px;color:var(--tx2);line-height:1.5">
+        Semua saran bisa dipakai atau diabaikan. Teks asli Anda tidak akan diubah otomatis. <span class="badge local">LOKAL</span> berjalan tanpa internet.
+      </div>
+      <div class="field"><label>Nama / Info Produk</label><input type="text" id="aiProductInfo" placeholder="Contoh: Skincare vitamin C untuk kulit cerah"></div>
+      <div class="btn-row"><button class="btn full" id="aiGenHeadline">📝 Buat Headline</button></div>
+      <div id="aiHeadlineRes" style="margin-top:10px"></div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn full" id="aiGenSub">💡 Buat Subheadline</button></div>
+      <div id="aiSubRes" style="margin-top:10px"></div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn full" id="aiGenContent">📄 Buat Isi Konten</button></div>
+      <div id="aiContentRes" style="margin-top:10px"></div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn full" id="aiGenDesign">🎨 Rekomendasi Desain</button></div>
+      <div id="aiDesignRes" style="margin-top:10px"></div>
+      <hr style="border:none;border-top:1px solid var(--bd);margin:16px 0">
+      <div class="field">
+        <label>AI Online (Opsional)</label>
+        <div class="hint" style="margin-bottom:8px">Masukkan API key Anda sendiri. Disimpan lokal dan tidak dikirim ke mana pun selain endpoint Anda.</div>
+        <input type="text" id="aiEndpoint" placeholder="Endpoint URL (mis. https://api.openai.com/v1/chat/completions)">
+        <input type="password" id="aiKey" placeholder="API Key" style="margin-top:8px">
+        <input type="text" id="aiModel" placeholder="Model (mis. gpt-4o-mini)" style="margin-top:8px">
+        <button class="btn full" id="aiSaveKey" style="margin-top:8px">Simpan Pengaturan</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- ========== LOADER ========== -->
-<div id="loader" class="overlay hidden">
-  <div class="load-logo">BENA</div>
-  <div class="load-text" id="loadText">Menyusun konten...</div>
-  <div class="load-sub">Sebentar ya, BENA sedang bekerja ✨</div>
-  <div class="load-dots"><i></i><i></i><i></i></div>
+<div class="modal-back" id="exportModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3>⬇ Ekspor Desain</h3>
+      <button class="icon-btn" onclick="document.getElementById('exportModal').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="field">
+        <label>Format File</label>
+        <div class="toggle-row">
+          <button class="tog active" data-exp-fmt="png">PNG</button>
+          <button class="tog" data-exp-fmt="jpg">JPG</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Kualitas</label>
+        <div class="toggle-row">
+          <button class="tog" data-exp-q="1">Normal</button>
+          <button class="tog active" data-exp-q="2">HD</button>
+          <button class="tog" data-exp-q="3">2K</button>
+        </div>
+      </div>
+      <div id="expPreview" style="text-align:center;padding:10px 0;font-size:11px;color:var(--tx2)"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn full" onclick="document.getElementById('exportModal').classList.remove('show')">Batal</button>
+      <button class="btn primary full" id="btnDoExport">Unduh</button>
+    </div>
+  </div>
 </div>
-
-<div id="toast" class="toast"></div>
 
 <script>
-/* =========================================================
-   UTIL
-   ========================================================= */
-const $ = id => document.getElementById(id);
-const $$ = (s, r=document) => [...r.querySelectorAll(s)];
-const LS = {
-  get(k, d){ try{ const v = localStorage.getItem(k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
-};
-const rupiah = n => 'Rp' + Math.round(n).toLocaleString('id-ID');
-const num = id => Number((($(id)||{}).value || '0').replace(/[^0-9.-]/g,'')) || 0;
+'use strict';
 
-/* =========================================================
-   TOAST
-   ========================================================= */
-function showToast(msg){
-  const t = $('toast');
+const FONTS = [
+  {name:'Inter', label:'Sans Modern'},
+  {name:'Plus Jakarta Sans', label:'Clean Sans'},
+  {name:'Playfair Display', label:'Serif Elegan'},
+  {name:'Cormorant Garamond', label:'Premium Serif'},
+  {name:'Bebas Neue', label:'Bold Promo'},
+  {name:'Righteous', label:'Dekoratif'},
+  {name:'Fredoka', label:'Lucu'},
+  {name:'Dancing Script', label:'Tulisan Tangan'}
+];
+
+const state = {
+  width:1080, height:1080, format:'1:1',
+  imageSrc:null, imageEl:null, imageFit:'cover',
+  bgColor:'#ffffff',
+  elements:[], selectedId:null,
+  history:[], historyIdx:-1,
+  customFonts:[],
+  aiConfig:{
+    endpoint: localStorage.getItem('jd_endpoint')||'',
+    key: localStorage.getItem('jd_key')||'',
+    model: localStorage.getItem('jd_model')||'gpt-4o-mini'
+  }
+};
+
+let scale = 1;
+let dragData = null;
+const measureCtx = document.createElement('canvas').getContext('2d');
+
+const $ = (s,c=document)=>c.querySelector(s);
+const $$ = (s,c=document)=>[...c.querySelectorAll(s)];
+const uid = (p='el')=>p+'_'+Math.random().toString(36).substr(2,9);
+
+function toast(msg, type=''){
+  const t = $('#toast');
   t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(()=>t.classList.remove('show'), 2800);
+  t.className = 'toast show ' + type;
+  clearTimeout(t._tm);
+  t._tm = setTimeout(()=>t.classList.remove('show'), 2600);
 }
 
-/* =========================================================
-   SPLASH
-   ========================================================= */
-function endSplash(){
-  const s = $('splash');
-  if(!s || s.classList.contains('out')) return;
-  s.classList.add('out');
-  document.body.classList.add('ready');
-  setTimeout(()=>{ s.style.display='none'; }, 650);
-}
-setTimeout(endSplash, 2400);
-setTimeout(()=>{ document.body.classList.add('ready'); }, 3600);
-$('splash').addEventListener('click', endSplash);
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-/* =========================================================
-   TEMA
-   ========================================================= */
-function setTheme(t){
-  document.documentElement.setAttribute('data-theme', t);
-  $$('.swatch').forEach(s => s.classList.toggle('active', s.dataset.theme === t));
-  LS.set('bena_theme', t);
-  const c = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
-  if(c) $('metaTheme').setAttribute('content', c);
-}
-$('themeToggle').onclick = () => $('themeBar').classList.toggle('hidden');
-$$('.swatch').forEach(s => s.onclick = () => setTheme(s.dataset.theme));
-setTheme(LS.get('bena_theme','ungu'));
-
-/* =========================================================
-   SUARA
-   ========================================================= */
-let soundOn = LS.get('bena_sound', true);
-let actx = null;
-function paintSound(){ $('soundToggle').textContent = soundOn ? '🔔' : '🔕'; }
-paintSound();
-$('soundToggle').onclick = () => {
-  soundOn = !soundOn; LS.set('bena_sound', soundOn); paintSound();
-  if(soundOn) playChime();
-};
-function playChime(){
-  if(!soundOn) return;
-  try{
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if(actx.state === 'suspended') actx.resume();
-    const now = actx.currentTime;
-    const notes = [523.25, 659.25, 783.99, 1046.50];
-    notes.forEach((f, i) => {
-      const t = now + i * 0.095;
-      const o = actx.createOscillator();
-      const g = actx.createGain();
-      o.type = 'triangle';
-      o.frequency.setValueAtTime(f, t);
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
-      o.connect(g).connect(actx.destination);
-      o.start(t); o.stop(t + 0.6);
-    });
-    const o2 = actx.createOscillator(), g2 = actx.createGain();
-    o2.type = 'sine'; o2.frequency.setValueAtTime(1567.98, now + 0.42);
-    g2.gain.setValueAtTime(0.0001, now + 0.42);
-    g2.gain.exponentialRampToValueAtTime(0.06, now + 0.45);
-    g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
-    o2.connect(g2).connect(actx.destination);
-    o2.start(now + 0.42); o2.stop(now + 1);
-  }catch(e){}
+function hexBrightness(hex){
+  if(!/^#[0-9a-f]{6}$/i.test(hex)) return 255;
+  const r=parseInt(hex.substr(1,2),16), g=parseInt(hex.substr(3,2),16), b=parseInt(hex.substr(5,2),16);
+  return r*0.299 + g*0.587 + b*0.114;
 }
 
-/* =========================================================
-   PWA — IKON, MANIFEST, INSTALL
-   ========================================================= */
-// Deteksi standalone
-function isStandalone(){
-  return window.matchMedia('(display-mode: standalone)').matches
-    || window.matchMedia('(display-mode: fullscreen)').matches
-    || window.matchMedia('(display-mode: minimal-ui)').matches
-    || window.navigator.standalone === true;
+/* ===== HISTORY ===== */
+function snapshot(){
+  return JSON.stringify({
+    width:state.width, height:state.height, format:state.format,
+    imageFit:state.imageFit, bgColor:state.bgColor,
+    elements:state.elements
+  });
+}
+function pushHistory(){
+  state.history = state.history.slice(0, state.historyIdx+1);
+  state.history.push(snapshot());
+  if(state.history.length > 40) state.history.shift();
+  state.historyIdx = state.history.length-1;
+}
+function restoreSnap(s){
+  state.width = s.width; state.height = s.height; state.format = s.format;
+  state.imageFit = s.imageFit; state.bgColor = s.bgColor;
+  state.elements = s.elements; state.selectedId = null;
+  updateCanvasSize(); renderAll(); syncTextTab();
+  $('#canvasImg').style.objectFit = state.imageFit;
+  $('#canvas').style.background = state.bgColor;
+  $('#inBg').value = state.bgColor; $('#inBgHex').value = state.bgColor;
+}
+function undo(){
+  if(state.historyIdx<=0){toast('Tidak ada yang bisa di-undo');return;}
+  state.historyIdx--; restoreSnap(JSON.parse(state.history[state.historyIdx]));
+}
+function redo(){
+  if(state.historyIdx>=state.history.length-1){toast('Tidak ada yang bisa di-redo');return;}
+  state.historyIdx++; restoreSnap(JSON.parse(state.history[state.historyIdx]));
 }
 
-// Generator ikon PNG dari canvas
-function generateIcon(size, maskable){
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const ctx = c.getContext('2d');
+/* ===== CANVAS SIZE ===== */
+function updateCanvasSize(){
+  const cvs = $('#canvas');
+  cvs.style.width = state.width+'px';
+  cvs.style.height = state.height+'px';
+  cvs.style.background = state.bgColor;
+  fitStage();
+}
+function fitStage(){
+  const stage = $('#stage');
+  const wrap = stage.parentElement;
+  const availW = wrap.clientWidth - 20;
+  const availH = wrap.clientHeight - 20;
+  scale = Math.min(availW/state.width, availH/state.height);
+  stage.style.width = (state.width*scale)+'px';
+  stage.style.height = (state.height*scale)+'px';
+  $('#canvas').style.transform = `scale(${scale})`;
+}
 
-  const grad = ctx.createLinearGradient(0, 0, size, size);
-  grad.addColorStop(0, '#4d28b7');
-  grad.addColorStop(1, '#8768ee');
+/* ===== RENDER ===== */
+function renderAll(){
+  const cvs = $('#canvas');
+  $$('.el', cvs).forEach(e=>e.remove());
+  state.elements.forEach(el=>{
+    if(el.type==='text' && el.visible!==false) cvs.appendChild(createElNode(el));
+  });
+  updateFloatToolbar();
+  renderLayerList();
+}
 
-  if(maskable){
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, size, size);
+function createElNode(el){
+  const div = document.createElement('div');
+  div.className = 'el';
+  div.dataset.id = el.id;
+  if(el.id===state.selectedId) div.classList.add('selected');
+  if(el.locked) div.classList.add('locked');
+  applyElStyles(div, el);
+  div.textContent = el.text;
+  return div;
+}
+
+function applyElStyles(div, el){
+  div.style.left = el.x+'px';
+  div.style.top = el.y+'px';
+  div.style.width = el.w+'px';
+  div.style.fontFamily = `'${el.font}', sans-serif`;
+  div.style.fontSize = el.size+'px';
+  div.style.color = el.color;
+  div.style.fontWeight = el.weight;
+  div.style.textAlign = el.align;
+  div.style.lineHeight = el.lineHeight;
+  div.style.letterSpacing = el.letterSpacing+'px';
+  div.style.opacity = el.opacity;
+  div.style.transform = `rotate(${el.rotation}deg)`;
+  if(el.shadow){
+    div.style.textShadow = '0 4px 16px rgba(0,0,0,.65), 0 1px 3px rgba(0,0,0,.5)';
   } else {
-    const r = size * 0.22;
-    ctx.beginPath();
-    ctx.moveTo(r, 0);
-    ctx.lineTo(size - r, 0);
-    ctx.quadraticCurveTo(size, 0, size, r);
-    ctx.lineTo(size, size - r);
-    ctx.quadraticCurveTo(size, size, size - r, size);
-    ctx.lineTo(r, size);
-    ctx.quadraticCurveTo(0, size, 0, size - r);
-    ctx.lineTo(0, r);
-    ctx.quadraticCurveTo(0, 0, r, 0);
-    ctx.closePath();
-    ctx.fillStyle = grad;
+    div.style.textShadow = 'none';
+  }
+  if(el.outline){
+    div.style.webkitTextStroke = '2px rgba(0,0,0,.7)';
+    div.style.paintOrder = 'stroke fill';
+  } else {
+    div.style.webkitTextStroke = '0';
+  }
+  if(el.bg){
+    div.style.background = 'rgba(0,0,0,.55)';
+    div.style.padding = '0.15em 0.4em';
+    div.style.borderRadius = '0.2em';
+  } else {
+    div.style.background = 'transparent';
+    div.style.padding = '0';
+  }
+}
+
+function updateElNode(el){
+  const node = $(`.el[data-id="${el.id}"]`);
+  if(!node){ renderAll(); return; }
+  applyElStyles(node, el);
+  if(node.textContent!==el.text) node.textContent = el.text;
+  node.classList.toggle('selected', el.id===state.selectedId);
+  node.classList.toggle('locked', !!el.locked);
+}
+
+function selectElement(id){
+  state.selectedId = id;
+  const el = state.elements.find(x=>x.id===id);
+  if(el && el.visible===false){ el.visible = true; renderAll(); }
+  $$('.el').forEach(n=>n.classList.toggle('selected', n.dataset.id===id));
+  updateFloatToolbar();
+  syncTextTab();
+  renderLayerList();
+}
+function deselect(){
+  state.selectedId = null;
+  $$('.el').forEach(n=>n.classList.remove('selected'));
+  updateFloatToolbar(); syncTextTab(); renderLayerList();
+}
+function getSelected(){ return state.elements.find(e=>e.id===state.selectedId); }
+
+/* ===== DRAG ===== */
+$('#canvas').addEventListener('pointerdown', (e)=>{
+  const elNode = e.target.closest('.el');
+  if(!elNode){ deselect(); return; }
+  const id = elNode.dataset.id;
+  const el = state.elements.find(x=>x.id===id);
+  if(!el) return;
+  selectElement(id);
+  if(el.locked) return;
+  dragData = {
+    id,
+    startX:e.clientX, startY:e.clientY,
+    origX:el.x, origY:el.y,
+    moved:false
+  };
+  document.addEventListener('pointermove', onDragMove);
+  document.addEventListener('pointerup', onDragEnd);
+  document.addEventListener('pointercancel', onDragEnd);
+  e.preventDefault();
+});
+function onDragMove(e){
+  if(!dragData) return;
+  const dx = (e.clientX-dragData.startX)/scale;
+  const dy = (e.clientY-dragData.startY)/scale;
+  if(Math.abs(dx)>1 || Math.abs(dy)>1) dragData.moved = true;
+  if(!dragData.moved) return;
+  const el = state.elements.find(x=>x.id===dragData.id);
+  if(!el) return;
+  el.x = Math.round(dragData.origX + dx);
+  el.y = Math.round(dragData.origY + dy);
+  updateElNode(el);
+}
+function onDragEnd(){
+  document.removeEventListener('pointermove', onDragMove);
+  document.removeEventListener('pointerup', onDragEnd);
+  document.removeEventListener('pointercancel', onDragEnd);
+  if(dragData && dragData.moved) pushHistory();
+  dragData = null;
+}
+
+/* ===== ELEMENT CREATE ===== */
+function createTextElement(opts){
+  return {
+    id: uid('t'), type:'text',
+    text: opts.text || 'Teks baru',
+    role: opts.role || 'manual',
+    x: opts.x ?? 100, y: opts.y ?? 100, w: opts.w ?? state.width*0.9,
+    font: opts.font || 'Inter', size: opts.size || 48,
+    color: opts.color || '#ffffff', weight: opts.weight || 700,
+    align: opts.align || 'center',
+    lineHeight: opts.lineHeight || 1.2,
+    letterSpacing: opts.letterSpacing ?? 0,
+    rotation: opts.rotation || 0,
+    shadow: opts.shadow !== undefined ? opts.shadow : true,
+    outline: opts.outline || false,
+    bg: opts.bg || false,
+    opacity: opts.opacity ?? 1,
+    visible: true, locked: false
+  };
+}
+
+/* ===== MEASURE ===== */
+function wrapText(ctx, text, maxWidth){
+  const paragraphs = String(text).split('\n');
+  const lines = [];
+  for(const para of paragraphs){
+    if(!para){ lines.push(''); continue; }
+    const words = para.split(/\s+/);
+    let line = '';
+    for(const w of words){
+      const test = line ? line+' '+w : w;
+      if(ctx.measureText(test).width > maxWidth && line){
+        lines.push(line); line = w;
+      } else { line = test; }
+    }
+    if(line) lines.push(line);
+  }
+  return lines;
+}
+function measureEl(el){
+  measureCtx.font = `${el.weight} ${el.size}px '${el.font}', sans-serif`;
+  if(measureCtx.letterSpacing !== undefined) measureCtx.letterSpacing = el.letterSpacing+'px';
+  const lines = wrapText(measureCtx, el.text, el.w);
+  return { lines, height: lines.length * el.size * el.lineHeight };
+}
+
+/* ===== IMAGE ANALYSIS ===== */
+function analyzeImage(img){
+  const W=80, H=80;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  try { ctx.drawImage(img, 0, 0, W, H); } catch(e){
+    return { top:{brightness:200,variance:0}, middle:{brightness:200,variance:0}, bottom:{brightness:200,variance:0} };
+  }
+  const data = ctx.getImageData(0,0,W,H).data;
+  const bands = {
+    top:{y0:0, y1:Math.floor(H*0.30)},
+    middle:{y0:Math.floor(H*0.30), y1:Math.floor(H*0.70)},
+    bottom:{y0:Math.floor(H*0.70), y1:H}
+  };
+  const result = {};
+  for(const [name,b] of Object.entries(bands)){
+    let sum=0, sumSq=0, n=0;
+    for(let y=b.y0; y<b.y1; y++){
+      for(let x=0; x<W; x++){
+        const i=(y*W+x)*4;
+        const lum = data[i]*0.299 + data[i+1]*0.587 + data[i+2]*0.114;
+        sum += lum; sumSq += lum*lum; n++;
+      }
+    }
+    const mean = sum/n;
+    result[name] = { brightness:mean, variance: sumSq/n - mean*mean };
+  }
+  return result;
+}
+function bestTextColor(brightness){
+  return brightness > 150 ? '#111111' : '#ffffff';
+}
+
+/* ===== AUTO LAYOUT ===== */
+function fitTextInBand(text, opts){
+  let size = opts.maxSize;
+  while(size > opts.minSize){
+    measureCtx.font = `${opts.weight} ${size}px '${opts.font}', sans-serif`;
+    const lines = wrapText(measureCtx, text, opts.maxWidth);
+    const h = lines.length * size * opts.lineHeight;
+    if(h <= opts.maxHeight) return { size, height:h };
+    size -= 2;
+  }
+  measureCtx.font = `${opts.weight} ${opts.minSize}px '${opts.font}', sans-serif`;
+  const lines = wrapText(measureCtx, text, opts.maxWidth);
+  return { size:opts.minSize, height: lines.length * opts.minSize * opts.lineHeight };
+}
+
+function pickTheme(info){
+  const all = (info.headline+' '+info.sub+' '+info.content).toLowerCase();
+  const themes = [
+    {keys:['parfum','fragrance','wangi','perfume'], fonts:['Cormorant Garamond','Playfair Display']},
+    {keys:['skincare','bodycare','body care','kecantikan','cream','serum'], fonts:['Playfair Display','Inter']},
+    {keys:['makanan','food','snack','kue','cake','minuman'], fonts:['Fredoka','Plus Jakarta Sans']},
+    {keys:['anak','bayi','mainan','kids'], fonts:['Fredoka','Bebas Neue']},
+    {keys:['elektronik','gadget','hp','laptop'], fonts:['Plus Jakarta Sans','Inter']},
+    {keys:['promo','diskon','sale','murah'], fonts:['Bebas Neue','Inter']},
+    {keys:['fashion','baju','hijab','dress','tas'], fonts:['Inter','Playfair Display']}
+  ];
+  for(const t of themes){
+    if(t.keys.some(k=>all.includes(k))) return { headlineFont:t.fonts[0], subFont:t.fonts[1] };
+  }
+  return { headlineFont:'Inter', subFont:'Inter' };
+}
+
+function avgBrightness(analysis, bandName){
+  if(bandName.startsWith('top')) return analysis.top.brightness;
+  if(bandName.startsWith('bot')) return analysis.bottom.brightness;
+  if(bandName.startsWith('mid')) return analysis.middle.brightness;
+  return analysis.middle.brightness;
+}
+
+function autoLayout(variantIdx = 0){
+  const info = {
+    headline: $('#inHeadline').value.trim(),
+    sub: $('#inSub').value.trim(),
+    content: $('#inContent').value.trim()
+  };
+  if(!info.headline && !info.sub && !info.content){
+    toast('Isi minimal satu kolom teks dulu','err'); return;
+  }
+  // Peringatan jika sudah ada elemen role dan sudah dimodifikasi
+  const hasExisting = state.elements.some(e=>e.role!=='manual');
+  if(hasExisting){
+    if(!confirm('Auto desain akan menata ulang headline/subheadline/isi konten. Lanjutkan?\n(Tulisan manual Anda tidak akan diubah)')) return;
+  }
+
+  let analysis;
+  if(state.imageEl){
+    analysis = analyzeImage(state.imageEl);
+  } else {
+    const b = hexBrightness(state.bgColor);
+    analysis = { top:{brightness:b,variance:0}, middle:{brightness:b,variance:0}, bottom:{brightness:b,variance:0} };
+  }
+
+  // Hapus hanya elemen role-based (tulisan manual dipertahankan)
+  state.elements = state.elements.filter(e=>e.role==='manual');
+
+  const W = state.width, H = state.height;
+  const margin = W*0.06;
+  const textW = W - margin*2;
+
+  const bands = {
+    'top-1':  {y0:H*0.06, y1:H*0.18},
+    'top-2':  {y0:H*0.19, y1:H*0.30},
+    'mid-1':  {y0:H*0.35, y1:H*0.50},
+    'mid-2':  {y0:H*0.51, y1:H*0.65},
+    'bot-1':  {y0:H*0.58, y1:H*0.72},
+    'bot-2':  {y0:H*0.73, y1:H*0.83},
+    'bot-3':  {y0:H*0.84, y1:H*0.94},
+    'bottom': {y0:H*0.65, y1:H*0.94}
+  };
+  const variants = [
+    { headline:'bot-1', sub:'bot-2', content:'bot-3' },
+    { headline:'top-1', sub:'top-2', content:'bottom' },
+    { headline:'mid-1', sub:'mid-2', content:'bottom' }
+  ];
+  const v = variants[variantIdx % variants.length];
+  const theme = pickTheme(info);
+
+  // HEADLINE
+  if(info.headline){
+    const band = bands[v.headline];
+    const fitted = fitTextInBand(info.headline, {
+      font: theme.headlineFont, weight: 900, maxWidth: textW,
+      maxSize: Math.min(W*0.13,120), minSize: 20,
+      maxHeight: (band.y1-band.y0)*0.95, lineHeight: 1.1
+    });
+    const bright = avgBrightness(analysis, v.headline);
+    state.elements.push(createTextElement({
+      role:'headline', text:info.headline,
+      x: margin, y: (band.y0+band.y1)/2 - fitted.height/2, w: textW,
+      font: theme.headlineFont, size: fitted.size, weight: 900,
+      color: bestTextColor(bright), align:'center', lineHeight:1.1, shadow:true
+    }));
+  }
+
+  // SUBHEADLINE
+  if(info.sub){
+    const band = bands[v.sub];
+    const fitted = fitTextInBand(info.sub, {
+      font: theme.subFont, weight: 500, maxWidth: textW,
+      maxSize: Math.min(W*0.065,64), minSize: 14,
+      maxHeight: (band.y1-band.y0)*0.9, lineHeight: 1.35
+    });
+    const bright = avgBrightness(analysis, v.sub);
+    state.elements.push(createTextElement({
+      role:'subheadline', text:info.sub,
+      x: margin, y: (band.y0+band.y1)/2 - fitted.height/2, w: textW,
+      font: theme.subFont, size: fitted.size, weight: 500,
+      color: bestTextColor(bright), align:'center', lineHeight:1.35, shadow:true
+    }));
+  }
+
+  // CONTENT
+  if(info.content){
+    const band = bands[v.content];
+    const fitted = fitTextInBand(info.content, {
+      font: 'Inter', weight: 400, maxWidth: textW,
+      maxSize: Math.min(W*0.038,36), minSize: 11,
+      maxHeight: (band.y1-band.y0)*0.9, lineHeight: 1.5
+    });
+    const bright = avgBrightness(analysis, v.content);
+    state.elements.push(createTextElement({
+      role:'content', text:info.content,
+      x: margin, y: (band.y0+band.y1)/2 - fitted.height/2, w: textW,
+      font: 'Inter', size: fitted.size, weight: 400,
+      color: bestTextColor(bright), align:'center', lineHeight:1.5, shadow:true
+    }));
+  }
+
+  checkOverflow();
+  renderAll(); pushHistory();
+  toast('Auto desain diterapkan','ok');
+}
+
+function checkOverflow(){
+  let has = false;
+  for(const el of state.elements){
+    if(el.type!=='text') continue;
+    const m = measureEl(el);
+    if(el.y + m.height > state.height*0.98 || el.y < -20) has = true;
+  }
+  if(has) toast('⚠️ Sebagian teks melebihi kanvas. Sesuaikan ukuran/posisi.','err');
+}
+
+/* ===== EXPORT ===== */
+async function doExport(){
+  const fmtBtn = $$('#exportModal [data-exp-fmt]').find(b=>b.classList.contains('active'));
+  const qBtn = $$('#exportModal [data-exp-q]').find(b=>b.classList.contains('active'));
+  const fmt = fmtBtn?.dataset.expFmt || 'png';
+  const q = parseInt(qBtn?.dataset.expQ || '2');
+
+  toast('Menyiapkan ekspor...');
+  try {
+    const c = document.createElement('canvas');
+    c.width = state.width * q;
+    c.height = state.height * q;
+    const ctx = c.getContext('2d');
+    ctx.scale(q, q);
+    ctx.fillStyle = state.bgColor || '#ffffff';
+    ctx.fillRect(0, 0, state.width, state.height);
+    if(state.imageEl) drawImageFit(ctx, state.imageEl, 0,0,state.width,state.height, state.imageFit);
+    for(const el of state.elements){
+      if(el.type!=='text' || el.visible===false) continue;
+      drawTextElement(ctx, el);
+    }
+    const mime = fmt==='jpg' ? 'image/jpeg' : 'image/png';
+    c.toBlob(blob=>{
+      if(!blob){ toast('Gagal membuat file','err'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `jualan-dien-${Date.now()}.${fmt}`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 3000);
+      toast('Desain diekspor! Cek folder Downloads','ok');
+      $('#exportModal').classList.remove('show');
+    }, mime, fmt==='jpg' ? 0.92 : undefined);
+  } catch(err){
+    console.error(err);
+    toast('Ekspor gagal: '+err.message,'err');
+  }
+}
+function drawImageFit(ctx, img, x, y, w, h, fit){
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  let s, dw, dh, dx, dy;
+  if(fit==='contain'){
+    s = Math.min(w/iw, h/ih);
+    dw = iw*s; dh = ih*s;
+    dx = x+(w-dw)/2; dy = y+(h-dh)/2;
+  } else {
+    s = Math.max(w/iw, h/ih);
+    dw = iw*s; dh = ih*s;
+    dx = x+(w-dw)/2; dy = y+(h-dh)/2;
+  }
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+function drawTextElement(ctx, el){
+  ctx.save();
+  const m = measureEl(el);
+  const cx = el.x + el.w/2;
+  const cy = el.y;
+  ctx.translate(cx, cy);
+  ctx.rotate(el.rotation * Math.PI/180);
+  ctx.translate(-cx, -cy);
+  ctx.globalAlpha = el.opacity ?? 1;
+
+  const fontSize = el.size;
+  ctx.font = `${el.weight} ${fontSize}px '${el.font}', sans-serif`;
+  if(ctx.letterSpacing !== undefined) ctx.letterSpacing = el.letterSpacing+'px';
+  ctx.textBaseline = 'top';
+
+  const lines = m.lines;
+  const totalH = lines.length * fontSize * el.lineHeight;
+
+  if(el.bg){
+    ctx.fillStyle = 'rgba(0,0,0,.55)';
+    const padX = fontSize*0.4, padY = fontSize*0.15;
+    roundRect(ctx, el.x-padX, el.y-padY, el.w+padX*2, totalH+padY*2, fontSize*0.2);
     ctx.fill();
   }
 
-  // Huruf BENA
-  ctx.fillStyle = '#ffffff';
-  const fs = size * (maskable ? 0.24 : 0.28);
-  ctx.font = '900 ' + fs + 'px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('BENA', size/2, size/2 + fs * 0.02);
-
-  return c.toDataURL('image/png');
-}
-
-// Build manifest data URI
-function buildManifest(){
-  try{
-    const startUrl = location.href.split('?')[0].split('#')[0];
-    const path = location.pathname;
-    const scope = path.substring(0, path.lastIndexOf('/') + 1) || '/';
-
-    const icon192  = generateIcon(192, false);
-    const icon512  = generateIcon(512, false);
-    const icon512m = generateIcon(512, true);
-
-    const manifest = {
-      name: 'BENA — Asisten Konten Jualan',
-      short_name: 'BENA',
-      description: 'Asisten konten promosi untuk jualan online',
-      lang: 'id',
-      dir: 'ltr',
-      start_url: startUrl,
-      scope: scope,
-      display: 'standalone',
-      display_override: ['standalone', 'minimal-ui', 'browser'],
-      orientation: 'portrait',
-      background_color: '#0b0912',
-      theme_color: '#4d28b7',
-      categories: ['business', 'productivity'],
-      prefer_related_applications: false,
-      icons: [
-        { src: icon192,  sizes: '192x192', type: 'image/png', purpose: 'any' },
-        { src: icon512,  sizes: '512x512', type: 'image/png', purpose: 'any' },
-        { src: icon512m, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-      ]
-    };
-
-    const url = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
-    $('manifestLink').href = url;
-
-    // Apple touch icon
-    const apple = document.createElement('link');
-    apple.rel = 'apple-touch-icon';
-    apple.href = generateIcon(180, false);
-    document.head.appendChild(apple);
-
-    // Favicon (browser tab)
-    const fav = document.createElement('link');
-    fav.rel = 'icon';
-    fav.type = 'image/png';
-    fav.href = generateIcon(64, false);
-    document.head.appendChild(fav);
-
-  }catch(e){
-    console.warn('Manifest generation failed:', e);
+  if(el.shadow){
+    ctx.shadowColor = 'rgba(0,0,0,.65)';
+    ctx.shadowBlur = fontSize*0.25;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = fontSize*0.08;
   }
-}
-buildManifest();
 
-// Install prompt
-let deferredPrompt = null;
+  ctx.textAlign = el.align==='center' ? 'center' : el.align==='right' ? 'right' : 'left';
+  let baseX = el.x;
+  if(el.align==='center') baseX = el.x + el.w/2;
+  else if(el.align==='right') baseX = el.x + el.w;
 
-function showInstallUI(){
-  if(isStandalone()) return;
-  $('installBtnHeader').classList.remove('hidden');
-  $('installBtnHeader').classList.add('pulse');
-  $('installBanner').classList.remove('hidden');
-  $('installCardBtn').textContent = 'Pasang BENA';
-  $('installStatus').textContent = 'BENA siap dipasang. Klik tombol di bawah untuk memasang.';
-  $('installHint').style.display = 'none';
-}
-
-function hideInstallUI(){
-  $('installBtnHeader').classList.add('hidden');
-  $('installBtnHeader').classList.remove('pulse');
-  $('installBanner').classList.add('hidden');
-  $('installCardBtn').style.display = 'none';
-  $('installHint').style.display = 'none';
-  $('installStatus').textContent = '✅ BENA sudah terpasang. Kamu membuka versi aplikasi.';
-  $('installStatus').className = 'hint good';
-}
-
-function updateInstallCardForUnsupported(){
-  if(isStandalone()){ hideInstallUI(); return; }
-  $('installBtnHeader').classList.remove('hidden');
-  $('installStatus').textContent = 'Browser ini belum mendukung pemasangan otomatis. Ikuti cara manual di bawah.';
-  $('installCardBtn').style.display = 'none';
-  $('installHint').style.display = 'block';
-}
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  showInstallUI();
-});
-
-window.addEventListener('appinstalled', () => {
-  deferredPrompt = null;
-  hideInstallUI();
-  showToast('🎉 BENA berhasil dipasang!');
-  playChime();
-});
-
-async function promptInstall(){
-  if(isStandalone()){
-    showToast('✅ BENA sudah terpasang');
-    return;
+  if(el.outline){
+    ctx.strokeStyle = 'rgba(0,0,0,.75)';
+    ctx.lineWidth = fontSize*0.06;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    for(let i=0; i<lines.length; i++)
+      ctx.strokeText(lines[i], baseX, el.y + i*fontSize*el.lineHeight);
   }
-  if(deferredPrompt){
-    try{
-      deferredPrompt.prompt();
-      const choice = await deferredPrompt.userChoice;
-      if(choice.outcome === 'accepted'){
-        showToast('🎉 Memasang BENA…');
-      }
-      deferredPrompt = null;
-      hideInstallUI();
-    }catch(err){
-      updateInstallCardForUnsupported();
-    }
-  } else {
-    // Browser tidak mendukung prompt otomatis → tampilkan instruksi
-    updateInstallCardForUnsupported();
-    document.querySelector('.tab[data-tab="riwayat"]').click();
-    setTimeout(()=>{
-      const el = $('installCard');
-      if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
-    }, 150);
-  }
+  ctx.fillStyle = el.color;
+  for(let i=0; i<lines.length; i++)
+    ctx.fillText(lines[i], baseX, el.y + i*fontSize*el.lineHeight);
+  ctx.restore();
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
 }
 
-$('installBtnHeader').addEventListener('click', promptInstall);
-$('installBannerBtn').addEventListener('click', promptInstall);
-$('installCardBtn').addEventListener('click', promptInstall);
-
-// Jika tidak ada prompt (mis. Firefox/iOS), tetap tampilkan instruksi manual di card
-setTimeout(() => {
-  if(!deferredPrompt && !isStandalone()){
-    // Biarkan tombol header tetap visible agar user bisa lihat instruksi
-    $('installBtnHeader').classList.remove('hidden');
-    updateInstallCardForUnsupported();
-  } else if(isStandalone()){
-    hideInstallUI();
-  }
-}, 2500);
-
-// Deteksi perubahan display-mode
-window.matchMedia('(display-mode: standalone)').addEventListener('change', e => {
-  if(e.matches) hideInstallUI();
-});
-
-// Best-effort Service Worker (jika file sw.js tersedia di hosting)
-if('serviceWorker' in navigator && location.protocol === 'https:'){
-  navigator.serviceWorker.register('sw.js').catch(() => { /* offline opsional */ });
-}
-
-/* =========================================================
-   TAB
-   ========================================================= */
-$$('.tab').forEach(b => b.addEventListener('click', () => {
-  $$('.tab').forEach(x => x.classList.toggle('active', x === b));
-  ['konten','story','kalkulator','riwayat'].forEach(id =>
-    $(id).classList.toggle('hidden', id !== b.dataset.tab));
-  if(b.dataset.tab === 'riwayat') renderHistory();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}));
-
-/* =========================================================
-   LOADER
-   ========================================================= */
-function showLoader(text){
-  $('loadText').textContent = text || 'Menyusun konten...';
-  $('loader').classList.remove('hidden');
-  document.body.classList.add('no-scroll');
-}
-function hideLoader(){
-  $('loader').classList.add('hidden');
-  document.body.classList.remove('no-scroll');
-}
-
-/* =========================================================
-   GAMBAR PRODUK
-   ========================================================= */
-let currentImage = '';
-
-function compressImage(file, maxSize = 600, quality = 0.78){
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = () => {
+/* ===== IMAGE LOAD ===== */
+function compressImage(file, maxDim=1600){
+  return new Promise(resolve=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
       const img = new Image();
-      img.onload = () => {
-        let w = img.width, h = img.height;
-        const scale = Math.min(1, maxSize / Math.max(w, h));
-        w = Math.round(w * scale); h = Math.round(h * scale);
+      img.onload = ()=>{
+        const w = img.naturalWidth, h = img.naturalHeight;
+        if(w<=maxDim && h<=maxDim){ resolve(e.target.result); return; }
+        const sc = Math.min(maxDim/w, maxDim/h);
         const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        try{ resolve(c.toDataURL('image/jpeg', quality)); }
-        catch(e){ reject(e); }
+        c.width = Math.round(w*sc); c.height = Math.round(h*sc);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        resolve(c.toDataURL('image/jpeg', 0.88));
       };
-      img.onerror = reject;
-      img.src = fr.result;
+      img.onerror = ()=>resolve(e.target.result);
+      img.src = e.target.result;
     };
-    fr.onerror = reject;
-    fr.readAsDataURL(file);
+    reader.onerror = ()=>resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+async function loadImageFile(file){
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ toast('File harus berupa gambar','err'); return; }
+  try {
+    const src = await compressImage(file);
+    if(!src){ toast('Gagal membaca gambar','err'); return; }
+    const img = new Image();
+    img.onload = ()=>{
+      state.imageSrc = src;
+      state.imageEl = img;
+      $('#canvasImg').src = src;
+      $('#canvasImg').style.objectFit = state.imageFit;
+      $('#imgInfo').textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
+      toast('Foto diunggah','ok');
+    };
+    img.onerror = ()=>toast('Gagal memuat gambar','err');
+    img.src = src;
+  } catch(e){
+    toast('Error: '+e.message,'err');
+  }
+}
+
+/* ===== FONTS ===== */
+function loadFontList(){
+  const sel = $('#selFont');
+  sel.innerHTML = '';
+  const all = [...FONTS, ...state.customFonts.map(f=>({name:f.name, label:'Custom'}))];
+  all.forEach(f=>{
+    const opt = document.createElement('option');
+    opt.value = f.name;
+    opt.textContent = `${f.name} — ${f.label}`;
+    sel.appendChild(opt);
+  });
+}
+async function uploadFont(file){
+  if(!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(!['ttf','otf','woff','woff2'].includes(ext)){
+    toast('Format font tidak didukung. Gunakan TTF/OTF/WOFF','err'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = async e=>{
+    const dataUrl = e.target.result;
+    const fontName = file.name.replace(/\.[^.]+$/,'');
+    try {
+      const ff = new FontFace(fontName, `url(${dataUrl})`);
+      await ff.load();
+      document.fonts.add(ff);
+      state.customFonts.push({name:fontName, dataUrl});
+      loadFontList();
+      renderCustomFontsList();
+      toast(`Font "${fontName}" ditambahkan`,'ok');
+    } catch(err){
+      console.error(err);
+      toast('Gagal memuat font. Mungkin format tidak didukung browser.','err');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+function renderCustomFontsList(){
+  const list = $('#customFontsList');
+  if(state.customFonts.length===0){ list.innerHTML=''; return; }
+  list.innerHTML = '<label style="display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Font Tersimpan</label>';
+  state.customFonts.forEach(f=>{
+    const div = document.createElement('div');
+    div.className = 'font-item';
+    div.innerHTML = `<div style="flex:1"><div class="f-preview" style="font-family:'${f.name}'">Aa Bb Cc — ${escapeHtml(f.name)}</div><div class="f-name">Font kustom</div></div>`;
+    list.appendChild(div);
   });
 }
 
-async function handleImageFile(file){
-  if(!file || !file.type.startsWith('image/')) return;
-  try{
-    const data = await compressImage(file);
-    currentImage = data;
-    $('imgPreview').src = data;
-    $('uploadPreview').classList.remove('hidden');
-    $('uploadEmpty').classList.add('hidden');
-  }catch(e){
-    alert('Gagal membaca gambar. Coba file lain ya.');
-  }
+/* ===== UI SYNC ===== */
+function updateFloatToolbar(){
+  const tb = $('#floatTb');
+  const el = getSelected();
+  if(!el){ tb.classList.remove('show'); return; }
+  tb.classList.add('show');
+  const b = tb.querySelector('[data-cmd="bold"]');
+  if(b){ b.style.fontWeight = el.weight>=700 ? '900' : '400'; b.style.color = el.weight>=700 ? 'var(--ac)' : ''; }
 }
-
-const dz = $('dropzone');
-dz.addEventListener('click', e => {
-  if(e.target.id === 'removeImg') return;
-  $('imgInput').click();
-});
-$('imgInput').addEventListener('change', e => {
-  handleImageFile(e.target.files && e.target.files[0]);
-  e.target.value = '';
-});
-$('removeImg').addEventListener('click', e => {
-  e.stopPropagation();
-  currentImage = '';
-  $('uploadPreview').classList.add('hidden');
-  $('uploadEmpty').classList.remove('hidden');
-});
-['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => {
-  e.preventDefault(); dz.classList.add('dragover');
-}));
-['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => {
-  e.preventDefault(); dz.classList.remove('dragover');
-}));
-dz.addEventListener('drop', e => {
-  const f = e.dataTransfer.files && e.dataTransfer.files[0];
-  handleImageFile(f);
-});
-
-/* =========================================================
-   RENDER HASIL
-   ========================================================= */
-function renderParts(box, parts){
-  box.innerHTML = '';
-  if(currentImage){
-    const im = document.createElement('img');
-    im.src = currentImage;
-    im.className = 'result-img';
-    im.alt = 'Gambar produk';
-    box.appendChild(im);
-  }
-  parts.forEach(([title, body]) => {
-    const tt = document.createElement('div');
-    tt.className = 'result-title';
-    tt.textContent = title;
-
-    const bd = document.createElement('div');
-    bd.className = 'result';
-    bd.textContent = body;
-
-    const btn = document.createElement('button');
-    btn.className = 'secondary btn-inline';
-    btn.textContent = 'Salin bagian ini';
-    btn.onclick = () => copyText(body);
-
-    box.append(tt, bd, btn);
+function syncTextTab(){
+  const el = getSelected();
+  const empty = $('#textTabEmpty');
+  const ctrls = $('#textTabControls');
+  if(!el){ empty.style.display=''; ctrls.style.display='none'; return; }
+  empty.style.display='none'; ctrls.style.display='';
+  $('#inElText').value = el.text;
+  $('#selFont').value = el.font;
+  $('#rangeSize').value = el.size; $('#valSize').textContent = el.size;
+  $('#inColor').value = el.color; $('#inColorHex').value = el.color;
+  $('#rangeWidth').value = Math.round(el.w/state.width*100);
+  $('#valWidth').textContent = Math.round(el.w/state.width*100)+'%';
+  $('#rangeRotate').value = el.rotation; $('#valRotate').textContent = el.rotation+'°';
+  $('#rangeLS').value = el.letterSpacing; $('#valLS').textContent = el.letterSpacing;
+  $('#rangeLH').value = el.lineHeight; $('#valLH').textContent = el.lineHeight;
+  $('#rangeOpacity').value = el.opacity; $('#valOpacity').textContent = Math.round(el.opacity*100)+'%';
+  $$('[data-align]').forEach(b=>b.classList.toggle('active', b.dataset.align===el.align));
+  $$('[data-weight]').forEach(b=>b.classList.toggle('active', +b.dataset.weight===el.weight));
+  $$('[data-efek]').forEach(b=>{
+    if(b.dataset.efek==='shadow') b.classList.toggle('active', el.shadow);
+    if(b.dataset.efek==='outline') b.classList.toggle('active', el.outline);
+    if(b.dataset.efek==='bg') b.classList.toggle('active', el.bg);
   });
-  return parts.map(a => a[0] + '\n' + a[1]).join('\n\n');
+  $('#btnLock').textContent = el.locked ? '🔓 Buka' : '🔒 Kunci';
 }
-
-/* =========================================================
-   GENERATE KONTEN
-   ========================================================= */
-let latest = '';
-let storyLatest = '';
-
-$('generate').onclick = () => {
-  const p = $('produk').value.trim();
-  if(!p){ $('produk').focus(); alert('Isi nama produk dulu ya.'); return; }
-  showLoader('Menyusun konten promosi...');
-  setTimeout(() => {
-    buildContent();
-    hideLoader();
-    playChime();
-    $('hasilCard').classList.remove('hidden');
-    setTimeout(() => $('hasilCard').scrollIntoView({ behavior:'smooth', block:'start' }), 120);
-  }, 1500);
-};
-
-function buildContent(){
-  const p = $('produk').value.trim();
-  const m = $('manfaat').value.trim();
-  const t = $('target').value.trim();
-  const h = $('harga').value.trim();
-  const promo = $('promo').value.trim();
-  const platform = $('platform').value;
-  const gaya = $('gaya').value;
-  const jenis = $('jenis').value;
-
-  const benefit = m || 'praktis untuk menemani aktivitas sehari-hari';
-  const hargaNum = Number(h.replace(/[^0-9]/g,''));
-  const price = h ? ` Harga: ${rupiah(hargaNum)}.` : '';
-  const offer = promo ? ` ✨ ${promo}.` : '';
-  const targetLine = t ? ` Cocok untuk ${t}.` : '';
-
-  const hooks = {
-    santai:[
-      `Lagi cari ${p} buat kebutuhan harian? Coba cek yang satu ini 👀`,
-      `Jujur, kadang hal sederhana seperti ${p} bisa bikin aktivitas terasa lebih praktis.`
-    ],
-    soft:[
-      `Kenalan dulu dengan ${p} — pilihan menarik untuk melengkapi kebutuhanmu.`,
-      `Sedang mencari pilihan ${p}? Ini salah satu produk yang bisa kamu pertimbangkan.`
-    ],
-    heboh:[
-      `STOP SCROLL! 👀 Yuk kenalan dengan ${p}!`,
-      `Ada yang lagi cari ${p}? Simpan info ini dulu, siapa tahu cocok!`
-    ],
-    profesional:[
-      `Perkenalkan ${p}, pilihan untuk membantu memenuhi kebutuhan Anda.`,
-      `Pertimbangkan ${p} untuk melengkapi kebutuhan Anda secara praktis.`
-    ],
-    lucu:[
-      `Dompet bilang santai, keranjang bilang: ${p} dulu nggak sih? 😂`,
-      `Niatnya cuma lihat-lihat, eh malah ketemu ${p} 👀`
-    ]
-  };
-
-  const ctas = {
-    Threads:'Kalau mau detailnya, komen "INFO" ya 👇',
-    Shopee:'Cek detail produk di etalase dan sesuaikan dengan kebutuhanmu 🛒',
-    TikTok:'Simpan dulu videonya dan cek detail produk ya!',
-    WhatsApp:'Mau tanya detail atau pesan? Chat aku ya 😊',
-    Instagram:'Simpan postingan ini dan DM untuk tanya detailnya 💬',
-    Facebook:'Tulis "INFO" di komentar kalau ingin detail produk.'
-  };
-
-  const hook = (hooks[gaya] || hooks.santai)[0];
-  const caption = `${hook}\n\n${p} — ${benefit}.${targetLine}${price}${offer}\n\n${ctas[platform]}`;
-
-  let parts = [];
-  if(jenis === 'hook'){
-    parts = [['Hook', hook]];
-  } else if(jenis === 'caption'){
-    parts = [['Caption', caption]];
-  } else if(jenis === 'deskripsi'){
-    parts = [['Deskripsi produk',
-      `${p}\n\nKeunggulan: ${benefit}.\n` +
-      (h ? `Harga: ${rupiah(hargaNum)}.\n` : '') +
-      (promo ? `Promo: ${promo}.\n` : '') +
-      `\nPilih produk sesuai kebutuhan. Pastikan membaca informasi produk sebelum membeli.`
-    ]];
-  } else if(jenis === 'video'){
-    parts = [['Skrip video 15 detik',
-      `[0–3 detik] ${hook}\n` +
-      `[3–9 detik] Tampilkan produk ${p} dan jelaskan: ${benefit}.\n` +
-      `[9–12 detik] Tampilkan detail produk${h ? ' dan harga ' + rupiah(hargaNum) : ''}.${offer}\n` +
-      `[12–15 detik] ${ctas[platform]}`
-    ]];
-  } else if(jenis === 'thread'){
-    parts = [
-      ['Utas 1/4', hook],
-      ['Utas 2/4', `Kenalan dengan ${p}. ${benefit}.${targetLine}`],
-      ['Utas 3/4', `${h ? 'Harga ' + rupiah(hargaNum) + '. ' : ''}${promo ? promo + '. ' : ''}Cek detail dan pastikan cocok dengan kebutuhanmu.`],
-      ['Utas 4/4', ctas[platform]]
-    ];
-  } else {
-    parts = [
-      ['Hook', hook],
-      ['Caption', caption],
-      ['CTA', ctas[platform]],
-      ['Hashtag', `#${p.replace(/[^a-zA-Z0-9]/g,'')} #JualanOnline #RekomendasiProduk`]
-    ];
-  }
-
-  if(currentImage){
-    parts.push(['Ide konten visual',
-      `• Slide/gambar 1: foto produk + hook utama\n` +
-      `• Slide 2: detail produk (tekstur/ukuran) + manfaat utama\n` +
-      `• Slide 3: harga/promo + ajakan\n` +
-      `Gunakan gambar yang sudah kamu unggah, tambahkan teks besar dan singkat.`
-    ]);
-  }
-
-  latest = renderParts($('hasil'), parts);
-}
-
-/* =========================================================
-   STORYTELLING
-   ========================================================= */
-const ANGLE_TITLE = {
-  pas:'Masalah → Solusi',
-  pengalaman:'Pengalaman pribadi',
-  bts:'Behind the scene',
-  mitos:'Mitos vs fakta',
-  beforeafter:'Sebelum & sesudah',
-  testimoni:'Cerita pelanggan'
-};
-
-function storyBeats(angle, p, M, S, T){
-  switch(angle){
-    case 'pengalaman': return [
-      ['Hook (0–3 dtk)', `“Aku nggak nyangka hal sekecil ini bisa ngaruh banget.”`],
-      ['Konflik (3–9 dtk)', `Ceritakan momen jujur sebelum kamu pakai ${p}. Sebutkan hal spesifik: ${M}.`],
-      ['Keputusan (9–14 dtk)', `“Akhirnya aku coba ${p}.” Tunjukkan produk pertama kali dibuka/dipegang.`],
-      ['Hasil (14–21 dtk)', `${p} bikin ${S}. Bandingkan kondisi sebelum dan sesudah dengan bahasa sederhana.`],
-      ['Refleksi + ajakan (21–27 dtk)', `“Kalau kamu juga ngalamin ${M}, mungkin ini bisa jadi jawabannya.” Ajak DM/simpan.`]
-    ];
-    case 'bts': return [
-      ['Hook (0–3 dtk)', `“Ini yang nggak kamu lihat sebelum ${p} sampai di tanganmu.”`],
-      ['Proses (3–9 dtk)', `Tunjukkan proses packing/persiapan ${p}: cek kualitas, kemas, tulis kartu ucapan.`],
-      ['Detail (9–15 dtk)', `Sorot satu detail kecil yang bikin beda: bahan, wangi, jahitan, atau kemasan.`],
-      ['Kenapa penting (15–21 dtk)', `Jelaskan alasan kamu repot di bagian ini. Hubungkan dengan manfaat: ${S}.`],
-      ['Ajakan (21–26 dtk)', `“Mau lihat versi lengkapnya? Komen/DM ya.”`]
-    ];
-    case 'mitos': return [
-      ['Hook (0–3 dtk)', `“Mitos: ${M}.”`],
-      ['Bantahan (3–9 dtk)', `“Faktanya nggak selalu begitu.” Jelaskan singkat dan jujur, hindari klaim berlebihan.`],
-      ['Bukti (9–16 dtk)', `Tunjukkan bukti sederhana: demo, uji coba, atau perbandingan langsung.`],
-      ['Solusi (16–22 dtk)', `Di sinilah ${p} membantu: ${S}.`],
-      ['Ajakan (22–27 dtk)', `“Simpan biar nggak lupa, dan cek detail produknya ya.”`]
-    ];
-    case 'beforeafter': return [
-      ['Hook (0–3 dtk)', `“Sebelum: ${M}.” Tampilkan kondisi awal.`],
-      ['Sesudah (3–9 dtk)', `“Sesudah pakai ${p}: ${S}.” Tampilkan hasil dengan jujur, tanpa filter berlebihan.`],
-      ['Apa yang berubah (9–15 dtk)', `Sebutkan 2–3 perubahan konkret yang benar-benar kamu alami.`],
-      ['Kenapa bisa begitu (15–21 dtk)', `Jelaskan alasan sederhana di balik perubahan itu.`],
-      ['Ajakan (21–26 dtk)', `“Kalau kamu pengin perubahan yang sama, cek ${p}.”`]
-    ];
-    case 'testimoni': return [
-      ['Hook (0–3 dtk)', `“Kata pelanggan: ‘${M} itu bikin males… sampai aku coba ${p}.’”`],
-      ['Awal cerita (3–9 dtk)', `Ceritakan kondisi pelanggan sebelum menemukan ${p}.`],
-      ['Momen coba (9–15 dtk)', `Kapan dan kenapa dia memutuskan mencoba ${p}.`],
-      ['Hasil (15–21 dtk)', `${S}. Tampilkan foto/chat asli bila sudah mendapat izin.`],
-      ['Ajakan (21–26 dtk)', `“Mau cerita versimu? Komen atau DM ya.”`]
-    ];
-    default: return [
-      ['Hook (0–3 dtk)', `“${M}? Aku juga pernah di posisi itu.”`],
-      ['Agitasi (3–9 dtk)', `Tunjukkan momen ketika ${M} bikin ${T} rugi waktu, uang, atau mood. Bahasa sehari-hari, jangan lebay.`],
-      ['Titik balik (9–14 dtk)', `“Sampai akhirnya aku coba ${p}.” Perlihatkan produk pertama kali dipegang.`],
-      ['Solusi (14–21 dtk)', `${p} — ${S}. Tunjukkan produk dipakai di aktivitas nyata.`],
-      ['Ajakan (21–26 dtk)', `“Kalau kamu juga sering ngalamin ${M}, cek ${p} di keranjang kuning/DM.”`]
-    ];
-  }
-}
-
-$('genStory').onclick = () => {
-  const p = $('produk').value.trim();
-  if(!p){
-    alert('Isi nama produk di tab "Buat Konten" dulu ya.');
-    document.querySelector('.tab[data-tab="konten"]').click();
-    $('produk').focus();
+function renderLayerList(){
+  const list = $('#layerList');
+  $('#layerCount').textContent = state.elements.length;
+  if(state.elements.length===0){
+    list.innerHTML = '<div class="empty"><div class="icon">📄</div><div>Belum ada elemen</div></div>';
     return;
   }
-  showLoader('Merangkai ide cerita...');
-  setTimeout(() => {
-    buildStory();
-    hideLoader();
-    playChime();
-    $('storyCard').classList.remove('hidden');
-    setTimeout(() => $('storyCard').scrollIntoView({ behavior:'smooth', block:'start' }), 120);
-  }, 1500);
-};
+  list.innerHTML = '';
+  [...state.elements].reverse().forEach(el=>{
+    const div = document.createElement('div');
+    div.className = 'layer-item' + (el.id===state.selectedId ? ' selected' : '');
+    const label = el.text.length>28 ? el.text.substring(0,28)+'...' : el.text;
+    const roleBadge = el.role!=='manual' ? ` <span style="font-size:9px;color:var(--ac)">${el.role}</span>` : '';
+    div.innerHTML = `
+      <div class="l-name">${escapeHtml(label)}${roleBadge}</div>
+      <div class="l-actions">
+        <button data-act="up" data-id="${el.id}" title="Naik">↑</button>
+        <button data-act="down" data-id="${el.id}" title="Turun">↓</button>
+        <button data-act="visible" data-id="${el.id}" title="Visibilitas">${el.visible===false?'🚫':'👁'}</button>
+        <button data-act="lock" data-id="${el.id}" title="Kunci">${el.locked?'🔒':'🔓'}</button>
+        <button data-act="del" data-id="${el.id}" title="Hapus">🗑</button>
+      </div>`;
+    div.addEventListener('click', e=>{
+      if(e.target.closest('button')) return;
+      selectElement(el.id);
+      if(!el.visible) el.visible = true;
+      switchTab('text');
+    });
+    list.appendChild(div);
+  });
+}
 
-function buildStory(){
-  const p = $('produk').value.trim();
-  const T = $('target').value.trim() || 'pelanggan';
-  const M = $('storyMasalah').value.trim() || 'kebutuhan harian yang bikin repot';
-  const S = $('storySolusi').value.trim() || $('manfaat').value.trim() || 'praktis dipakai setiap hari';
-  const angle = $('storyAngle').value;
-  const title = ANGLE_TITLE[angle];
+function switchTab(name){
+  $$('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  $$('.panel-section').forEach(p=>p.classList.toggle('active', p.dataset.panel===name));
+}
 
-  const beats = storyBeats(angle, p, M, S, T);
-
-  const parts = [
-    ['Judul ide', `${title} — ${p}`],
-    ...beats,
-    ['Checklist visual',
-      `• 1 shot pembuka yang menunjukkan masalah\n` +
-      `• 1 shot produk ${p} di tangan\n` +
-      `• 1 shot detail produk (tekstur/ukuran)\n` +
-      `• 1 shot produk dipakai oleh ${T}\n` +
-      (currentImage
-        ? `• Pakai gambar produk yang sudah kamu unggah sebagai slide utama`
-        : `• Tambahkan foto produk asli (bukan foto katalog) supaya lebih dipercaya`)
-    ],
-    ['Caption pembuka',
-      `Aku nggak nyangka ${p} bisa bikin perubahan kecil yang kerasa. ` +
-      `Kalau kamu juga sering ngalamin ${M}, mungkin ini bisa jadi jawabannya. 💬`
-    ],
-    ['Catatan jujur',
-      `Ceritakan pengalaman nyata. Jangan klaim hal yang belum terbukti, dan minta izin sebelum memakai cerita/foto pelanggan.`
-    ]
+/* ===== AI ===== */
+function localHeadlines(p){
+  p = p || 'Produk';
+  return [
+    `PROMO SPESIAL ${p.toUpperCase()}!`,
+    `${p} Terbaik untuk Anda`,
+    `Baru! ${p} Kualitas Premium`,
+    `Diskon Spesial ${p} Hari Ini`,
+    `Rasakan Manfaat ${p}`
   ];
-
-  storyLatest = renderParts($('storyHasil'), parts);
 }
-
-/* =========================================================
-   COPY
-   ========================================================= */
-function copyText(s){
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(s)
-      .then(() => showToast('📋 Teks disalin'))
-      .catch(() => fallbackCopy(s));
-  } else fallbackCopy(s);
+function localSub(p){
+  p = p || 'produk ini';
+  return [
+    'Kualitas terjamin, harga bersahabat',
+    'Hanya hari ini — jangan sampai kehabisan!',
+    'Pilihan tepat untuk kebutuhan Anda',
+    'Dibuat dengan bahan pilihan',
+    'Stok terbatas, buruan order!'
+  ];
 }
-function fallbackCopy(s){
-  const x = document.createElement('textarea');
-  x.value = s;
-  x.style.position = 'fixed';
-  x.style.opacity = '0';
-  document.body.appendChild(x);
-  x.select();
-  try{ document.execCommand('copy'); showToast('📋 Teks disalin'); }
-  catch(e){ alert('Silakan pilih dan salin teks secara manual.'); }
-  x.remove();
+function localContent(p){
+  p = p || 'Produk';
+  return [
+    `✅ Kualitas premium\n✅ Harga terjangkau\n✅ Siap kirim hari ini\n\nPesan sekarang sebelum kehabisan!`,
+    `${p} hadir dengan formula terbaik.\n\nManfaat:\n• Berkualitas tinggi\n• Aman digunakan\n• Hasil memuaskan\n\nPromo spesial hari ini!`,
+    `Spesial untuk Anda!\n\n${p} pilihan tepat dengan kualitas terbaik.\nHarga ramah kantong.\n\nOrder sekarang, stok terbatas.`
+  ];
 }
-$('copyAll').onclick = () => { if(latest) copyText(latest); };
-$('copyStory').onclick = () => { if(storyLatest) copyText(storyLatest); };
-
-/* =========================================================
-   RIWAYAT
-   ========================================================= */
-function getHistory(){ return LS.get('bena_history', []); }
-
-function addHistory(item){
-  const a = getHistory();
-  a.unshift(item);
-  const trimmed = a.slice(0, 20);
-  if(!LS.set('bena_history', trimmed)){
-    const slim = trimmed.map(x => ({ ...x, image:'' }));
-    if(!LS.set('bena_history', slim)){
-      alert('Penyimpanan perangkat penuh. Hapus beberapa riwayat dulu ya.');
-      return false;
-    }
+function localDesign(){
+  const all = ($('#inHeadline').value+' '+$('#inSub').value+' '+$('#inContent').value).toLowerCase();
+  let theme = pickTheme({headline:all, sub:'', content:''});
+  const colorMap = {
+    'Cormorant Garamond':['#d4af37','#1a1a1a','#f5f5dc'],
+    'Playfair Display':['#8b6f47','#e8d5c4','#1a1a1a'],
+    'Fredoka':['#ff6b35','#f7c948','#ffffff'],
+    'Bebas Neue':['#ef4444','#000000','#ffffff'],
+    'Inter':['#a855f7','#ec4899','#1a1a1a'],
+    'Plus Jakarta Sans':['#a855f7','#3b82f6','#ffffff'],
+    'Righteous':['#f59e0b','#ec4899','#1a1a1a'],
+    'Dancing Script':['#ec4899','#f472b6','#ffffff']
+  };
+  const colors = colorMap[theme.headlineFont] || ['#a855f7','#ec4899','#1a1a1a'];
+  return {
+    font: theme.headlineFont,
+    subFont: theme.subFont,
+    colors,
+    tip: `Kombinasi ${theme.headlineFont} + ${theme.subFont} cocok untuk produk ini. Gunakan warna aksen ${colors[0]}.`
+  };
+}
+async function callOnlineAI(prompt){
+  const {endpoint, key, model} = state.aiConfig;
+  if(!endpoint || !key) return null;
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':`Bearer ${key}`},
+      body: JSON.stringify({
+        model: model||'gpt-4o-mini',
+        messages:[
+          {role:'system', content:'Anda adalah copywriter produk Indonesia. Berikan jawaban singkat, praktis, tanpa penomoran.'},
+          {role:'user', content: prompt}
+        ],
+        temperature: 0.8
+      })
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch(e){
+    console.warn('AI online gagal:', e);
+    toast('AI online gagal, pakai mode lokal','err');
+    return null;
   }
-  return true;
 }
 
-$('save').onclick = () => {
-  if(!latest) return;
-  const ok = addHistory({
-    type:'konten',
-    date:new Date().toLocaleString('id-ID'),
-    product:$('produk').value.trim() || 'Tanpa judul',
-    content:latest,
-    image:currentImage || ''
-  });
-  if(ok) showToast('💾 Konten disimpan');
-};
-
-$('saveStory').onclick = () => {
-  if(!storyLatest) return;
-  const ok = addHistory({
-    type:'story',
-    date:new Date().toLocaleString('id-ID'),
-    product:$('produk').value.trim() || 'Tanpa judul',
-    content:storyLatest,
-    image:currentImage || ''
-  });
-  if(ok) showToast('💾 Ide cerita disimpan');
-};
-
-function renderHistory(){
-  const a = getHistory();
-  const box = $('riwayatList');
-  box.innerHTML = '';
-  if(!a.length){
-    box.innerHTML = '<p class="small">Belum ada konten tersimpan.</p>';
-    return;
-  }
-  a.forEach((item, i) => {
-    const d = document.createElement('div');
-    d.className = 'history-item';
-
-    const row = document.createElement('div');
-    row.className = 'hrow';
-
-    if(item.image){
-      const th = document.createElement('img');
-      th.src = item.image;
-      th.className = 'thumb';
-      th.alt = 'Gambar produk';
-      row.appendChild(th);
-    }
-
-    const mid = document.createElement('div');
-    mid.style.flex = '1';
-    mid.style.minWidth = '0';
-
-    const title = document.createElement('div');
-    title.style.fontSize = '13.5px';
-    title.innerHTML = '<strong>' + escapeHtml(item.product) + '</strong>' +
-      '<span class="badge">' + (item.type === 'story' ? 'Cerita' : 'Konten') + '</span>';
-
-    const date = document.createElement('div');
-    date.className = 'small';
-    date.textContent = item.date;
-
-    const body = document.createElement('p');
-    body.className = 'small';
-    body.style.margin = '6px 0 8px';
-    body.textContent = item.content.slice(0, 170) + (item.content.length > 170 ? '…' : '');
-
-    const rowBtn = document.createElement('div');
-    rowBtn.className = 'rowbtn';
-
-    const cp = document.createElement('button');
-    cp.className = 'secondary small-btn';
-    cp.textContent = 'Salin';
-    cp.onclick = () => copyText(item.content);
-
-    const del = document.createElement('button');
-    del.className = 'ghost small-btn';
-    del.textContent = 'Hapus';
-    del.onclick = () => {
-      const h = getHistory();
-      h.splice(i, 1);
-      LS.set('bena_history', h);
-      renderHistory();
+/* ===== PERSISTENCE ===== */
+function saveProject(silent=false){
+  try {
+    const data = {
+      version:1,
+      width:state.width, height:state.height, format:state.format,
+      imageFit:state.imageFit, bgColor:state.bgColor,
+      imageSrc:state.imageSrc, elements:state.elements,
+      savedAt:Date.now()
     };
+    localStorage.setItem('jd_project', JSON.stringify(data));
+    if(!silent) toast('Proyek tersimpan','ok');
+  } catch(e){
+    if(!silent) toast('Gagal menyimpan: '+e.message,'err');
+    console.warn('saveProject', e);
+  }
+}
+function loadProject(){
+  try {
+    const raw = localStorage.getItem('jd_project');
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    state.width = data.width || 1080;
+    state.height = data.height || 1080;
+    state.format = data.format || '1:1';
+    state.imageFit = data.imageFit || 'cover';
+    state.bgColor = data.bgColor || '#ffffff';
+    state.elements = data.elements || [];
+    if(data.imageSrc){
+      state.imageSrc = data.imageSrc;
+      const img = new Image();
+      img.onload = ()=>{
+        state.imageEl = img;
+        $('#canvasImg').src = data.imageSrc;
+        $('#canvasImg').style.objectFit = state.imageFit;
+        $('#imgInfo').textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
+      };
+      img.src = data.imageSrc;
+    }
+    updateCanvasSize();
+    $('#canvas').style.background = state.bgColor;
+    $('#inBg').value = state.bgColor; $('#inBgHex').value = state.bgColor;
+    renderAll();
+    pushHistory();
+    return true;
+  } catch(e){ console.warn('loadProject', e); return false; }
+}
+let autoSaveT;
+function autoSave(){
+  clearTimeout(autoSaveT);
+  autoSaveT = setTimeout(()=>saveProject(true), 1500);
+}
 
-    rowBtn.append(cp, del);
-    mid.append(title, date, body, rowBtn);
-    row.appendChild(mid);
-    d.appendChild(row);
-    box.appendChild(d);
+/* ===== EVENT WIRING ===== */
+function initEvents(){
+  $$('.tab').forEach(t=>t.addEventListener('click', ()=>switchTab(t.dataset.tab)));
+
+  // Photo
+  $('#btnCamera').onclick = ()=>$('#inputCamera').click();
+  $('#btnGallery').onclick = ()=>$('#inputGallery').click();
+  $('#inputCamera').onchange = e=>{ loadImageFile(e.target.files[0]); e.target.value=''; };
+  $('#inputGallery').onchange = e=>{ loadImageFile(e.target.files[0]); e.target.value=''; };
+
+  // Format
+  $$('[data-format]').forEach(b=>b.addEventListener('click', ()=>{
+    const f = b.dataset.format;
+    const sizes = {'1:1':[1080,1080], '4:5':[1080,1350], '9:16':[1080,1920]};
+    state.width = sizes[f][0]; state.height = sizes[f][1]; state.format = f;
+    $$('[data-format]').forEach(x=>x.classList.toggle('active', x===b));
+    updateCanvasSize(); pushHistory();
+  }));
+  $('#btnApplyCustom').onclick = ()=>{
+    const w = parseInt($('#inCustomW').value);
+    const h = parseInt($('#inCustomH').value);
+    if(!w||!h||w<100||h<100){ toast('Ukuran tidak valid','err'); return; }
+    state.width=w; state.height=h; state.format='custom';
+    $$('[data-format]').forEach(x=>x.classList.remove('active'));
+    updateCanvasSize(); pushHistory();
+  };
+  $$('[data-fit]').forEach(b=>b.addEventListener('click', ()=>{
+    state.imageFit = b.dataset.fit;
+    $$('[data-fit]').forEach(x=>x.classList.toggle('active', x===b));
+    $('#canvasImg').style.objectFit = state.imageFit;
+    pushHistory();
+  }));
+  $('#inBg').oninput = e=>{
+    state.bgColor = e.target.value;
+    $('#inBgHex').value = e.target.value;
+    $('#canvas').style.background = state.bgColor;
+  };
+  $('#inBg').onchange = pushHistory;
+  $('#inBgHex').onchange = e=>{
+    const v = e.target.value;
+    if(/^#[0-9a-f]{6}$/i.test(v)){ $('#inBg').value = v; $('#inBg').dispatchEvent(new Event('input')); pushHistory(); }
+  };
+  $('#btnRemoveImg').onclick = ()=>{
+    state.imageSrc = null; state.imageEl = null;
+    $('#canvasImg').src = ''; $('#imgInfo').textContent = 'Belum ada foto';
+  };
+
+  // Auto
+  $('#btnAuto').onclick = ()=>autoLayout(0);
+  $('#btnVariasi').onclick = ()=>{
+    const idx = Math.floor(Math.random()*3);
+    autoLayout(idx);
+    toast('Variasi desain diterapkan','ok');
+  };
+
+  // Manual text
+  $('#btnAddManual').onclick = ()=>{
+    const text = $('#inManual').value.trim();
+    if(!text){ toast('Isi teks manual dulu','err'); return; }
+    const el = createTextElement({
+      text, x:state.width*0.1, y:state.height*0.4, w:state.width*0.8,
+      size: Math.min(48, state.width*0.06), color:'#ffffff', shadow:true
+    });
+    state.elements.push(el); renderAll(); selectElement(el.id);
+    $('#inManual').value=''; pushHistory();
+  };
+
+  // Add text
+  $('#btnAddText').onclick = addNewText;
+  $('#btnAddText2').onclick = addNewText;
+
+  // Text controls
+  $('#inElText').oninput = e=>{
+    const el = getSelected(); if(!el) return;
+    el.text = e.target.value; updateElNode(el);
+  };
+  $('#inElText').onchange = ()=>{ pushHistory(); autoSave(); };
+
+  $('#selFont').onchange = e=>{
+    const el = getSelected(); if(!el) return;
+    el.font = e.target.value; updateElNode(el); pushHistory();
+  };
+  $('#rangeSize').oninput = e=>{
+    const el = getSelected(); if(!el) return;
+    el.size = +e.target.value; $('#valSize').textContent = el.size; updateElNode(el);
+  };
+  $('#rangeSize').onchange = pushHistory;
+  $('#btnSizeMinus').onclick = ()=>{
+    const el = getSelected(); if(!el) return;
+    el.size = Math.max(8, el.size-2);
+    $('#rangeSize').value = el.size; $('#valSize').textContent = el.size;
+    updateElNode(el); pushHistory();
+  };
+  $('#btnSizePlus').onclick = ()=>{
+    const el = getSelected(); if(!el) return;
+    el.size = Math.min(400, el.size+2);
+    $('#rangeSize').value = el.size; $('#valSize').textContent = el.size;
+    updateElNode(el); pushHistory();
+  };
+  $('#inColor').oninput = e=>{
+    const el = getSelected(); if(!el) return;
+    el.color = e.target.value; $('#inColorHex').value = e.target.value;
+    updateElNode(el);
+  };
+  $('#inColor').onchange = pushHistory;
+  $('#inColorHex').onchange = e=>{
+    const v = e.target.value;
+    if(/^#[0-9a-f]{6}$/i.test(v)){ $('#inColor').value = v; $('#inColor').dispatchEvent(new Event('input')); pushHistory(); }
+  };
+  $$('[data-align]').forEach(b=>b.addEventListener('click', ()=>{
+    const el = getSelected(); if(!el) return;
+    el.align = b.dataset.align;
+    $$('[data-align]').forEach(x=>x.classList.toggle('active', x===b));
+    updateElNode(el); pushHistory();
+  }));
+  $$('[data-weight]').forEach(b=>b.addEventListener('click', ()=>{
+    const el = getSelected(); if(!el) return;
+    el.weight = +b.dataset.weight;
+    $$('[data-weight]').forEach(x=>x.classList.toggle('active', x===b));
+    updateElNode(el); pushHistory();
+  }));
+  $('#rangeWidth').oninput = e=>{
+    const el = getSelected(); if(!el) return;
+    el.w = state.width*(+e.target.value/100);
+    $('#valWidth').textContent = e.target.value+'%';
+    updateElNode(el);
+  };
+  $('#rangeWidth').onchange = pushHistory;
+  $('#rangeRotate').oninput = e=>{
+    const el = getSelected(); if(!el) return;
+    el.rotation = +e.target.value; $('#valRotate').textContent = el.rotation+'°';
+    updateElNode(el);
+  };
+  $('#rangeRotate').onchange = pushHistory;
+  $('#rangeLS').oninput = e=>{
+    const el = getSelected(); if(!el) return;
+    el.letterSpacing = +e.target.value; $('#valLS').textContent = el.letterSpacing;
+    updateElNode(el);
+  };
+  $('#rangeLS').onchange = pushHistory;
+  $('#rangeLH').oninput = e=>{
+    const el = getSelected(); if(!el) return;
+    el.lineHeight = +e.target.value; $('#valLH').textContent = el.lineHeight.toFixed(2);
+    updateElNode(el);
+  };
+  $('#rangeLH').onchange = pushHistory;
+  $('#rangeOpacity').oninput = e=>{
+    const el = getSelected(); if(!el) return;
+    el.opacity = +e.target.value;
+    $('#valOpacity').textContent = Math.round(el.opacity*100)+'%';
+    updateElNode(el);
+  };
+  $('#rangeOpacity').onchange = pushHistory;
+  $$('[data-efek]').forEach(b=>b.addEventListener('click', ()=>{
+    const el = getSelected(); if(!el) return;
+    const k = b.dataset.efek;
+    el[k] = !el[k];
+    b.classList.toggle('active', el[k]);
+    updateElNode(el); pushHistory();
+  }));
+  $('#btnDup').onclick = ()=>{
+    const el = getSelected(); if(!el) return;
+    const c = JSON.parse(JSON.stringify(el));
+    c.id = uid('t'); c.x += 24; c.y += 24; c.role = 'manual';
+    state.elements.push(c); renderAll(); selectElement(c.id); pushHistory();
+  };
+  $('#btnLock').onclick = ()=>{
+    const el = getSelected(); if(!el) return;
+    el.locked = !el.locked; updateElNode(el); syncTextTab(); pushHistory();
+  };
+  $('#btnDelEl').onclick = ()=>{
+    const el = getSelected(); if(!el) return;
+    state.elements = state.elements.filter(x=>x.id!==el.id);
+    deselect(); renderAll(); pushHistory();
+  };
+
+  // Font
+  $('#btnUploadFont').onclick = ()=>$('#inputFont').click();
+  $('#inputFont').onchange = e=>{ uploadFont(e.target.files[0]); e.target.value=''; };
+
+  // Float toolbar
+  $('#floatTb').addEventListener('click', e=>{
+    const btn = e.target.closest('button'); if(!btn) return;
+    const el = getSelected(); if(!el) return;
+    const cmd = btn.dataset.cmd;
+    if(cmd==='size+'){ el.size = Math.min(400, el.size+4); updateElNode(el); syncTextTab(); pushHistory(); }
+    if(cmd==='size-'){ el.size = Math.max(8, el.size-4); updateElNode(el); syncTextTab(); pushHistory(); }
+    if(cmd==='bold'){ el.weight = el.weight>=700 ? 400 : 900; updateElNode(el); syncTextTab(); updateFloatToolbar(); pushHistory(); }
+    if(cmd==='color'){ switchTab('text'); }
+    if(cmd==='dup'){ $('#btnDup').click(); }
+    if(cmd==='del'){ $('#btnDelEl').click(); }
   });
+
+  // Layer list actions
+  $('#layerList').addEventListener('click', e=>{
+    const btn = e.target.closest('button[data-act]'); if(!btn) return;
+    const el = state.elements.find(x=>x.id===btn.dataset.id); if(!el) return;
+    const act = btn.dataset.act;
+    if(act==='visible'){
+      el.visible = el.visible===false ? true : false; renderAll(); pushHistory();
+    }
+    if(act==='lock'){
+      el.locked = !el.locked; renderAll(); syncTextTab(); pushHistory();
+    }
+    if(act==='del'){
+      state.elements = state.elements.filter(x=>x.id!==el.id);
+      if(state.selectedId===el.id) deselect();
+      renderAll(); pushHistory();
+    }
+    if(act==='up'){
+      const i = state.elements.indexOf(el);
+      if(i < state.elements.length-1){
+        [state.elements[i], state.elements[i+1]] = [state.elements[i+1], state.elements[i]];
+        renderAll(); pushHistory();
+      }
+    }
+    if(act==='down'){
+      const i = state.elements.indexOf(el);
+      if(i > 0){
+        [state.elements[i], state.elements[i-1]] = [state.elements[i-1], state.elements[i]];
+        renderAll(); pushHistory();
+      }
+    }
+  });
+
+  // Undo/Redo
+  $('#btnUndo').onclick = undo;
+  $('#btnRedo').onclick = redo;
+
+  // Save & Export
+  $('#btnSave').onclick = ()=>saveProject(false);
+  $('#btnExport').onclick = ()=>{
+    $('#expPreview').textContent = `Akan diekspor: ${state.width} × ${state.height} px`;
+    $('#exportModal').classList.add('show');
+  };
+  $$('#exportModal [data-exp-fmt]').forEach(b=>b.addEventListener('click', ()=>
+    $$('#exportModal [data-exp-fmt]').forEach(x=>x.classList.toggle('active', x===b))));
+  $$('#exportModal [data-exp-q]').forEach(b=>b.addEventListener('click', ()=>
+    $$('#exportModal [data-exp-q]').forEach(x=>x.classList.toggle('active', x===b))));
+  $('#btnDoExport').onclick = doExport;
+
+  // AI
+  $('#btnAI').onclick = ()=>{
+    $('#aiEndpoint').value = state.aiConfig.endpoint;
+    $('#aiKey').value = state.aiConfig.key;
+    $('#aiModel').value = state.aiConfig.model;
+    $('#aiModal').classList.add('show');
+  };
+  $('#aiSaveKey').onclick = ()=>{
+    state.aiConfig.endpoint = $('#aiEndpoint').value.trim();
+    state.aiConfig.key = $('#aiKey').value.trim();
+    state.aiConfig.model = $('#aiModel').value.trim();
+    localStorage.setItem('jd_endpoint', state.aiConfig.endpoint);
+    localStorage.setItem('jd_key', state.aiConfig.key);
+    localStorage.setItem('jd_model', state.aiConfig.model);
+    toast('Pengaturan AI disimpan','ok');
+  };
+  $('#aiGenHeadline').onclick = async ()=>{
+    const product = $('#aiProductInfo').value.trim() || $('#inHeadline').value.trim();
+    const res = $('#aiHeadlineRes');
+    res.innerHTML = '<div style="text-align:center;padding:10px"><span class="spin"></span></div>';
+    let items = null;
+    if(state.aiConfig.endpoint && state.aiConfig.key){
+      const online = await callOnlineAI(`Buat 5 alternatif headline promosi singkat (maks 8 kata) untuk produk: ${product||'produk'}. Satu per baris.`);
+      if(online) items = online.split('\n').map(x=>x.trim()).filter(x=>x).slice(0,5);
+    }
+    if(!items) items = localHeadlines(product);
+    res.innerHTML = items.map(t=>`<div class="ai-sug" data-text="${escapeHtml(t)}">${escapeHtml(t)} <span class="badge local">pakai</span></div>`).join('');
+    res.querySelectorAll('.ai-sug').forEach(s=>s.onclick = ()=>{
+      $('#inHeadline').value = s.dataset.text;
+      toast('Headline diaplikasikan ke form','ok');
+      $('#aiModal').classList.remove('show');
+    });
+  };
+  $('#aiGenSub').onclick = async ()=>{
+    const product = $('#aiProductInfo').value.trim() || $('#inHeadline').value.trim();
+    const res = $('#aiSubRes');
+    res.innerHTML = '<div style="text-align:center;padding:10px"><span class="spin"></span></div>';
+    let items = null;
+    if(state.aiConfig.endpoint && state.aiConfig.key){
+      const online = await callOnlineAI(`Buat 5 alternatif subheadline promosi singkat untuk produk: ${product||'produk'}. Satu per baris.`);
+      if(online) items = online.split('\n').map(x=>x.trim()).filter(x=>x).slice(0,5);
+    }
+    if(!items) items = localSub(product);
+    res.innerHTML = items.map(t=>`<div class="ai-sug" data-text="${escapeHtml(t)}">${escapeHtml(t)} <span class="badge local">pakai</span></div>`).join('');
+    res.querySelectorAll('.ai-sug').forEach(s=>s.onclick = ()=>{
+      $('#inSub').value = s.dataset.text;
+      toast('Subheadline diaplikasikan','ok');
+      $('#aiModal').classList.remove('show');
+    });
+  };
+  $('#aiGenContent').onclick = async ()=>{
+    const product = $('#aiProductInfo').value.trim() || $('#inHeadline').value.trim();
+    const res = $('#aiContentRes');
+    res.innerHTML = '<div style="text-align:center;padding:10px"><span class="spin"></span></div>';
+    let items = null;
+    if(state.aiConfig.endpoint && state.aiConfig.key){
+      const online = await callOnlineAI(`Buat 3 contoh isi konten promosi produk singkat untuk: ${product||'produk'}. Pisahkan dengan ---`);
+      if(online) items = online.split('---').map(x=>x.trim()).filter(x=>x).slice(0,3);
+    }
+    if(!items) items = localContent(product);
+    res.innerHTML = items.map(t=>`<div class="ai-sug" data-text="${escapeHtml(t)}" style="white-space:pre-line">${escapeHtml(t)} <span class="badge local">pakai</span></div>`).join('');
+    res.querySelectorAll('.ai-sug').forEach(s=>s.onclick = ()=>{
+      $('#inContent').value = s.dataset.text;
+      toast('Isi konten diaplikasikan','ok');
+      $('#aiModal').classList.remove('show');
+    });
+  };
+  $('#aiGenDesign').onclick = ()=>{
+    const rec = localDesign();
+    const res = $('#aiDesignRes');
+    res.innerHTML = `
+      <div class="ai-sug" style="cursor:default">
+        <div style="margin-bottom:8px"><strong>🎨 Rekomendasi</strong></div>
+        <div style="font-size:12px;line-height:1.6">${escapeHtml(rec.tip)}</div>
+        <div style="margin-top:10px;display:flex;gap:6px">
+          ${rec.colors.map(c=>`<div style="width:32px;height:32px;border-radius:8px;background:${c};border:1px solid #333"></div>`).join('')}
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--tx2)">Font: ${rec.font} / ${rec.subFont}</div>
+      </div>
+      <button class="btn full" id="aiApplyDesign" style="margin-top:8px">Terapkan ke elemen terpilih</button>`;
+    $('#aiApplyDesign').onclick = ()=>{
+      const el = getSelected();
+      if(el){ el.font = rec.font; updateElNode(el); syncTextTab(); pushHistory(); toast('Font diterapkan','ok'); }
+      else toast('Pilih elemen dulu di kanvas','err');
+    };
+  };
+
+  // Keyboard
+  document.addEventListener('keydown', e=>{
+    if(e.target.matches('input, textarea, select')) return;
+    if((e.ctrlKey||e.metaKey) && e.key==='z' && !e.shiftKey){ e.preventDefault(); undo(); }
+    if((e.ctrlKey||e.metaKey) && (e.key==='y' || (e.key==='z' && e.shiftKey))){ e.preventDefault(); redo(); }
+    if(e.key==='Delete' || e.key==='Backspace'){
+      if(getSelected()){ e.preventDefault(); $('#btnDelEl').click(); }
+    }
+    const el = getSelected();
+    if(el && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
+      e.preventDefault();
+      const step = e.shiftKey ? 10 : 1;
+      if(e.key==='ArrowUp') el.y -= step;
+      if(e.key==='ArrowDown') el.y += step;
+      if(e.key==='ArrowLeft') el.x -= step;
+      if(e.key==='ArrowRight') el.x += step;
+      updateElNode(el);
+    }
+  });
+  document.addEventListener('keyup', e=>{
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key) && getSelected()) pushHistory();
+  });
+
+  // Resize
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('orientationchange', ()=>setTimeout(fitStage, 120));
+  window.addEventListener('beforeunload', ()=>saveProject(true));
 }
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
+
+function addNewText(){
+  const el = createTextElement({
+    text:'Teks baru', x:state.width*0.1, y:state.height*0.4, w:state.width*0.8,
+    size: Math.min(64, state.width*0.06), color:'#ffffff', shadow:true
+  });
+  state.elements.push(el); renderAll(); selectElement(el.id);
+  switchTab('text'); pushHistory();
+  setTimeout(()=>$('#inElText').focus(), 100);
 }
 
-$('hapusRiwayat').onclick = () => {
-  if(confirm('Hapus semua riwayat konten di perangkat ini?')){
-    localStorage.removeItem('bena_history');
-    renderHistory();
-  }
-};
+/* ===== INIT ===== */
+function init(){
+  loadFontList();
+  updateCanvasSize();
+  initEvents();
 
-/* =========================================================
-   KALKULATOR LABA
-   ========================================================= */
-$('hitung').onclick = () => {
-  const jual = num('jual');
-  const biaya = num('hpp') + num('admin') + num('iklan') + num('lain');
-  const laba = jual - biaya;
-  const margin = jual ? (laba / jual) * 100 : 0;
-
-  $('laba').textContent = rupiah(laba);
-  $('margin').textContent = margin.toFixed(1) + '%';
-
-  const st = $('statusLaba');
-  if(jual <= 0){
-    st.textContent = 'Masukkan harga jual untuk menghitung.';
-    st.className = 'small';
-  } else if(laba < 0){
-    st.textContent = 'Perhatian: biaya lebih besar daripada harga jual. Cek ulang HPP, biaya marketplace, dan iklan.';
-    st.className = 'small bad';
+  if(loadProject()){
+    toast('Proyek sebelumnya dipulihkan','ok');
   } else {
-    st.textContent = 'Perkiraan setelah biaya yang dimasukkan; biaya lain yang belum dicatat belum termasuk.';
-    st.className = 'small good';
+    // First run: sample layout to demonstrate capabilities
+    state.elements.push(createTextElement({
+      role:'headline', text:'JUALAN DIEN', x:state.width*0.05, y:state.height*0.42,
+      w:state.width*0.9, size:Math.min(110,state.width*0.11), weight:900,
+      color:'#111', align:'center', lineHeight:1.1, shadow:false
+    }));
+    state.elements.push(createTextElement({
+      role:'subheadline', text:'Buat konten promosi dalam hitungan detik',
+      x:state.width*0.1, y:state.height*0.55, w:state.width*0.8,
+      size:Math.min(38,state.width*0.036), weight:500,
+      color:'#333', align:'center', shadow:false
+    }));
+    renderAll();
+    pushHistory();
+    toast('Selamat datang di Jualan DIEN','ok');
   }
-  $('hasilLaba').classList.remove('hidden');
-  playChime();
-};
+
+  setInterval(autoSave, 25000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
