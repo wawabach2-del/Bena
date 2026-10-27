@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0f">
-<title>Jualan DIEN — AI Auto Content Designer</title>
+<title>Jualan DIEN v2 — AI Auto Content Designer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Playfair+Display:wght@400;700&family=Bebas+Neue&family=Dancing+Script:wght@400;700&family=Fredoka:wght@400;600;700&family=Cormorant+Garamond:wght@400;700&family=Righteous&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
@@ -14,6 +14,7 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;overscroll-behavior:none}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:disabled{opacity:.35;cursor:not-allowed}
 input,textarea,select{font:inherit;color:inherit;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;width:100%;outline:none;transition:border-color .15s}
 input:focus,textarea:focus,select:focus{border-color:var(--ac)}
 textarea{resize:none;min-height:70px}
@@ -34,11 +35,15 @@ textarea{resize:none;min-height:70px}
 .stage-wrap{flex:1;position:relative;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden;background:radial-gradient(circle at 50% 50%,#1a1a22 0%,#0a0a0f 100%)}
 .stage{position:relative;box-shadow:0 10px 40px rgba(0,0,0,.6);border-radius:4px;overflow:hidden;background:#fff}
 .canvas{position:relative;background:#fff;overflow:hidden;transform-origin:top left}
-.canvas-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .el{position:absolute;cursor:grab;will-change:left,top,transform;touch-action:none;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;transform-origin:50% 0}
 .el:active{cursor:grabbing}
 .el.selected{outline:2px dashed var(--ac);outline-offset:2px}
 .el.locked{cursor:not-allowed}
+.el-img{overflow:hidden;background:transparent;transform-origin:center center;white-space:normal}
+.el-img img{width:100%;height:100%;display:block;pointer-events:none;object-position:center;transform-origin:center center;will-change:transform}
+
+.grid-overlay{position:absolute;inset:0;pointer-events:none;z-index:5}
+.grid-overlay svg{display:block}
 
 .stage-actions{position:absolute;top:10px;left:10px;display:flex;gap:4px;z-index:15}
 .float-tb{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(20,20,25,.95);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:14px;padding:6px;display:none;gap:2px;box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:20;max-width:calc(100% - 20px);overflow-x:auto;scrollbar-width:none}
@@ -79,8 +84,8 @@ textarea{resize:none;min-height:70px}
 .color-input input[type=color]{width:44px;height:44px;padding:0;border-radius:10px;cursor:pointer;background:transparent;border:1px solid var(--bd);flex-shrink:0}
 .color-input input[type=text]{flex:1;font-family:monospace;font-size:12px}
 
-.toggle-row{display:flex;gap:6px}
-.tog{flex:1;padding:9px 6px;border-radius:8px;text-align:center;font-size:12px;font-weight:600;background:var(--s2);border:1px solid var(--bd);transition:all .15s}
+.toggle-row{display:flex;gap:6px;flex-wrap:wrap}
+.tog{flex:1;padding:9px 6px;border-radius:8px;text-align:center;font-size:12px;font-weight:600;background:var(--s2);border:1px solid var(--bd);transition:all .15s;min-width:0}
 .tog.active{background:var(--s3);border-color:var(--ac);color:var(--tx)}
 
 input[type=range]{width:100%;padding:0;background:transparent;border:none;-webkit-appearance:none;appearance:none;height:24px}
@@ -89,6 +94,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .range-row{display:flex;align-items:center;gap:10px}
 .range-row input[type=range]{flex:1}
 .range-val{min-width:44px;text-align:right;font-size:12px;color:var(--tx2);font-variant-numeric:tabular-nums}
+
+.thumb-list{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
+.thumb-list::-webkit-scrollbar{display:none}
+.thumb{position:relative;width:76px;height:76px;border-radius:10px;overflow:hidden;flex-shrink:0;border:2px solid var(--bd);cursor:pointer;background:var(--s2);transition:border-color .15s}
+.thumb.sel{border-color:var(--ac)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.thumb .t-del{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.75);color:#fff;font-size:11px;display:grid;place-items:center;line-height:1}
+.thumb .t-num{position:absolute;bottom:2px;left:3px;font-size:9px;font-weight:700;background:rgba(0,0,0,.7);color:#fff;padding:1px 5px;border-radius:6px}
 
 .layer-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);margin-bottom:6px;transition:border-color .15s}
 .layer-item.selected{border-color:var(--ac)}
@@ -110,7 +123,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .toast.err{background:var(--err);border-color:var(--err)}
 .toast.ok{background:var(--ok);border-color:var(--ok)}
 
-.empty{text-align:center;padding:30px 20px;color:var(--tx2);font-size:12px}
+.empty{text-align:center;padding:24px 16px;color:var(--tx2);font-size:12px}
 .empty .icon{font-size:32px;margin-bottom:8px;opacity:.5}
 .font-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);margin-bottom:6px}
 .font-item .f-preview{font-size:16px;color:var(--tx);flex:1}
@@ -131,7 +144,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="brand-mark">D</div>
     <div>
       <div class="brand-name">Jualan DIEN</div>
-      <div class="brand-tag">AI Auto Content Designer</div>
+      <div class="brand-tag">AI Auto Content Designer · v2</div>
     </div>
   </div>
   <div class="hdr-actions">
@@ -144,12 +157,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <main class="stage-wrap">
   <div class="stage" id="stage">
     <div class="canvas" id="canvas">
-      <img class="canvas-img" id="canvasImg" alt="">
+      <div class="grid-overlay" id="gridOverlay"></div>
     </div>
   </div>
   <div class="stage-actions">
     <button class="icon-btn small" id="btnUndo" title="Undo">↶</button>
     <button class="icon-btn small" id="btnRedo" title="Redo">↷</button>
+    <button class="icon-btn small" id="btnToggleTb" title="Toggle toolbar">👁</button>
   </div>
   <div class="float-tb" id="floatTb">
     <button data-cmd="size-">A−</button>
@@ -165,22 +179,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <nav class="tabs">
   <button class="tab active" data-tab="content">Konten</button>
-  <button class="tab" data-tab="text">Teks</button>
+  <button class="tab" data-tab="text">Elemen</button>
   <button class="tab" data-tab="design">Desain</button>
   <button class="tab" data-tab="layers">Lapisan</button>
 </nav>
 
 <section class="panel" id="panel">
+  <!-- KONTEN -->
   <div class="panel-section active" data-panel="content">
     <div class="field">
-      <label>Foto Produk</label>
+      <label>Foto Produk (maks. 3)</label>
+      <div id="imageThumbs" class="thumb-list"></div>
       <div class="btn-row">
         <button class="btn" id="btnCamera">📷 Kamera</button>
         <button class="btn" id="btnGallery">🖼️ Galeri</button>
       </div>
       <input type="file" accept="image/*" capture="environment" id="inputCamera" hidden>
       <input type="file" accept="image/*" id="inputGallery" hidden>
-      <div class="hint" id="imgInfo">Belum ada foto</div>
+      <div class="hint" id="imgCount">0 / 3 foto</div>
     </div>
     <div class="field"><label>Headline</label><input type="text" id="inHeadline" placeholder="Contoh: PROMO SPESIAL 50%"></div>
     <div class="field"><label>Subheadline</label><input type="text" id="inSub" placeholder="Contoh: Hanya hari ini!"></div>
@@ -199,12 +215,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     </div>
   </div>
 
+  <!-- ELEMEN -->
   <div class="panel-section" data-panel="text">
     <div id="textTabEmpty" class="empty">
       <div class="icon">✏️</div>
-      <div>Ketuk tulisan di kanvas untuk mengedit</div>
+      <div>Ketuk tulisan atau foto di kanvas untuk mengedit</div>
       <div style="margin-top:12px"><button class="btn primary" id="btnAddText">+ Tambah Tulisan</button></div>
     </div>
+
     <div id="textTabControls" style="display:none">
       <div class="field"><label>Teks</label><textarea id="inElText" placeholder="Isi teks..."></textarea></div>
       <div class="field"><label>Font</label><select id="selFont"></select></div>
@@ -272,6 +290,55 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         <button class="btn" id="btnDelEl" style="color:var(--err)">🗑 Hapus</button>
       </div>
     </div>
+
+    <div id="imageTabControls" style="display:none">
+      <div class="field">
+        <label>Zoom Gambar</label>
+        <div class="range-row">
+          <button class="btn small" id="btnZoomMinus">−</button>
+          <input type="range" id="rangeImgZoom" min="0.5" max="3" step="0.05" value="1">
+          <span class="range-val" id="valImgZoom">1.00x</span>
+          <button class="btn small" id="btnZoomPlus">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ukuran (px)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="inImgW" placeholder="Lebar" min="20">
+          <span style="color:var(--tx2)">×</span>
+          <input type="number" id="inImgH" placeholder="Tinggi" min="20">
+        </div>
+      </div>
+      <div class="field">
+        <label>Posisi (px)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="inImgX" placeholder="X">
+          <input type="number" id="inImgY" placeholder="Y">
+        </div>
+      </div>
+      <div class="field">
+        <label>Penyesuaian</label>
+        <div class="toggle-row">
+          <button class="tog" data-imgfit="cover">Isi Penuh</button>
+          <button class="tog" data-imgfit="contain">Pas (Fit)</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Rotasi</label>
+        <div class="range-row"><input type="range" id="rangeImgRot" min="-180" max="180" step="1" value="0"><span class="range-val" id="valImgRot">0°</span></div>
+      </div>
+      <div class="field">
+        <label>Transparansi</label>
+        <div class="range-row"><input type="range" id="rangeImgOp" min="0.1" max="1" step="0.05" value="1"><span class="range-val" id="valImgOp">100%</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="btnImgReplace">🔄 Ganti</button>
+        <button class="btn" id="btnImgLock">🔒 Kunci</button>
+        <button class="btn" id="btnImgDel" style="color:var(--err)">🗑 Hapus</button>
+      </div>
+      <input type="file" accept="image/*" id="inputImgReplace" hidden>
+    </div>
+
     <hr style="border:none;border-top:1px solid var(--bd);margin:16px 0">
     <div class="field">
       <label>Font Tambahan</label>
@@ -282,6 +349,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div id="customFontsList"></div>
   </div>
 
+  <!-- DESAIN -->
   <div class="panel-section" data-panel="design">
     <div class="field">
       <label>Format Kanvas</label>
@@ -298,28 +366,53 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         <input type="number" id="inCustomH" placeholder="Tinggi" value="1080">
         <button class="btn" id="btnApplyCustom" style="flex-shrink:0;padding:10px 14px">Set</button>
       </div>
+      <div class="hint">Maks. ekspor 5000 × 5000 px</div>
     </div>
     <div class="field">
-      <label>Penyesuaian Foto</label>
-      <div class="toggle-row">
-        <button class="tog active" data-fit="cover">Isi Penuh</button>
-        <button class="tog" data-fit="contain">Pas (Fit)</button>
+      <label>Template Grid (panduan)</label>
+      <div class="grid g3">
+        <button class="fmt-btn active" data-grid="off">Off</button>
+        <button class="fmt-btn" data-grid="thirds">⅓</button>
+        <button class="fmt-btn" data-grid="2x2">2×2</button>
+        <button class="fmt-btn" data-grid="3x3">3×3</button>
+        <button class="fmt-btn" data-grid="golden">Golden</button>
       </div>
+      <div class="hint">Grid hanya panduan visual, tidak ikut diekspor</div>
     </div>
     <div class="field">
-      <label>Warna Latar</label>
+      <label>Layout Cepat (Grid)</label>
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <button class="btn small" data-preset="banner-top">Banner Atas</button>
+        <button class="btn small" data-preset="banner-bottom">Banner Bawah</button>
+        <button class="btn small" data-preset="split-lr">Split LR</button>
+        <button class="btn small" data-preset="center">Tengah</button>
+        <button class="btn small" data-preset="magazine">Majalah</button>
+        <button class="btn small" data-preset="grid-3row">3 Baris</button>
+      </div>
+      <div class="hint">Otomatis menata headline, subheadline, isi ke sel grid</div>
+    </div>
+    <div class="field">
+      <label>Warna Latar Kanvas</label>
       <div class="color-input">
         <input type="color" id="inBg" value="#ffffff">
         <input type="text" id="inBgHex" value="#ffffff">
       </div>
     </div>
-    <div class="field"><button class="btn full" id="btnRemoveImg">Hapus Foto</button></div>
+    <div class="field">
+      <label>Toolbar Teks Melayang</label>
+      <div class="toggle-row">
+        <button class="tog active" data-hidetb="1">Auto sembunyi di atas gambar</button>
+        <button class="tog" data-hidetb="0">Selalu tampil</button>
+      </div>
+      <div class="hint">Mencegah toolbar menutupi foto saat mengedit teks</div>
+    </div>
   </div>
 
+  <!-- LAPISAN -->
   <div class="panel-section" data-panel="layers">
     <div style="display:flex;justify-content:space-between;margin-bottom:12px">
       <div style="font-size:12px;color:var(--tx2)"><span id="layerCount">0</span> elemen</div>
-      <button class="btn small" id="btnAddText2">+ Tambah</button>
+      <button class="btn small" id="btnAddText2">+ Teks</button>
     </div>
     <div id="layerList"></div>
   </div>
@@ -327,6 +420,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <div class="toast" id="toast"></div>
 
+<!-- AI MODAL -->
 <div class="modal-back" id="aiModal">
   <div class="modal">
     <div class="modal-hd">
@@ -335,7 +429,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     </div>
     <div class="modal-bd">
       <div style="margin-bottom:14px;padding:10px;background:var(--s2);border-radius:10px;font-size:11px;color:var(--tx2);line-height:1.5">
-        Semua saran bisa dipakai atau diabaikan. Teks asli Anda tidak akan diubah otomatis. <span class="badge local">LOKAL</span> berjalan tanpa internet.
+        Saran bisa dipakai atau diabaikan. Teks asli tidak diubah otomatis. <span class="badge local">LOKAL</span> tanpa internet.
       </div>
       <div class="field"><label>Nama / Info Produk</label><input type="text" id="aiProductInfo" placeholder="Contoh: Skincare vitamin C untuk kulit cerah"></div>
       <div class="btn-row"><button class="btn full" id="aiGenHeadline">📝 Buat Headline</button></div>
@@ -349,7 +443,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <hr style="border:none;border-top:1px solid var(--bd);margin:16px 0">
       <div class="field">
         <label>AI Online (Opsional)</label>
-        <div class="hint" style="margin-bottom:8px">Masukkan API key Anda sendiri. Disimpan lokal dan tidak dikirim ke mana pun selain endpoint Anda.</div>
+        <div class="hint" style="margin-bottom:8px">API key disimpan lokal, tidak dikirim ke mana pun selain endpoint Anda.</div>
         <input type="text" id="aiEndpoint" placeholder="Endpoint URL (mis. https://api.openai.com/v1/chat/completions)">
         <input type="password" id="aiKey" placeholder="API Key" style="margin-top:8px">
         <input type="text" id="aiModel" placeholder="Model (mis. gpt-4o-mini)" style="margin-top:8px">
@@ -359,6 +453,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
 </div>
 
+<!-- EXPORT MODAL -->
 <div class="modal-back" id="exportModal">
   <div class="modal">
     <div class="modal-hd">
@@ -403,11 +498,14 @@ const FONTS = [
   {name:'Fredoka', label:'Lucu'},
   {name:'Dancing Script', label:'Tulisan Tangan'}
 ];
+const MAX_IMAGES = 3;
+const MAX_EXPORT = 5000;
 
 const state = {
   width:1080, height:1080, format:'1:1',
-  imageSrc:null, imageEl:null, imageFit:'cover',
   bgColor:'#ffffff',
+  gridMode:'off',
+  hideToolbarNearImage:true,
   elements:[], selectedId:null,
   history:[], historyIdx:-1,
   customFonts:[],
@@ -428,26 +526,39 @@ const uid = (p='el')=>p+'_'+Math.random().toString(36).substr(2,9);
 
 function toast(msg, type=''){
   const t = $('#toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
+  t.textContent = msg; t.className = 'toast show ' + type;
   clearTimeout(t._tm);
   t._tm = setTimeout(()=>t.classList.remove('show'), 2600);
 }
-
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-
 function hexBrightness(hex){
   if(!/^#[0-9a-f]{6}$/i.test(hex)) return 255;
   const r=parseInt(hex.substr(1,2),16), g=parseInt(hex.substr(3,2),16), b=parseInt(hex.substr(5,2),16);
   return r*0.299 + g*0.587 + b*0.114;
 }
 
-/* ===== HISTORY ===== */
+/* ===== SERIALIZE / HISTORY ===== */
+function serializeElements(){
+  return state.elements.map(e=>{ const c={...e}; delete c.img; return c; });
+}
+function deserializeElements(arr){
+  return (arr||[]).map(e=>{
+    const c = {...e};
+    if(c.type==='image' && c.src){
+      const im = new Image();
+      im.onload = ()=>renderAll();
+      im.src = c.src;
+      c.img = im;
+    }
+    return c;
+  });
+}
 function snapshot(){
   return JSON.stringify({
     width:state.width, height:state.height, format:state.format,
-    imageFit:state.imageFit, bgColor:state.bgColor,
-    elements:state.elements
+    bgColor:state.bgColor, gridMode:state.gridMode,
+    hideToolbarNearImage:state.hideToolbarNearImage,
+    elements: serializeElements()
   });
 }
 function pushHistory(){
@@ -458,12 +569,14 @@ function pushHistory(){
 }
 function restoreSnap(s){
   state.width = s.width; state.height = s.height; state.format = s.format;
-  state.imageFit = s.imageFit; state.bgColor = s.bgColor;
-  state.elements = s.elements; state.selectedId = null;
+  state.bgColor = s.bgColor; state.gridMode = s.gridMode || 'off';
+  if(typeof s.hideToolbarNearImage === 'boolean') state.hideToolbarNearImage = s.hideToolbarNearImage;
+  state.elements = deserializeElements(s.elements);
+  state.selectedId = null;
   updateCanvasSize(); renderAll(); syncTextTab();
-  $('#canvasImg').style.objectFit = state.imageFit;
   $('#canvas').style.background = state.bgColor;
   $('#inBg').value = state.bgColor; $('#inBgHex').value = state.bgColor;
+  syncGridButtons(); syncToolbarSettingButtons();
 }
 function undo(){
   if(state.historyIdx<=0){toast('Tidak ada yang bisa di-undo');return;}
@@ -481,6 +594,7 @@ function updateCanvasSize(){
   cvs.style.height = state.height+'px';
   cvs.style.background = state.bgColor;
   fitStage();
+  renderGrid();
 }
 function fitStage(){
   const stage = $('#stage');
@@ -493,15 +607,49 @@ function fitStage(){
   $('#canvas').style.transform = `scale(${scale})`;
 }
 
+/* ===== GRID ===== */
+function renderGrid(){
+  const g = $('#gridOverlay');
+  if(!g) return;
+  const mode = state.gridMode;
+  if(!mode || mode==='off'){ g.innerHTML=''; return; }
+  const w = state.width, h = state.height;
+  const lines = [];
+  const push = (x1,y1,x2,y2)=>lines.push(
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(168,85,247,.55)" stroke-width="2" stroke-dasharray="10 8" vector-effect="non-scaling-stroke"/>`
+  );
+  if(mode==='thirds'){ [1/3,2/3].forEach(f=>{ push(w*f,0,w*f,h); push(0,h*f,w,h*f); }); }
+  else if(mode==='2x2'){ push(w/2,0,w/2,h); push(0,h/2,w,h/2); }
+  else if(mode==='3x3'){ [1/3,2/3].forEach(f=>{ push(w*f,0,w*f,h); push(0,h*f,w,h*f); }); }
+  else if(mode==='golden'){ [0.382,0.618].forEach(f=>{ push(w*f,0,w*f,h); push(0,h*f,w,h*f); }); }
+  g.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="position:absolute;inset:0;pointer-events:none">${lines.join('')}</svg>`;
+}
+function syncGridButtons(){
+  $$('[data-grid]').forEach(b=>b.classList.toggle('active', b.dataset.grid===state.gridMode));
+}
+function syncToolbarSettingButtons(){
+  $$('[data-hidetb]').forEach(b=>{
+    const v = b.dataset.hidetb === '1';
+    b.classList.toggle('active', v===state.hideToolbarNearImage);
+  });
+}
+
 /* ===== RENDER ===== */
 function renderAll(){
   const cvs = $('#canvas');
   $$('.el', cvs).forEach(e=>e.remove());
   state.elements.forEach(el=>{
-    if(el.type==='text' && el.visible!==false) cvs.appendChild(createElNode(el));
+    if(el.visible===false) return;
+    if(el.type==='image') cvs.appendChild(createImageNode(el));
+    else cvs.appendChild(createElNode(el));
   });
+  // ensure grid overlay stays on top
+  const g = $('#gridOverlay');
+  if(g) cvs.appendChild(g);
+  renderGrid();
   updateFloatToolbar();
   renderLayerList();
+  renderImageThumbs();
 }
 
 function createElNode(el){
@@ -514,7 +662,6 @@ function createElNode(el){
   div.textContent = el.text;
   return div;
 }
-
 function applyElStyles(div, el){
   div.style.left = el.x+'px';
   div.style.top = el.y+'px';
@@ -528,49 +675,65 @@ function applyElStyles(div, el){
   div.style.letterSpacing = el.letterSpacing+'px';
   div.style.opacity = el.opacity;
   div.style.transform = `rotate(${el.rotation}deg)`;
-  if(el.shadow){
-    div.style.textShadow = '0 4px 16px rgba(0,0,0,.65), 0 1px 3px rgba(0,0,0,.5)';
-  } else {
-    div.style.textShadow = 'none';
-  }
-  if(el.outline){
-    div.style.webkitTextStroke = '2px rgba(0,0,0,.7)';
-    div.style.paintOrder = 'stroke fill';
-  } else {
-    div.style.webkitTextStroke = '0';
-  }
-  if(el.bg){
-    div.style.background = 'rgba(0,0,0,.55)';
-    div.style.padding = '0.15em 0.4em';
-    div.style.borderRadius = '0.2em';
-  } else {
-    div.style.background = 'transparent';
-    div.style.padding = '0';
-  }
+  div.style.textShadow = el.shadow ? '0 4px 16px rgba(0,0,0,.65), 0 1px 3px rgba(0,0,0,.5)' : 'none';
+  if(el.outline){ div.style.webkitTextStroke='2px rgba(0,0,0,.7)'; div.style.paintOrder='stroke fill'; }
+  else { div.style.webkitTextStroke='0'; }
+  if(el.bg){ div.style.background='rgba(0,0,0,.55)'; div.style.padding='0.15em 0.4em'; div.style.borderRadius='0.2em'; }
+  else { div.style.background='transparent'; div.style.padding='0'; }
+}
+
+function createImageNode(el){
+  const div = document.createElement('div');
+  div.className = 'el el-img';
+  div.dataset.id = el.id;
+  if(el.id===state.selectedId) div.classList.add('selected');
+  if(el.locked) div.classList.add('locked');
+  applyImageStyles(div, el);
+  const img = document.createElement('img');
+  img.src = el.src;
+  img.draggable = false;
+  img.style.objectFit = el.fit;
+  img.style.transform = `scale(${el.zoom})`;
+  div.appendChild(img);
+  return div;
+}
+function applyImageStyles(div, el){
+  div.style.left = el.x+'px';
+  div.style.top = el.y+'px';
+  div.style.width = el.w+'px';
+  div.style.height = el.h+'px';
+  div.style.opacity = el.opacity;
+  div.style.transform = `rotate(${el.rotation}deg)`;
 }
 
 function updateElNode(el){
   const node = $(`.el[data-id="${el.id}"]`);
   if(!node){ renderAll(); return; }
-  applyElStyles(node, el);
-  if(node.textContent!==el.text) node.textContent = el.text;
+  if(el.type==='image'){
+    applyImageStyles(node, el);
+    const im = node.querySelector('img');
+    if(im){ im.style.objectFit = el.fit; im.style.transform = `scale(${el.zoom})`; }
+  } else {
+    applyElStyles(node, el);
+    if(node.textContent !== el.text) node.textContent = el.text;
+  }
   node.classList.toggle('selected', el.id===state.selectedId);
   node.classList.toggle('locked', !!el.locked);
 }
 
+/* ===== SELECTION ===== */
 function selectElement(id){
   state.selectedId = id;
-  const el = state.elements.find(x=>x.id===id);
-  if(el && el.visible===false){ el.visible = true; renderAll(); }
   $$('.el').forEach(n=>n.classList.toggle('selected', n.dataset.id===id));
   updateFloatToolbar();
   syncTextTab();
   renderLayerList();
+  renderImageThumbs();
 }
 function deselect(){
   state.selectedId = null;
   $$('.el').forEach(n=>n.classList.remove('selected'));
-  updateFloatToolbar(); syncTextTab(); renderLayerList();
+  updateFloatToolbar(); syncTextTab(); renderLayerList(); renderImageThumbs();
 }
 function getSelected(){ return state.elements.find(e=>e.id===state.selectedId); }
 
@@ -583,12 +746,7 @@ $('#canvas').addEventListener('pointerdown', (e)=>{
   if(!el) return;
   selectElement(id);
   if(el.locked) return;
-  dragData = {
-    id,
-    startX:e.clientX, startY:e.clientY,
-    origX:el.x, origY:el.y,
-    moved:false
-  };
+  dragData = { id, startX:e.clientX, startY:e.clientY, origX:el.x, origY:el.y, moved:false };
   document.addEventListener('pointermove', onDragMove);
   document.addEventListener('pointerup', onDragEnd);
   document.addEventListener('pointercancel', onDragEnd);
@@ -605,6 +763,7 @@ function onDragMove(e){
   el.x = Math.round(dragData.origX + dx);
   el.y = Math.round(dragData.origY + dy);
   updateElNode(el);
+  updateFloatToolbar();
 }
 function onDragEnd(){
   document.removeEventListener('pointermove', onDragMove);
@@ -614,7 +773,37 @@ function onDragEnd(){
   dragData = null;
 }
 
-/* ===== ELEMENT CREATE ===== */
+/* ===== TOOLBAR OVERLAP ===== */
+function overlapsAnyImage(el){
+  const imgs = state.elements.filter(e=>e.type==='image' && e.visible!==false);
+  if(imgs.length===0) return false;
+  let elH;
+  try { elH = measureEl(el).height; } catch(e){ elH = el.size*2; }
+  const elRect = { x:el.x, y:el.y, w:el.w, h:elH };
+  const ta = Math.max(1, elRect.w*elRect.h);
+  for(const im of imgs){
+    const ix = Math.max(elRect.x, im.x);
+    const iy = Math.max(elRect.y, im.y);
+    const ix2 = Math.min(elRect.x+elRect.w, im.x+im.w);
+    const iy2 = Math.min(elRect.y+elRect.h, im.y+im.h);
+    if(ix2>ix && iy2>iy){
+      const oa = (ix2-ix)*(iy2-iy);
+      if(oa/ta > 0.3) return true;
+    }
+  }
+  return false;
+}
+function updateFloatToolbar(){
+  const tb = $('#floatTb');
+  const el = getSelected();
+  if(!el || el.type!=='text'){ tb.classList.remove('show'); return; }
+  if(state.hideToolbarNearImage && overlapsAnyImage(el)){ tb.classList.remove('show'); return; }
+  tb.classList.add('show');
+  const b = tb.querySelector('[data-cmd="bold"]');
+  if(b){ b.style.fontWeight = el.weight>=700 ? '900' : '400'; b.style.color = el.weight>=700 ? 'var(--ac)' : ''; }
+}
+
+/* ===== TEXT ELEMENT ===== */
 function createTextElement(opts){
   return {
     id: uid('t'), type:'text',
@@ -635,7 +824,7 @@ function createTextElement(opts){
   };
 }
 
-/* ===== MEASURE ===== */
+/* ===== MEASURE / WRAP ===== */
 function wrapText(ctx, text, maxWidth){
   const paragraphs = String(text).split('\n');
   const lines = [];
@@ -645,9 +834,8 @@ function wrapText(ctx, text, maxWidth){
     let line = '';
     for(const w of words){
       const test = line ? line+' '+w : w;
-      if(ctx.measureText(test).width > maxWidth && line){
-        lines.push(line); line = w;
-      } else { line = test; }
+      if(ctx.measureText(test).width > maxWidth && line){ lines.push(line); line = w; }
+      else { line = test; }
     }
     if(line) lines.push(line);
   }
@@ -659,42 +847,6 @@ function measureEl(el){
   const lines = wrapText(measureCtx, el.text, el.w);
   return { lines, height: lines.length * el.size * el.lineHeight };
 }
-
-/* ===== IMAGE ANALYSIS ===== */
-function analyzeImage(img){
-  const W=80, H=80;
-  const c = document.createElement('canvas');
-  c.width = W; c.height = H;
-  const ctx = c.getContext('2d');
-  try { ctx.drawImage(img, 0, 0, W, H); } catch(e){
-    return { top:{brightness:200,variance:0}, middle:{brightness:200,variance:0}, bottom:{brightness:200,variance:0} };
-  }
-  const data = ctx.getImageData(0,0,W,H).data;
-  const bands = {
-    top:{y0:0, y1:Math.floor(H*0.30)},
-    middle:{y0:Math.floor(H*0.30), y1:Math.floor(H*0.70)},
-    bottom:{y0:Math.floor(H*0.70), y1:H}
-  };
-  const result = {};
-  for(const [name,b] of Object.entries(bands)){
-    let sum=0, sumSq=0, n=0;
-    for(let y=b.y0; y<b.y1; y++){
-      for(let x=0; x<W; x++){
-        const i=(y*W+x)*4;
-        const lum = data[i]*0.299 + data[i+1]*0.587 + data[i+2]*0.114;
-        sum += lum; sumSq += lum*lum; n++;
-      }
-    }
-    const mean = sum/n;
-    result[name] = { brightness:mean, variance: sumSq/n - mean*mean };
-  }
-  return result;
-}
-function bestTextColor(brightness){
-  return brightness > 150 ? '#111111' : '#ffffff';
-}
-
-/* ===== AUTO LAYOUT ===== */
 function fitTextInBand(text, opts){
   let size = opts.maxSize;
   while(size > opts.minSize){
@@ -709,8 +861,44 @@ function fitTextInBand(text, opts){
   return { size:opts.minSize, height: lines.length * opts.minSize * opts.lineHeight };
 }
 
+/* ===== IMAGE ANALYSIS ===== */
+function analyzeImage(img){
+  const W=80, H=80;
+  const c = document.createElement('canvas');
+  c.width=W; c.height=H;
+  const ctx = c.getContext('2d');
+  try { ctx.drawImage(img,0,0,W,H); } catch(e){
+    return { top:{brightness:200,variance:0}, middle:{brightness:200,variance:0}, bottom:{brightness:200,variance:0} };
+  }
+  const data = ctx.getImageData(0,0,W,H).data;
+  const bands = { top:{y0:0,y1:Math.floor(H*0.3)}, middle:{y0:Math.floor(H*0.3),y1:Math.floor(H*0.7)}, bottom:{y0:Math.floor(H*0.7),y1:H} };
+  const out = {};
+  for(const [name,b] of Object.entries(bands)){
+    let sum=0,sumSq=0,n=0;
+    for(let y=b.y0;y<b.y1;y++) for(let x=0;x<W;x++){
+      const i=(y*W+x)*4;
+      const lum = data[i]*0.299 + data[i+1]*0.587 + data[i+2]*0.114;
+      sum+=lum; sumSq+=lum*lum; n++;
+    }
+    const mean=sum/n;
+    out[name] = { brightness:mean, variance: sumSq/n - mean*mean };
+  }
+  return out;
+}
+function bestTextColor(brightness){ return brightness>150 ? '#111111' : '#ffffff'; }
+function getPrimaryImageEl(){
+  return state.elements.find(e=>e.type==='image' && e.visible!==false && e.img && e.img.complete && e.img.naturalWidth>0);
+}
+function getAnalysis(){
+  const im = getPrimaryImageEl();
+  if(im) return analyzeImage(im.img);
+  const b = hexBrightness(state.bgColor);
+  return { top:{brightness:b,variance:0}, middle:{brightness:b,variance:0}, bottom:{brightness:b,variance:0} };
+}
+
+/* ===== THEME ===== */
 function pickTheme(info){
-  const all = (info.headline+' '+info.sub+' '+info.content).toLowerCase();
+  const all = ((info.headline||'')+' '+(info.sub||'')+' '+(info.content||'')).toLowerCase();
   const themes = [
     {keys:['parfum','fragrance','wangi','perfume'], fonts:['Cormorant Garamond','Playfair Display']},
     {keys:['skincare','bodycare','body care','kecantikan','cream','serum'], fonts:['Playfair Display','Inter']},
@@ -720,58 +908,32 @@ function pickTheme(info){
     {keys:['promo','diskon','sale','murah'], fonts:['Bebas Neue','Inter']},
     {keys:['fashion','baju','hijab','dress','tas'], fonts:['Inter','Playfair Display']}
   ];
-  for(const t of themes){
-    if(t.keys.some(k=>all.includes(k))) return { headlineFont:t.fonts[0], subFont:t.fonts[1] };
-  }
+  for(const t of themes) if(t.keys.some(k=>all.includes(k))) return { headlineFont:t.fonts[0], subFont:t.fonts[1] };
   return { headlineFont:'Inter', subFont:'Inter' };
 }
 
-function avgBrightness(analysis, bandName){
-  if(bandName.startsWith('top')) return analysis.top.brightness;
-  if(bandName.startsWith('bot')) return analysis.bottom.brightness;
-  if(bandName.startsWith('mid')) return analysis.middle.brightness;
-  return analysis.middle.brightness;
-}
-
+/* ===== AUTO LAYOUT (smart) ===== */
 function autoLayout(variantIdx = 0){
   const info = {
     headline: $('#inHeadline').value.trim(),
     sub: $('#inSub').value.trim(),
     content: $('#inContent').value.trim()
   };
-  if(!info.headline && !info.sub && !info.content){
-    toast('Isi minimal satu kolom teks dulu','err'); return;
-  }
-  // Peringatan jika sudah ada elemen role dan sudah dimodifikasi
-  const hasExisting = state.elements.some(e=>e.role!=='manual');
-  if(hasExisting){
-    if(!confirm('Auto desain akan menata ulang headline/subheadline/isi konten. Lanjutkan?\n(Tulisan manual Anda tidak akan diubah)')) return;
-  }
+  if(!info.headline && !info.sub && !info.content){ toast('Isi minimal satu kolom teks dulu','err'); return; }
+  const hasExisting = state.elements.some(e=>e.type==='text' && e.role!=='manual');
+  if(hasExisting && !confirm('Auto desain akan menata ulang headline/sub/isi. Lanjutkan?\n(Tulisan manual tetap dipertahankan)')) return;
 
-  let analysis;
-  if(state.imageEl){
-    analysis = analyzeImage(state.imageEl);
-  } else {
-    const b = hexBrightness(state.bgColor);
-    analysis = { top:{brightness:b,variance:0}, middle:{brightness:b,variance:0}, bottom:{brightness:b,variance:0} };
-  }
-
-  // Hapus hanya elemen role-based (tulisan manual dipertahankan)
-  state.elements = state.elements.filter(e=>e.role==='manual');
+  const analysis = getAnalysis();
+  state.elements = state.elements.filter(e=> e.type!=='text' || e.role==='manual');
 
   const W = state.width, H = state.height;
   const margin = W*0.06;
   const textW = W - margin*2;
-
   const bands = {
-    'top-1':  {y0:H*0.06, y1:H*0.18},
-    'top-2':  {y0:H*0.19, y1:H*0.30},
-    'mid-1':  {y0:H*0.35, y1:H*0.50},
-    'mid-2':  {y0:H*0.51, y1:H*0.65},
-    'bot-1':  {y0:H*0.58, y1:H*0.72},
-    'bot-2':  {y0:H*0.73, y1:H*0.83},
-    'bot-3':  {y0:H*0.84, y1:H*0.94},
-    'bottom': {y0:H*0.65, y1:H*0.94}
+    'top-1': {y0:H*0.06,y1:H*0.18}, 'top-2': {y0:H*0.19,y1:H*0.30},
+    'mid-1': {y0:H*0.35,y1:H*0.50}, 'mid-2': {y0:H*0.51,y1:H*0.65},
+    'bot-1': {y0:H*0.58,y1:H*0.72}, 'bot-2': {y0:H*0.73,y1:H*0.83},
+    'bot-3': {y0:H*0.84,y1:H*0.94}, 'bottom': {y0:H*0.65,y1:H*0.94}
   };
   const variants = [
     { headline:'bot-1', sub:'bot-2', content:'bot-3' },
@@ -780,63 +942,55 @@ function autoLayout(variantIdx = 0){
   ];
   const v = variants[variantIdx % variants.length];
   const theme = pickTheme(info);
+  const bandBrightness = (bandName)=>{
+    if(bandName.startsWith('top')) return analysis.top.brightness;
+    if(bandName.startsWith('bot')) return analysis.bottom.brightness;
+    return analysis.middle.brightness;
+  };
 
-  // HEADLINE
   if(info.headline){
     const band = bands[v.headline];
     const fitted = fitTextInBand(info.headline, {
-      font: theme.headlineFont, weight: 900, maxWidth: textW,
-      maxSize: Math.min(W*0.13,120), minSize: 20,
-      maxHeight: (band.y1-band.y0)*0.95, lineHeight: 1.1
+      font: theme.headlineFont, weight:900, maxWidth:textW,
+      maxSize: Math.min(W*0.13,120), minSize:20, maxHeight:(band.y1-band.y0)*0.95, lineHeight:1.1
     });
-    const bright = avgBrightness(analysis, v.headline);
     state.elements.push(createTextElement({
       role:'headline', text:info.headline,
-      x: margin, y: (band.y0+band.y1)/2 - fitted.height/2, w: textW,
-      font: theme.headlineFont, size: fitted.size, weight: 900,
-      color: bestTextColor(bright), align:'center', lineHeight:1.1, shadow:true
+      x:margin, y:(band.y0+band.y1)/2 - fitted.height/2, w:textW,
+      font:theme.headlineFont, size:fitted.size, weight:900,
+      color:bestTextColor(bandBrightness(v.headline)), align:'center', lineHeight:1.1, shadow:true
     }));
   }
-
-  // SUBHEADLINE
   if(info.sub){
     const band = bands[v.sub];
     const fitted = fitTextInBand(info.sub, {
-      font: theme.subFont, weight: 500, maxWidth: textW,
-      maxSize: Math.min(W*0.065,64), minSize: 14,
-      maxHeight: (band.y1-band.y0)*0.9, lineHeight: 1.35
+      font: theme.subFont, weight:500, maxWidth:textW,
+      maxSize: Math.min(W*0.065,64), minSize:14, maxHeight:(band.y1-band.y0)*0.9, lineHeight:1.35
     });
-    const bright = avgBrightness(analysis, v.sub);
     state.elements.push(createTextElement({
       role:'subheadline', text:info.sub,
-      x: margin, y: (band.y0+band.y1)/2 - fitted.height/2, w: textW,
-      font: theme.subFont, size: fitted.size, weight: 500,
-      color: bestTextColor(bright), align:'center', lineHeight:1.35, shadow:true
+      x:margin, y:(band.y0+band.y1)/2 - fitted.height/2, w:textW,
+      font:theme.subFont, size:fitted.size, weight:500,
+      color:bestTextColor(bandBrightness(v.sub)), align:'center', lineHeight:1.35, shadow:true
     }));
   }
-
-  // CONTENT
   if(info.content){
     const band = bands[v.content];
     const fitted = fitTextInBand(info.content, {
-      font: 'Inter', weight: 400, maxWidth: textW,
-      maxSize: Math.min(W*0.038,36), minSize: 11,
-      maxHeight: (band.y1-band.y0)*0.9, lineHeight: 1.5
+      font:'Inter', weight:400, maxWidth:textW,
+      maxSize: Math.min(W*0.038,36), minSize:11, maxHeight:(band.y1-band.y0)*0.9, lineHeight:1.5
     });
-    const bright = avgBrightness(analysis, v.content);
     state.elements.push(createTextElement({
       role:'content', text:info.content,
-      x: margin, y: (band.y0+band.y1)/2 - fitted.height/2, w: textW,
-      font: 'Inter', size: fitted.size, weight: 400,
-      color: bestTextColor(bright), align:'center', lineHeight:1.5, shadow:true
+      x:margin, y:(band.y0+band.y1)/2 - fitted.height/2, w:textW,
+      font:'Inter', size:fitted.size, weight:400,
+      color:bestTextColor(bandBrightness(v.content)), align:'center', lineHeight:1.5, shadow:true
     }));
   }
-
   checkOverflow();
-  renderAll(); pushHistory();
+  renderAll(); pushHistory(); autoSave();
   toast('Auto desain diterapkan','ok');
 }
-
 function checkOverflow(){
   let has = false;
   for(const el of state.elements){
@@ -847,120 +1001,69 @@ function checkOverflow(){
   if(has) toast('⚠️ Sebagian teks melebihi kanvas. Sesuaikan ukuran/posisi.','err');
 }
 
-/* ===== EXPORT ===== */
-async function doExport(){
-  const fmtBtn = $$('#exportModal [data-exp-fmt]').find(b=>b.classList.contains('active'));
-  const qBtn = $$('#exportModal [data-exp-q]').find(b=>b.classList.contains('active'));
-  const fmt = fmtBtn?.dataset.expFmt || 'png';
-  const q = parseInt(qBtn?.dataset.expQ || '2');
-
-  toast('Menyiapkan ekspor...');
-  try {
-    const c = document.createElement('canvas');
-    c.width = state.width * q;
-    c.height = state.height * q;
-    const ctx = c.getContext('2d');
-    ctx.scale(q, q);
-    ctx.fillStyle = state.bgColor || '#ffffff';
-    ctx.fillRect(0, 0, state.width, state.height);
-    if(state.imageEl) drawImageFit(ctx, state.imageEl, 0,0,state.width,state.height, state.imageFit);
-    for(const el of state.elements){
-      if(el.type!=='text' || el.visible===false) continue;
-      drawTextElement(ctx, el);
-    }
-    const mime = fmt==='jpg' ? 'image/jpeg' : 'image/png';
-    c.toBlob(blob=>{
-      if(!blob){ toast('Gagal membuat file','err'); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `jualan-dien-${Date.now()}.${fmt}`;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url), 3000);
-      toast('Desain diekspor! Cek folder Downloads','ok');
-      $('#exportModal').classList.remove('show');
-    }, mime, fmt==='jpg' ? 0.92 : undefined);
-  } catch(err){
-    console.error(err);
-    toast('Ekspor gagal: '+err.message,'err');
-  }
+/* ===== PRESETS (grid-based) ===== */
+const PRESETS = {
+  'banner-top':   { headline:{x:0.05,y:0.05,w:0.90,h:0.16}, sub:{x:0.10,y:0.22,w:0.80,h:0.07}, content:{x:0.10,y:0.30,w:0.80,h:0.13} },
+  'banner-bottom':{ headline:{x:0.05,y:0.60,w:0.90,h:0.16}, sub:{x:0.10,y:0.77,w:0.80,h:0.07}, content:{x:0.10,y:0.85,w:0.80,h:0.12} },
+  'split-lr':     { headline:{x:0.05,y:0.18,w:0.42,h:0.24}, sub:{x:0.05,y:0.44,w:0.42,h:0.10}, content:{x:0.55,y:0.18,w:0.40,h:0.44} },
+  'center':       { headline:{x:0.08,y:0.36,w:0.84,h:0.18}, sub:{x:0.14,y:0.56,w:0.72,h:0.08}, content:{x:0.14,y:0.65,w:0.72,h:0.13} },
+  'magazine':     { headline:{x:0.05,y:0.05,w:0.60,h:0.24}, sub:{x:0.05,y:0.30,w:0.60,h:0.08}, content:{x:0.05,y:0.72,w:0.90,h:0.22} },
+  'grid-3row':    { headline:{x:0.05,y:0.08,w:0.90,h:0.14}, sub:{x:0.05,y:0.25,w:0.90,h:0.07}, content:{x:0.05,y:0.78,w:0.90,h:0.16} }
+};
+function bandBrightnessForRect(analysis, rect){
+  const cy = rect.y + rect.h/2;
+  if(cy < 0.33) return analysis.top.brightness;
+  if(cy > 0.66) return analysis.bottom.brightness;
+  return analysis.middle.brightness;
 }
-function drawImageFit(ctx, img, x, y, w, h, fit){
-  const iw = img.naturalWidth || img.width;
-  const ih = img.naturalHeight || img.height;
-  let s, dw, dh, dx, dy;
-  if(fit==='contain'){
-    s = Math.min(w/iw, h/ih);
-    dw = iw*s; dh = ih*s;
-    dx = x+(w-dw)/2; dy = y+(h-dh)/2;
-  } else {
-    s = Math.max(w/iw, h/ih);
-    dw = iw*s; dh = ih*s;
-    dx = x+(w-dw)/2; dy = y+(h-dh)/2;
+function applyPreset(name){
+  const p = PRESETS[name]; if(!p) return;
+  const info = {
+    headline: $('#inHeadline').value.trim(),
+    sub: $('#inSub').value.trim(),
+    content: $('#inContent').value.trim()
+  };
+  if(!info.headline && !info.sub && !info.content){ toast('Isi teks dulu','err'); return; }
+  if(state.elements.some(e=>e.type==='text' && e.role!=='manual')){
+    if(!confirm('Layout akan menata ulang teks role-based. Lanjutkan?')) return;
   }
-  ctx.drawImage(img, dx, dy, dw, dh);
-}
-function drawTextElement(ctx, el){
-  ctx.save();
-  const m = measureEl(el);
-  const cx = el.x + el.w/2;
-  const cy = el.y;
-  ctx.translate(cx, cy);
-  ctx.rotate(el.rotation * Math.PI/180);
-  ctx.translate(-cx, -cy);
-  ctx.globalAlpha = el.opacity ?? 1;
+  const analysis = getAnalysis();
+  state.elements = state.elements.filter(e=> e.type!=='text' || e.role==='manual');
+  const W = state.width, H = state.height;
+  const theme = pickTheme(info);
 
-  const fontSize = el.size;
-  ctx.font = `${el.weight} ${fontSize}px '${el.font}', sans-serif`;
-  if(ctx.letterSpacing !== undefined) ctx.letterSpacing = el.letterSpacing+'px';
-  ctx.textBaseline = 'top';
+  const place = (role, txt, rect, opts)=>{
+    const x = W*rect.x, y = H*rect.y, w = W*rect.w, maxH = H*rect.h;
+    const fitted = fitTextInBand(txt, {
+      font: opts.font, weight: opts.weight, maxWidth: w,
+      maxSize: opts.maxSize, minSize: opts.minSize, maxHeight: maxH, lineHeight: opts.lh
+    });
+    state.elements.push(createTextElement({
+      role, text: txt, x, y: y + Math.max(0,(maxH - fitted.height)/2), w,
+      font: opts.font, size: fitted.size, weight: opts.weight,
+      color: bestTextColor(bandBrightnessForRect(analysis, rect)),
+      align: opts.align, lineHeight: opts.lh, shadow: true
+    }));
+  };
+  if(info.headline) place('headline', info.headline, p.headline, {font:theme.headlineFont, weight:900, maxSize:Math.min(W*0.13,120), minSize:18, lh:1.1, align:'center'});
+  if(info.sub) place('subheadline', info.sub, p.sub, {font:theme.subFont, weight:500, maxSize:Math.min(W*0.06,60), minSize:12, lh:1.35, align:'center'});
+  if(info.content) place('content', info.content, p.content, {font:'Inter', weight:400, maxSize:Math.min(W*0.036,34), minSize:10, lh:1.5, align:'center'});
 
-  const lines = m.lines;
-  const totalH = lines.length * fontSize * el.lineHeight;
-
-  if(el.bg){
-    ctx.fillStyle = 'rgba(0,0,0,.55)';
-    const padX = fontSize*0.4, padY = fontSize*0.15;
-    roundRect(ctx, el.x-padX, el.y-padY, el.w+padX*2, totalH+padY*2, fontSize*0.2);
-    ctx.fill();
-  }
-
-  if(el.shadow){
-    ctx.shadowColor = 'rgba(0,0,0,.65)';
-    ctx.shadowBlur = fontSize*0.25;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = fontSize*0.08;
-  }
-
-  ctx.textAlign = el.align==='center' ? 'center' : el.align==='right' ? 'right' : 'left';
-  let baseX = el.x;
-  if(el.align==='center') baseX = el.x + el.w/2;
-  else if(el.align==='right') baseX = el.x + el.w;
-
-  if(el.outline){
-    ctx.strokeStyle = 'rgba(0,0,0,.75)';
-    ctx.lineWidth = fontSize*0.06;
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    for(let i=0; i<lines.length; i++)
-      ctx.strokeText(lines[i], baseX, el.y + i*fontSize*el.lineHeight);
-  }
-  ctx.fillStyle = el.color;
-  for(let i=0; i<lines.length; i++)
-    ctx.fillText(lines[i], baseX, el.y + i*fontSize*el.lineHeight);
-  ctx.restore();
-}
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.arcTo(x+w,y,x+w,y+h,r);
-  ctx.arcTo(x+w,y+h,x,y+h,r);
-  ctx.arcTo(x,y+h,x,y,r);
-  ctx.arcTo(x,y,x+w,y,r);
-  ctx.closePath();
+  checkOverflow();
+  renderAll(); pushHistory(); autoSave();
+  toast('Layout "'+name+'" diterapkan','ok');
 }
 
-/* ===== IMAGE LOAD ===== */
-function compressImage(file, maxDim=1600){
+/* ===== IMAGE ELEMENT ===== */
+function loadImg(src){
+  return new Promise(res=>{
+    const im = new Image();
+    im.onload = ()=>res(im);
+    im.onerror = ()=>res(null);
+    im.src = src;
+  });
+}
+function compressImage(file, maxDim=1400, quality=0.82){
   return new Promise(resolve=>{
     const reader = new FileReader();
     reader.onload = e=>{
@@ -972,55 +1075,200 @@ function compressImage(file, maxDim=1600){
         const c = document.createElement('canvas');
         c.width = Math.round(w*sc); c.height = Math.round(h*sc);
         c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-        resolve(c.toDataURL('image/jpeg', 0.88));
+        resolve(c.toDataURL('image/jpeg', quality));
       };
-      img.onerror = ()=>resolve(e.target.result);
+      img.onerror = ()=>resolve(null);
       img.src = e.target.result;
     };
     reader.onerror = ()=>resolve(null);
     reader.readAsDataURL(file);
   });
 }
-async function loadImageFile(file){
+async function addImageFile(file){
   if(!file) return;
   if(!file.type.startsWith('image/')){ toast('File harus berupa gambar','err'); return; }
+  const count = state.elements.filter(e=>e.type==='image').length;
+  if(count >= MAX_IMAGES){ toast('Maksimal 3 foto. Hapus salah satu dulu.','err'); return; }
   try {
     const src = await compressImage(file);
-    if(!src){ toast('Gagal membaca gambar','err'); return; }
-    const img = new Image();
-    img.onload = ()=>{
-      state.imageSrc = src;
-      state.imageEl = img;
-      $('#canvasImg').src = src;
-      $('#canvasImg').style.objectFit = state.imageFit;
-      $('#imgInfo').textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
-      toast('Foto diunggah','ok');
-    };
-    img.onerror = ()=>toast('Gagal memuat gambar','err');
-    img.src = src;
-  } catch(e){
-    toast('Error: '+e.message,'err');
+    if(!src){ toast('Gagal memproses gambar','err'); return; }
+    const img = await loadImg(src);
+    if(!img){ toast('Gagal memuat gambar','err'); return; }
+    placeImage(src, img);
+  } catch(err){
+    console.error(err);
+    toast('Error: '+err.message,'err');
   }
 }
+function placeImage(src, img){
+  const count = state.elements.filter(e=>e.type==='image').length;
+  const ar = img.naturalWidth/img.naturalHeight;
+  const cAr = state.width/state.height;
+  let w,h,x,y;
+  if(count === 0){
+    // background fill
+    if(ar > cAr){ h = state.height; w = h*ar; } else { w = state.width; h = w/ar; }
+    x = (state.width-w)/2; y = (state.height-h)/2;
+  } else {
+    const base = Math.min(state.width, state.height)*0.55;
+    if(ar >= 1){ w = base; h = base/ar; } else { h = base; w = base*ar; }
+    const offX = count===1 ? -state.width*0.18 : state.width*0.18;
+    const offY = count===1 ?  state.height*0.12 : -state.height*0.12;
+    x = (state.width-w)/2 + offX;
+    y = (state.height-h)/2 + offY;
+  }
+  const el = {
+    id: uid('img'), type:'image', role:'photo',
+    src, img, x:Math.round(x), y:Math.round(y), w:Math.round(w), h:Math.round(h),
+    zoom:1, rotation:0, opacity:1, fit:'cover',
+    locked:false, visible:true
+  };
+  if(count === 0) state.elements.unshift(el);
+  else state.elements.push(el);
+  renderAll();
+  selectElement(el.id);
+  pushHistory(); autoSave();
+  toast(`Foto ${count+1} ditambahkan`,'ok');
+}
 
-/* ===== FONTS ===== */
+/* ===== IMAGE THUMBS ===== */
+function renderImageThumbs(){
+  const box = $('#imageThumbs');
+  if(!box) return;
+  const imgs = state.elements.filter(e=>e.type==='image');
+  if(imgs.length===0){
+    box.innerHTML = '<div style="color:var(--tx2);font-size:12px;padding:16px 4px">Belum ada foto</div>';
+  } else {
+    box.innerHTML = imgs.map((im,i)=>`
+      <div class="thumb ${im.id===state.selectedId?'sel':''}" data-id="${im.id}">
+        <img src="${im.src}" alt="">
+        <span class="t-num">${i+1}</span>
+        <button class="t-del" data-del="${im.id}" title="Hapus">✕</button>
+      </div>`).join('');
+  }
+  $('#imgCount').textContent = `${imgs.length} / ${MAX_IMAGES} foto`;
+  const full = imgs.length >= MAX_IMAGES;
+  $('#btnCamera').disabled = full;
+  $('#btnGallery').disabled = full;
+
+  box.querySelectorAll('.thumb').forEach(t=>{
+    t.onclick = (e)=>{
+      if(e.target.closest('[data-del]')) return;
+      selectElement(t.dataset.id);
+      switchTab('text');
+    };
+  });
+  box.querySelectorAll('[data-del]').forEach(b=>{
+    b.onclick = (e)=>{
+      e.stopPropagation();
+      const id = b.dataset.del;
+      state.elements = state.elements.filter(x=>x.id!==id);
+      if(state.selectedId===id) deselect();
+      renderAll(); pushHistory(); autoSave();
+    };
+  });
+}
+
+/* ===== UI SYNC ===== */
+function syncTextTab(){
+  const el = getSelected();
+  const empty = $('#textTabEmpty');
+  const textC = $('#textTabControls');
+  const imgC = $('#imageTabControls');
+  if(!el){
+    empty.style.display=''; textC.style.display='none'; imgC.style.display='none';
+    return;
+  }
+  empty.style.display='none';
+  if(el.type==='image'){
+    textC.style.display='none'; imgC.style.display='';
+    syncImageControls(el);
+  } else {
+    imgC.style.display='none'; textC.style.display='';
+    syncTextControls(el);
+  }
+}
+function syncTextControls(el){
+  $('#inElText').value = el.text;
+  $('#selFont').value = el.font;
+  $('#rangeSize').value = el.size; $('#valSize').textContent = el.size;
+  $('#inColor').value = el.color; $('#inColorHex').value = el.color;
+  $('#rangeWidth').value = Math.round(el.w/state.width*100);
+  $('#valWidth').textContent = Math.round(el.w/state.width*100)+'%';
+  $('#rangeRotate').value = el.rotation; $('#valRotate').textContent = el.rotation+'°';
+  $('#rangeLS').value = el.letterSpacing; $('#valLS').textContent = el.letterSpacing;
+  $('#rangeLH').value = el.lineHeight; $('#valLH').textContent = (+el.lineHeight).toFixed(2);
+  $('#rangeOpacity').value = el.opacity; $('#valOpacity').textContent = Math.round(el.opacity*100)+'%';
+  $$('[data-align]').forEach(b=>b.classList.toggle('active', b.dataset.align===el.align));
+  $$('[data-weight]').forEach(b=>b.classList.toggle('active', +b.dataset.weight===el.weight));
+  $$('[data-efek]').forEach(b=>{
+    if(b.dataset.efek==='shadow') b.classList.toggle('active', el.shadow);
+    if(b.dataset.efek==='outline') b.classList.toggle('active', el.outline);
+    if(b.dataset.efek==='bg') b.classList.toggle('active', el.bg);
+  });
+  $('#btnLock').textContent = el.locked ? '🔓 Buka' : '🔒 Kunci';
+}
+function syncImageControls(el){
+  $('#rangeImgZoom').value = el.zoom; $('#valImgZoom').textContent = (+el.zoom).toFixed(2)+'x';
+  $('#inImgW').value = Math.round(el.w);
+  $('#inImgH').value = Math.round(el.h);
+  $('#inImgX').value = Math.round(el.x);
+  $('#inImgY').value = Math.round(el.y);
+  $('#rangeImgRot').value = el.rotation; $('#valImgRot').textContent = el.rotation+'°';
+  $('#rangeImgOp').value = el.opacity; $('#valImgOp').textContent = Math.round(el.opacity*100)+'%';
+  $$('[data-imgfit]').forEach(b=>b.classList.toggle('active', b.dataset.imgfit===el.fit));
+  $('#btnImgLock').textContent = el.locked ? '🔓 Buka' : '🔒 Kunci';
+}
+function renderLayerList(){
+  const list = $('#layerList');
+  $('#layerCount').textContent = state.elements.length;
+  if(state.elements.length===0){
+    list.innerHTML = '<div class="empty"><div class="icon">📄</div><div>Belum ada elemen</div></div>';
+    return;
+  }
+  list.innerHTML = '';
+  [...state.elements].reverse().forEach(el=>{
+    const div = document.createElement('div');
+    div.className = 'layer-item' + (el.id===state.selectedId ? ' selected' : '');
+    const label = el.type==='image' ? '🖼 Foto' : (el.text.length>26 ? el.text.substring(0,26)+'...' : el.text);
+    const roleBadge = (el.type==='text' && el.role!=='manual') ? ` <span style="font-size:9px;color:var(--ac)">${el.role}</span>` : '';
+    div.innerHTML = `
+      <div class="l-name">${escapeHtml(label)}${roleBadge}</div>
+      <div class="l-actions">
+        <button data-act="up" data-id="${el.id}" title="Naik">↑</button>
+        <button data-act="down" data-id="${el.id}" title="Turun">↓</button>
+        <button data-act="visible" data-id="${el.id}" title="Visibilitas">${el.visible===false?'🚫':'👁'}</button>
+        <button data-act="lock" data-id="${el.id}" title="Kunci">${el.locked?'🔒':'🔓'}</button>
+        <button data-act="del" data-id="${el.id}" title="Hapus">🗑</button>
+      </div>`;
+    div.addEventListener('click', e=>{
+      if(e.target.closest('button')) return;
+      selectElement(el.id);
+      switchTab('text');
+    });
+    list.appendChild(div);
+  });
+}
+function switchTab(name){
+  $$('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  $$('.panel-section').forEach(p=>p.classList.toggle('active', p.dataset.panel===name));
+}
 function loadFontList(){
-  const sel = $('#selFont');
+  const sel = $('#selFont'); if(!sel) return;
   sel.innerHTML = '';
   const all = [...FONTS, ...state.customFonts.map(f=>({name:f.name, label:'Custom'}))];
   all.forEach(f=>{
     const opt = document.createElement('option');
-    opt.value = f.name;
-    opt.textContent = `${f.name} — ${f.label}`;
+    opt.value = f.name; opt.textContent = `${f.name} — ${f.label}`;
     sel.appendChild(opt);
   });
 }
+
+/* ===== FONT UPLOAD ===== */
 async function uploadFont(file){
   if(!file) return;
   const ext = file.name.split('.').pop().toLowerCase();
-  if(!['ttf','otf','woff','woff2'].includes(ext)){
-    toast('Format font tidak didukung. Gunakan TTF/OTF/WOFF','err'); return;
-  }
+  if(!['ttf','otf','woff','woff2'].includes(ext)){ toast('Format font tidak didukung. Gunakan TTF/OTF/WOFF','err'); return; }
   const reader = new FileReader();
   reader.onload = async e=>{
     const dataUrl = e.target.result;
@@ -1052,109 +1300,155 @@ function renderCustomFontsList(){
   });
 }
 
-/* ===== UI SYNC ===== */
-function updateFloatToolbar(){
-  const tb = $('#floatTb');
-  const el = getSelected();
-  if(!el){ tb.classList.remove('show'); return; }
-  tb.classList.add('show');
-  const b = tb.querySelector('[data-cmd="bold"]');
-  if(b){ b.style.fontWeight = el.weight>=700 ? '900' : '400'; b.style.color = el.weight>=700 ? 'var(--ac)' : ''; }
+/* ===== EXPORT ===== */
+function exportDims(q){
+  let s = q;
+  if(state.width * s > MAX_EXPORT) s = MAX_EXPORT / state.width;
+  if(state.height * s > MAX_EXPORT) s = Math.min(s, MAX_EXPORT / state.height);
+  return { w: Math.round(state.width*s), h: Math.round(state.height*s), s:Math.max(0.05, s) };
 }
-function syncTextTab(){
-  const el = getSelected();
-  const empty = $('#textTabEmpty');
-  const ctrls = $('#textTabControls');
-  if(!el){ empty.style.display=''; ctrls.style.display='none'; return; }
-  empty.style.display='none'; ctrls.style.display='';
-  $('#inElText').value = el.text;
-  $('#selFont').value = el.font;
-  $('#rangeSize').value = el.size; $('#valSize').textContent = el.size;
-  $('#inColor').value = el.color; $('#inColorHex').value = el.color;
-  $('#rangeWidth').value = Math.round(el.w/state.width*100);
-  $('#valWidth').textContent = Math.round(el.w/state.width*100)+'%';
-  $('#rangeRotate').value = el.rotation; $('#valRotate').textContent = el.rotation+'°';
-  $('#rangeLS').value = el.letterSpacing; $('#valLS').textContent = el.letterSpacing;
-  $('#rangeLH').value = el.lineHeight; $('#valLH').textContent = el.lineHeight;
-  $('#rangeOpacity').value = el.opacity; $('#valOpacity').textContent = Math.round(el.opacity*100)+'%';
-  $$('[data-align]').forEach(b=>b.classList.toggle('active', b.dataset.align===el.align));
-  $$('[data-weight]').forEach(b=>b.classList.toggle('active', +b.dataset.weight===el.weight));
-  $$('[data-efek]').forEach(b=>{
-    if(b.dataset.efek==='shadow') b.classList.toggle('active', el.shadow);
-    if(b.dataset.efek==='outline') b.classList.toggle('active', el.outline);
-    if(b.dataset.efek==='bg') b.classList.toggle('active', el.bg);
-  });
-  $('#btnLock').textContent = el.locked ? '🔓 Buka' : '🔒 Kunci';
+function updateExportPreview(){
+  const qBtn = $$('#exportModal [data-exp-q]').find(b=>b.classList.contains('active'));
+  const q = parseInt(qBtn?.dataset.expQ || '2');
+  const d = exportDims(q);
+  const note = (d.w*q !== state.width*q) ? ' (dibatasi maks. 5000)' : '';
+  $('#expPreview').textContent = `Hasil: ${d.w} × ${d.h} px${note}`;
 }
-function renderLayerList(){
-  const list = $('#layerList');
-  $('#layerCount').textContent = state.elements.length;
-  if(state.elements.length===0){
-    list.innerHTML = '<div class="empty"><div class="icon">📄</div><div>Belum ada elemen</div></div>';
-    return;
-  }
-  list.innerHTML = '';
-  [...state.elements].reverse().forEach(el=>{
-    const div = document.createElement('div');
-    div.className = 'layer-item' + (el.id===state.selectedId ? ' selected' : '');
-    const label = el.text.length>28 ? el.text.substring(0,28)+'...' : el.text;
-    const roleBadge = el.role!=='manual' ? ` <span style="font-size:9px;color:var(--ac)">${el.role}</span>` : '';
-    div.innerHTML = `
-      <div class="l-name">${escapeHtml(label)}${roleBadge}</div>
-      <div class="l-actions">
-        <button data-act="up" data-id="${el.id}" title="Naik">↑</button>
-        <button data-act="down" data-id="${el.id}" title="Turun">↓</button>
-        <button data-act="visible" data-id="${el.id}" title="Visibilitas">${el.visible===false?'🚫':'👁'}</button>
-        <button data-act="lock" data-id="${el.id}" title="Kunci">${el.locked?'🔒':'🔓'}</button>
-        <button data-act="del" data-id="${el.id}" title="Hapus">🗑</button>
-      </div>`;
-    div.addEventListener('click', e=>{
-      if(e.target.closest('button')) return;
-      selectElement(el.id);
-      if(!el.visible) el.visible = true;
-      switchTab('text');
-    });
-    list.appendChild(div);
-  });
-}
+async function doExport(){
+  const fmtBtn = $$('#exportModal [data-exp-fmt]').find(b=>b.classList.contains('active'));
+  const qBtn = $$('#exportModal [data-exp-q]').find(b=>b.classList.contains('active'));
+  const fmt = fmtBtn?.dataset.expFmt || 'png';
+  const q = parseInt(qBtn?.dataset.expQ || '2');
+  const d = exportDims(q);
 
-function switchTab(name){
-  $$('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
-  $$('.panel-section').forEach(p=>p.classList.toggle('active', p.dataset.panel===name));
+  // Pastikan semua gambar sudah termuat
+  const imgEls = state.elements.filter(e=>e.type==='image' && e.visible!==false);
+  for(const im of imgEls){
+    if(!im.img || !im.img.complete || !im.img.naturalWidth){
+      await loadImg(im.src).then(loaded=>{ if(loaded) im.img = loaded; });
+    }
+    if(!im.img || !im.img.complete){ toast('Sebagian gambar belum siap. Coba lagi.','err'); return; }
+  }
+
+  toast('Menyiapkan ekspor...');
+  try {
+    const c = document.createElement('canvas');
+    c.width = d.w; c.height = d.h;
+    const ctx = c.getContext('2d');
+    ctx.scale(d.s, d.s);
+    ctx.fillStyle = state.bgColor || '#ffffff';
+    ctx.fillRect(0, 0, state.width, state.height);
+
+    for(const el of state.elements){
+      if(el.visible===false) continue;
+      if(el.type==='image') drawImageElement(ctx, el);
+      else if(el.type==='text') drawTextElement(ctx, el);
+    }
+
+    const mime = fmt==='jpg' ? 'image/jpeg' : 'image/png';
+    c.toBlob(blob=>{
+      if(!blob){ toast('Gagal membuat file','err'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `jualan-dien-${Date.now()}.${fmt}`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 3000);
+      toast(`Diekspor ${d.w}×${d.h}`,'ok');
+      $('#exportModal').classList.remove('show');
+    }, mime, fmt==='jpg' ? 0.92 : undefined);
+  } catch(err){
+    console.error(err);
+    toast('Ekspor gagal: '+err.message,'err');
+  }
+}
+function drawImageElement(ctx, el){
+  const im = el.img; if(!im || !im.naturalWidth) return;
+  const iw = im.naturalWidth, ih = im.naturalHeight;
+  let s;
+  if(el.fit==='contain') s = Math.min(el.w/iw, el.h/ih);
+  else s = Math.max(el.w/iw, el.h/ih);
+  s *= (el.zoom || 1);
+  const dw = iw*s, dh = ih*s;
+  const dx = el.x + (el.w - dw)/2;
+  const dy = el.y + (el.h - dh)/2;
+
+  ctx.save();
+  ctx.globalAlpha = el.opacity ?? 1;
+  const cx = el.x + el.w/2, cy = el.y + el.h/2;
+  ctx.translate(cx, cy);
+  ctx.rotate((el.rotation||0) * Math.PI/180);
+  ctx.translate(-cx, -cy);
+  ctx.beginPath();
+  ctx.rect(el.x, el.y, el.w, el.h);
+  ctx.clip();
+  ctx.drawImage(im, dx, dy, dw, dh);
+  ctx.restore();
+}
+function drawTextElement(ctx, el){
+  const m = measureEl(el);
+  ctx.save();
+  const cx = el.x + el.w/2;
+  ctx.translate(cx, el.y);
+  ctx.rotate((el.rotation||0) * Math.PI/180);
+  ctx.translate(-cx, -el.y);
+  ctx.globalAlpha = el.opacity ?? 1;
+  const fs = el.size;
+  ctx.font = `${el.weight} ${fs}px '${el.font}', sans-serif`;
+  if(ctx.letterSpacing !== undefined) ctx.letterSpacing = el.letterSpacing+'px';
+  ctx.textBaseline = 'top';
+  const lines = m.lines;
+  const totalH = lines.length * fs * el.lineHeight;
+
+  if(el.bg){
+    ctx.fillStyle = 'rgba(0,0,0,.55)';
+    const padX = fs*0.4, padY = fs*0.15;
+    roundRect(ctx, el.x-padX, el.y-padY, el.w+padX*2, totalH+padY*2, fs*0.2);
+    ctx.fill();
+  }
+  if(el.shadow){
+    ctx.shadowColor = 'rgba(0,0,0,.65)';
+    ctx.shadowBlur = fs*0.25;
+    ctx.shadowOffsetY = fs*0.08;
+  }
+  ctx.textAlign = el.align==='center' ? 'center' : el.align==='right' ? 'right' : 'left';
+  let baseX = el.x;
+  if(el.align==='center') baseX = el.x + el.w/2;
+  else if(el.align==='right') baseX = el.x + el.w;
+
+  if(el.outline){
+    ctx.strokeStyle = 'rgba(0,0,0,.75)';
+    ctx.lineWidth = fs*0.06;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    for(let i=0;i<lines.length;i++) ctx.strokeText(lines[i], baseX, el.y + i*fs*el.lineHeight);
+  }
+  ctx.fillStyle = el.color;
+  for(let i=0;i<lines.length;i++) ctx.fillText(lines[i], baseX, el.y + i*fs*el.lineHeight);
+  ctx.restore();
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
 }
 
 /* ===== AI ===== */
-function localHeadlines(p){
-  p = p || 'Produk';
-  return [
-    `PROMO SPESIAL ${p.toUpperCase()}!`,
-    `${p} Terbaik untuk Anda`,
-    `Baru! ${p} Kualitas Premium`,
-    `Diskon Spesial ${p} Hari Ini`,
-    `Rasakan Manfaat ${p}`
-  ];
-}
-function localSub(p){
-  p = p || 'produk ini';
-  return [
-    'Kualitas terjamin, harga bersahabat',
-    'Hanya hari ini — jangan sampai kehabisan!',
-    'Pilihan tepat untuk kebutuhan Anda',
-    'Dibuat dengan bahan pilihan',
-    'Stok terbatas, buruan order!'
-  ];
-}
-function localContent(p){
-  p = p || 'Produk';
-  return [
-    `✅ Kualitas premium\n✅ Harga terjangkau\n✅ Siap kirim hari ini\n\nPesan sekarang sebelum kehabisan!`,
-    `${p} hadir dengan formula terbaik.\n\nManfaat:\n• Berkualitas tinggi\n• Aman digunakan\n• Hasil memuaskan\n\nPromo spesial hari ini!`,
-    `Spesial untuk Anda!\n\n${p} pilihan tepat dengan kualitas terbaik.\nHarga ramah kantong.\n\nOrder sekarang, stok terbatas.`
-  ];
-}
+function localHeadlines(p){ p = p || 'Produk'; return [
+  `PROMO SPESIAL ${p.toUpperCase()}!`, `${p} Terbaik untuk Anda`,
+  `Baru! ${p} Kualitas Premium`, `Diskon Spesial ${p} Hari Ini`, `Rasakan Manfaat ${p}`
+]; }
+function localSub(p){ p = p || 'produk ini'; return [
+  'Kualitas terjamin, harga bersahabat','Hanya hari ini — jangan sampai kehabisan!',
+  'Pilihan tepat untuk kebutuhan Anda','Dibuat dengan bahan pilihan','Stok terbatas, buruan order!'
+]; }
+function localContent(p){ p = p || 'Produk'; return [
+  `✅ Kualitas premium\n✅ Harga terjangkau\n✅ Siap kirim hari ini\n\nPesan sekarang sebelum kehabisan!`,
+  `${p} hadir dengan formula terbaik.\n\nManfaat:\n• Berkualitas tinggi\n• Aman digunakan\n• Hasil memuaskan\n\nPromo spesial hari ini!`,
+  `Spesial untuk Anda!\n\n${p} pilihan tepat dengan kualitas terbaik.\nHarga ramah kantong.\n\nOrder sekarang, stok terbatas.`
+]; }
 function localDesign(){
   const all = ($('#inHeadline').value+' '+$('#inSub').value+' '+$('#inContent').value).toLowerCase();
-  let theme = pickTheme({headline:all, sub:'', content:''});
+  const theme = pickTheme({headline:all, sub:'', content:''});
   const colorMap = {
     'Cormorant Garamond':['#d4af37','#1a1a1a','#f5f5dc'],
     'Playfair Display':['#8b6f47','#e8d5c4','#1a1a1a'],
@@ -1166,24 +1460,19 @@ function localDesign(){
     'Dancing Script':['#ec4899','#f472b6','#ffffff']
   };
   const colors = colorMap[theme.headlineFont] || ['#a855f7','#ec4899','#1a1a1a'];
-  return {
-    font: theme.headlineFont,
-    subFont: theme.subFont,
-    colors,
-    tip: `Kombinasi ${theme.headlineFont} + ${theme.subFont} cocok untuk produk ini. Gunakan warna aksen ${colors[0]}.`
-  };
+  return { font:theme.headlineFont, subFont:theme.subFont, colors, tip:`Kombinasi ${theme.headlineFont} + ${theme.subFont} cocok untuk produk ini. Aksen ${colors[0]}.` };
 }
 async function callOnlineAI(prompt){
   const {endpoint, key, model} = state.aiConfig;
   if(!endpoint || !key) return null;
   try {
     const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':`Bearer ${key}`},
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
       body: JSON.stringify({
         model: model||'gpt-4o-mini',
         messages:[
-          {role:'system', content:'Anda adalah copywriter produk Indonesia. Berikan jawaban singkat, praktis, tanpa penomoran.'},
+          {role:'system', content:'Anda copywriter produk Indonesia. Jawaban singkat, praktis, tanpa penomoran.'},
           {role:'user', content: prompt}
         ],
         temperature: 0.8
@@ -1203,11 +1492,12 @@ async function callOnlineAI(prompt){
 function saveProject(silent=false){
   try {
     const data = {
-      version:1,
+      version:2,
       width:state.width, height:state.height, format:state.format,
-      imageFit:state.imageFit, bgColor:state.bgColor,
-      imageSrc:state.imageSrc, elements:state.elements,
-      savedAt:Date.now()
+      bgColor:state.bgColor, gridMode:state.gridMode,
+      hideToolbarNearImage:state.hideToolbarNearImage,
+      elements: serializeElements(),
+      savedAt: Date.now()
     };
     localStorage.setItem('jd_project', JSON.stringify(data));
     if(!silent) toast('Proyek tersimpan','ok');
@@ -1224,51 +1514,51 @@ function loadProject(){
     state.width = data.width || 1080;
     state.height = data.height || 1080;
     state.format = data.format || '1:1';
-    state.imageFit = data.imageFit || 'cover';
     state.bgColor = data.bgColor || '#ffffff';
-    state.elements = data.elements || [];
-    if(data.imageSrc){
-      state.imageSrc = data.imageSrc;
-      const img = new Image();
-      img.onload = ()=>{
-        state.imageEl = img;
-        $('#canvasImg').src = data.imageSrc;
-        $('#canvasImg').style.objectFit = state.imageFit;
-        $('#imgInfo').textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
-      };
-      img.src = data.imageSrc;
+    state.gridMode = data.gridMode || 'off';
+    if(typeof data.hideToolbarNearImage === 'boolean') state.hideToolbarNearImage = data.hideToolbarNearImage;
+    state.elements = deserializeElements(data.elements || []);
+
+    // migration v1 → v2: single image background
+    if(data.version === 1 && data.imageSrc && !state.elements.some(e=>e.type==='image')){
+      const im = new Image();
+      im.src = data.imageSrc;
+      state.elements.unshift({
+        id:uid('img'), type:'image', role:'photo', src:data.imageSrc, img:im,
+        x:0, y:0, w:state.width, h:state.height,
+        zoom:1, rotation:0, opacity:1, fit:data.imageFit||'cover',
+        locked:false, visible:true
+      });
     }
+
     updateCanvasSize();
     $('#canvas').style.background = state.bgColor;
     $('#inBg').value = state.bgColor; $('#inBgHex').value = state.bgColor;
-    renderAll();
-    pushHistory();
+    renderAll(); pushHistory();
+    syncGridButtons(); syncToolbarSettingButtons();
     return true;
   } catch(e){ console.warn('loadProject', e); return false; }
 }
 let autoSaveT;
-function autoSave(){
-  clearTimeout(autoSaveT);
-  autoSaveT = setTimeout(()=>saveProject(true), 1500);
-}
+function autoSave(){ clearTimeout(autoSaveT); autoSaveT = setTimeout(()=>saveProject(true), 1500); }
 
-/* ===== EVENT WIRING ===== */
+/* ===== EVENTS ===== */
 function initEvents(){
   $$('.tab').forEach(t=>t.addEventListener('click', ()=>switchTab(t.dataset.tab)));
 
-  // Photo
+  // Images
   $('#btnCamera').onclick = ()=>$('#inputCamera').click();
   $('#btnGallery').onclick = ()=>$('#inputGallery').click();
-  $('#inputCamera').onchange = e=>{ loadImageFile(e.target.files[0]); e.target.value=''; };
-  $('#inputGallery').onchange = e=>{ loadImageFile(e.target.files[0]); e.target.value=''; };
+  $('#inputCamera').onchange = e=>{ const f=e.target.files[0]; e.target.value=''; if(f) addImageFile(f); };
+  $('#inputGallery').onchange = e=>{ const f=e.target.files[0]; e.target.value=''; if(f) addImageFile(f); };
 
-  // Format
+  // Canvas format
   $$('[data-format]').forEach(b=>b.addEventListener('click', ()=>{
     const f = b.dataset.format;
     const sizes = {'1:1':[1080,1080], '4:5':[1080,1350], '9:16':[1080,1920]};
     state.width = sizes[f][0]; state.height = sizes[f][1]; state.format = f;
     $$('[data-format]').forEach(x=>x.classList.toggle('active', x===b));
-    updateCanvasSize(); pushHistory();
+    updateCanvasSize(); pushHistory(); autoSave();
   }));
   $('#btnApplyCustom').onclick = ()=>{
     const w = parseInt($('#inCustomW').value);
@@ -1276,36 +1566,46 @@ function initEvents(){
     if(!w||!h||w<100||h<100){ toast('Ukuran tidak valid','err'); return; }
     state.width=w; state.height=h; state.format='custom';
     $$('[data-format]').forEach(x=>x.classList.remove('active'));
-    updateCanvasSize(); pushHistory();
+    updateCanvasSize(); pushHistory(); autoSave();
   };
-  $$('[data-fit]').forEach(b=>b.addEventListener('click', ()=>{
-    state.imageFit = b.dataset.fit;
-    $$('[data-fit]').forEach(x=>x.classList.toggle('active', x===b));
-    $('#canvasImg').style.objectFit = state.imageFit;
-    pushHistory();
+
+  // Grid
+  $$('[data-grid]').forEach(b=>b.addEventListener('click', ()=>{
+    state.gridMode = b.dataset.grid;
+    syncGridButtons(); renderGrid();
   }));
+  // Layout presets
+  $$('[data-preset]').forEach(b=>b.addEventListener('click', ()=>applyPreset(b.dataset.preset)));
+
+  // Background
   $('#inBg').oninput = e=>{
     state.bgColor = e.target.value;
     $('#inBgHex').value = e.target.value;
     $('#canvas').style.background = state.bgColor;
   };
-  $('#inBg').onchange = pushHistory;
+  $('#inBg').onchange = ()=>{ pushHistory(); autoSave(); };
   $('#inBgHex').onchange = e=>{
     const v = e.target.value;
-    if(/^#[0-9a-f]{6}$/i.test(v)){ $('#inBg').value = v; $('#inBg').dispatchEvent(new Event('input')); pushHistory(); }
-  };
-  $('#btnRemoveImg').onclick = ()=>{
-    state.imageSrc = null; state.imageEl = null;
-    $('#canvasImg').src = ''; $('#imgInfo').textContent = 'Belum ada foto';
+    if(/^#[0-9a-f]{6}$/i.test(v)){ $('#inBg').value = v; $('#inBg').dispatchEvent(new Event('input')); pushHistory(); autoSave(); }
   };
 
-  // Auto
-  $('#btnAuto').onclick = ()=>autoLayout(0);
-  $('#btnVariasi').onclick = ()=>{
-    const idx = Math.floor(Math.random()*3);
-    autoLayout(idx);
-    toast('Variasi desain diterapkan','ok');
+  // Toolbar setting
+  $$('[data-hidetb]').forEach(b=>b.addEventListener('click', ()=>{
+    state.hideToolbarNearImage = b.dataset.hidetb === '1';
+    syncToolbarSettingButtons();
+    updateFloatToolbar();
+    autoSave();
+  }));
+  $('#btnToggleTb').onclick = ()=>{
+    state.hideToolbarNearImage = !state.hideToolbarNearImage;
+    syncToolbarSettingButtons();
+    updateFloatToolbar();
+    toast(state.hideToolbarNearImage ? 'Toolbar auto-sembunyi di atas gambar' : 'Toolbar selalu tampil');
   };
+
+  // Auto & Variasi
+  $('#btnAuto').onclick = ()=>autoLayout(0);
+  $('#btnVariasi').onclick = ()=>{ const idx = Math.floor(Math.random()*3); autoLayout(idx); toast('Variasi desain diterapkan','ok'); };
 
   // Manual text
   $('#btnAddManual').onclick = ()=>{
@@ -1316,165 +1616,127 @@ function initEvents(){
       size: Math.min(48, state.width*0.06), color:'#ffffff', shadow:true
     });
     state.elements.push(el); renderAll(); selectElement(el.id);
-    $('#inManual').value=''; pushHistory();
+    $('#inManual').value=''; pushHistory(); autoSave();
   };
-
-  // Add text
   $('#btnAddText').onclick = addNewText;
   $('#btnAddText2').onclick = addNewText;
 
   // Text controls
-  $('#inElText').oninput = e=>{
-    const el = getSelected(); if(!el) return;
-    el.text = e.target.value; updateElNode(el);
-  };
+  $('#inElText').oninput = e=>{ const el = getSelected(); if(!el||el.type!=='text') return; el.text=e.target.value; updateElNode(el); };
   $('#inElText').onchange = ()=>{ pushHistory(); autoSave(); };
-
-  $('#selFont').onchange = e=>{
-    const el = getSelected(); if(!el) return;
-    el.font = e.target.value; updateElNode(el); pushHistory();
-  };
-  $('#rangeSize').oninput = e=>{
-    const el = getSelected(); if(!el) return;
-    el.size = +e.target.value; $('#valSize').textContent = el.size; updateElNode(el);
-  };
-  $('#rangeSize').onchange = pushHistory;
-  $('#btnSizeMinus').onclick = ()=>{
-    const el = getSelected(); if(!el) return;
-    el.size = Math.max(8, el.size-2);
-    $('#rangeSize').value = el.size; $('#valSize').textContent = el.size;
-    updateElNode(el); pushHistory();
-  };
-  $('#btnSizePlus').onclick = ()=>{
-    const el = getSelected(); if(!el) return;
-    el.size = Math.min(400, el.size+2);
-    $('#rangeSize').value = el.size; $('#valSize').textContent = el.size;
-    updateElNode(el); pushHistory();
-  };
-  $('#inColor').oninput = e=>{
-    const el = getSelected(); if(!el) return;
-    el.color = e.target.value; $('#inColorHex').value = e.target.value;
-    updateElNode(el);
-  };
-  $('#inColor').onchange = pushHistory;
-  $('#inColorHex').onchange = e=>{
-    const v = e.target.value;
-    if(/^#[0-9a-f]{6}$/i.test(v)){ $('#inColor').value = v; $('#inColor').dispatchEvent(new Event('input')); pushHistory(); }
-  };
+  $('#selFont').onchange = e=>{ const el = getSelected(); if(!el||el.type!=='text') return; el.font=e.target.value; updateElNode(el); pushHistory(); autoSave(); };
+  $('#rangeSize').oninput = e=>{ const el = getSelected(); if(!el||el.type!=='text') return; el.size=+e.target.value; $('#valSize').textContent=el.size; updateElNode(el); };
+  $('#rangeSize').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#btnSizeMinus').onclick = ()=>{ const el=getSelected(); if(!el||el.type!=='text') return; el.size=Math.max(8,el.size-2); $('#rangeSize').value=el.size; $('#valSize').textContent=el.size; updateElNode(el); pushHistory(); };
+  $('#btnSizePlus').onclick = ()=>{ const el=getSelected(); if(!el||el.type!=='text') return; el.size=Math.min(400,el.size+2); $('#rangeSize').value=el.size; $('#valSize').textContent=el.size; updateElNode(el); pushHistory(); };
+  $('#inColor').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='text') return; el.color=e.target.value; $('#inColorHex').value=e.target.value; updateElNode(el); };
+  $('#inColor').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#inColorHex').onchange = e=>{ const v=e.target.value; if(/^#[0-9a-f]{6}$/i.test(v)){ $('#inColor').value=v; $('#inColor').dispatchEvent(new Event('input')); pushHistory(); } };
   $$('[data-align]').forEach(b=>b.addEventListener('click', ()=>{
-    const el = getSelected(); if(!el) return;
+    const el = getSelected(); if(!el||el.type!=='text') return;
     el.align = b.dataset.align;
     $$('[data-align]').forEach(x=>x.classList.toggle('active', x===b));
-    updateElNode(el); pushHistory();
+    updateElNode(el); pushHistory(); autoSave();
   }));
   $$('[data-weight]').forEach(b=>b.addEventListener('click', ()=>{
-    const el = getSelected(); if(!el) return;
+    const el = getSelected(); if(!el||el.type!=='text') return;
     el.weight = +b.dataset.weight;
     $$('[data-weight]').forEach(x=>x.classList.toggle('active', x===b));
-    updateElNode(el); pushHistory();
+    updateElNode(el); pushHistory(); autoSave();
   }));
-  $('#rangeWidth').oninput = e=>{
-    const el = getSelected(); if(!el) return;
-    el.w = state.width*(+e.target.value/100);
-    $('#valWidth').textContent = e.target.value+'%';
-    updateElNode(el);
-  };
-  $('#rangeWidth').onchange = pushHistory;
-  $('#rangeRotate').oninput = e=>{
-    const el = getSelected(); if(!el) return;
-    el.rotation = +e.target.value; $('#valRotate').textContent = el.rotation+'°';
-    updateElNode(el);
-  };
-  $('#rangeRotate').onchange = pushHistory;
-  $('#rangeLS').oninput = e=>{
-    const el = getSelected(); if(!el) return;
-    el.letterSpacing = +e.target.value; $('#valLS').textContent = el.letterSpacing;
-    updateElNode(el);
-  };
-  $('#rangeLS').onchange = pushHistory;
-  $('#rangeLH').oninput = e=>{
-    const el = getSelected(); if(!el) return;
-    el.lineHeight = +e.target.value; $('#valLH').textContent = el.lineHeight.toFixed(2);
-    updateElNode(el);
-  };
-  $('#rangeLH').onchange = pushHistory;
-  $('#rangeOpacity').oninput = e=>{
-    const el = getSelected(); if(!el) return;
-    el.opacity = +e.target.value;
-    $('#valOpacity').textContent = Math.round(el.opacity*100)+'%';
-    updateElNode(el);
-  };
-  $('#rangeOpacity').onchange = pushHistory;
+  $('#rangeWidth').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='text') return; el.w=state.width*(+e.target.value/100); $('#valWidth').textContent=e.target.value+'%'; updateElNode(el); updateFloatToolbar(); };
+  $('#rangeWidth').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#rangeRotate').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='text') return; el.rotation=+e.target.value; $('#valRotate').textContent=el.rotation+'°'; updateElNode(el); };
+  $('#rangeRotate').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#rangeLS').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='text') return; el.letterSpacing=+e.target.value; $('#valLS').textContent=el.letterSpacing; updateElNode(el); };
+  $('#rangeLS').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#rangeLH').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='text') return; el.lineHeight=+e.target.value; $('#valLH').textContent=(+el.lineHeight).toFixed(2); updateElNode(el); updateFloatToolbar(); };
+  $('#rangeLH').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#rangeOpacity').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='text') return; el.opacity=+e.target.value; $('#valOpacity').textContent=Math.round(el.opacity*100)+'%'; updateElNode(el); };
+  $('#rangeOpacity').onchange = ()=>{ pushHistory(); autoSave(); };
   $$('[data-efek]').forEach(b=>b.addEventListener('click', ()=>{
-    const el = getSelected(); if(!el) return;
-    const k = b.dataset.efek;
-    el[k] = !el[k];
-    b.classList.toggle('active', el[k]);
-    updateElNode(el); pushHistory();
+    const el = getSelected(); if(!el||el.type!=='text') return;
+    const k = b.dataset.efek; el[k] = !el[k];
+    b.classList.toggle('active', el[k]); updateElNode(el); pushHistory(); autoSave();
   }));
   $('#btnDup').onclick = ()=>{
-    const el = getSelected(); if(!el) return;
+    const el = getSelected(); if(!el||el.type!=='text') return;
     const c = JSON.parse(JSON.stringify(el));
     c.id = uid('t'); c.x += 24; c.y += 24; c.role = 'manual';
-    state.elements.push(c); renderAll(); selectElement(c.id); pushHistory();
+    state.elements.push(c); renderAll(); selectElement(c.id); pushHistory(); autoSave();
   };
   $('#btnLock').onclick = ()=>{
-    const el = getSelected(); if(!el) return;
-    el.locked = !el.locked; updateElNode(el); syncTextTab(); pushHistory();
+    const el = getSelected(); if(!el||el.type!=='text') return;
+    el.locked = !el.locked; updateElNode(el); syncTextTab(); pushHistory(); autoSave();
   };
   $('#btnDelEl').onclick = ()=>{
     const el = getSelected(); if(!el) return;
     state.elements = state.elements.filter(x=>x.id!==el.id);
-    deselect(); renderAll(); pushHistory();
+    deselect(); renderAll(); pushHistory(); autoSave();
   };
 
-  // Font
+  // Image controls
+  $('#rangeImgZoom').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.zoom=+e.target.value; $('#valImgZoom').textContent=(+el.zoom).toFixed(2)+'x'; updateElNode(el); };
+  $('#rangeImgZoom').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#btnZoomMinus').onclick = ()=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.zoom=Math.max(0.5,+(el.zoom-0.05).toFixed(2)); $('#rangeImgZoom').value=el.zoom; $('#valImgZoom').textContent=el.zoom.toFixed(2)+'x'; updateElNode(el); pushHistory(); };
+  $('#btnZoomPlus').onclick = ()=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.zoom=Math.min(3,+(el.zoom+0.05).toFixed(2)); $('#rangeImgZoom').value=el.zoom; $('#valImgZoom').textContent=el.zoom.toFixed(2)+'x'; updateElNode(el); pushHistory(); };
+  $('#inImgW').onchange = e=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.w=Math.max(20,parseInt(e.target.value)||el.w); updateElNode(el); pushHistory(); autoSave(); };
+  $('#inImgH').onchange = e=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.h=Math.max(20,parseInt(e.target.value)||el.h); updateElNode(el); pushHistory(); autoSave(); };
+  $('#inImgX').onchange = e=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.x=parseInt(e.target.value)||0; updateElNode(el); pushHistory(); autoSave(); };
+  $('#inImgY').onchange = e=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.y=parseInt(e.target.value)||0; updateElNode(el); pushHistory(); autoSave(); };
+  $$('[data-imgfit]').forEach(b=>b.addEventListener('click', ()=>{
+    const el = getSelected(); if(!el||el.type!=='image') return;
+    el.fit = b.dataset.imgfit;
+    $$('[data-imgfit]').forEach(x=>x.classList.toggle('active', x===b));
+    updateElNode(el); pushHistory(); autoSave();
+  }));
+  $('#rangeImgRot').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.rotation=+e.target.value; $('#valImgRot').textContent=el.rotation+'°'; updateElNode(el); };
+  $('#rangeImgRot').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#rangeImgOp').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.opacity=+e.target.value; $('#valImgOp').textContent=Math.round(el.opacity*100)+'%'; updateElNode(el); };
+  $('#rangeImgOp').onchange = ()=>{ pushHistory(); autoSave(); };
+  $('#btnImgLock').onclick = ()=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.locked=!el.locked; updateElNode(el); syncTextTab(); pushHistory(); autoSave(); };
+  $('#btnImgDel').onclick = ()=>{ const el=getSelected(); if(!el||el.type!=='image') return; state.elements=state.elements.filter(x=>x.id!==el.id); deselect(); renderAll(); pushHistory(); autoSave(); };
+  $('#btnImgReplace').onclick = ()=>$('#inputImgReplace').click();
+  $('#inputImgReplace').onchange = async e=>{
+    const f = e.target.files[0]; e.target.value='';
+    if(!f) return;
+    const el = getSelected(); if(!el||el.type!=='image') return;
+    const src = await compressImage(f);
+    if(!src){ toast('Gagal memproses gambar','err'); return; }
+    const img = await loadImg(src);
+    if(!img){ toast('Gagal memuat gambar','err'); return; }
+    el.src = src; el.img = img;
+    updateElNode(el); pushHistory(); autoSave(); renderImageThumbs();
+    toast('Foto diganti','ok');
+  };
+
+  // Font upload
   $('#btnUploadFont').onclick = ()=>$('#inputFont').click();
-  $('#inputFont').onchange = e=>{ uploadFont(e.target.files[0]); e.target.value=''; };
+  $('#inputFont').onchange = e=>{ const f=e.target.files[0]; e.target.value=''; if(f) uploadFont(f); };
 
   // Float toolbar
   $('#floatTb').addEventListener('click', e=>{
     const btn = e.target.closest('button'); if(!btn) return;
-    const el = getSelected(); if(!el) return;
+    const el = getSelected(); if(!el||el.type!=='text') return;
     const cmd = btn.dataset.cmd;
-    if(cmd==='size+'){ el.size = Math.min(400, el.size+4); updateElNode(el); syncTextTab(); pushHistory(); }
-    if(cmd==='size-'){ el.size = Math.max(8, el.size-4); updateElNode(el); syncTextTab(); pushHistory(); }
+    if(cmd==='size+'){ el.size=Math.min(400,el.size+4); updateElNode(el); syncTextTab(); pushHistory(); }
+    if(cmd==='size-'){ el.size=Math.max(8,el.size-4); updateElNode(el); syncTextTab(); pushHistory(); }
     if(cmd==='bold'){ el.weight = el.weight>=700 ? 400 : 900; updateElNode(el); syncTextTab(); updateFloatToolbar(); pushHistory(); }
     if(cmd==='color'){ switchTab('text'); }
     if(cmd==='dup'){ $('#btnDup').click(); }
     if(cmd==='del'){ $('#btnDelEl').click(); }
   });
 
-  // Layer list actions
+  // Layer actions
   $('#layerList').addEventListener('click', e=>{
     const btn = e.target.closest('button[data-act]'); if(!btn) return;
     const el = state.elements.find(x=>x.id===btn.dataset.id); if(!el) return;
     const act = btn.dataset.act;
-    if(act==='visible'){
-      el.visible = el.visible===false ? true : false; renderAll(); pushHistory();
-    }
-    if(act==='lock'){
-      el.locked = !el.locked; renderAll(); syncTextTab(); pushHistory();
-    }
-    if(act==='del'){
-      state.elements = state.elements.filter(x=>x.id!==el.id);
-      if(state.selectedId===el.id) deselect();
-      renderAll(); pushHistory();
-    }
-    if(act==='up'){
-      const i = state.elements.indexOf(el);
-      if(i < state.elements.length-1){
-        [state.elements[i], state.elements[i+1]] = [state.elements[i+1], state.elements[i]];
-        renderAll(); pushHistory();
-      }
-    }
-    if(act==='down'){
-      const i = state.elements.indexOf(el);
-      if(i > 0){
-        [state.elements[i], state.elements[i-1]] = [state.elements[i-1], state.elements[i]];
-        renderAll(); pushHistory();
-      }
-    }
+    if(act==='visible'){ el.visible = el.visible===false ? true : false; renderAll(); pushHistory(); autoSave(); }
+    if(act==='lock'){ el.locked = !el.locked; renderAll(); syncTextTab(); pushHistory(); autoSave(); }
+    if(act==='del'){ state.elements = state.elements.filter(x=>x.id!==el.id); if(state.selectedId===el.id) deselect(); renderAll(); pushHistory(); autoSave(); }
+    if(act==='up'){ const i=state.elements.indexOf(el); if(i<state.elements.length-1){ [state.elements[i],state.elements[i+1]]=[state.elements[i+1],state.elements[i]]; renderAll(); pushHistory(); autoSave(); } }
+    if(act==='down'){ const i=state.elements.indexOf(el); if(i>0){ [state.elements[i],state.elements[i-1]]=[state.elements[i-1],state.elements[i]]; renderAll(); pushHistory(); autoSave(); } }
   });
 
   // Undo/Redo
@@ -1483,14 +1745,13 @@ function initEvents(){
 
   // Save & Export
   $('#btnSave').onclick = ()=>saveProject(false);
-  $('#btnExport').onclick = ()=>{
-    $('#expPreview').textContent = `Akan diekspor: ${state.width} × ${state.height} px`;
-    $('#exportModal').classList.add('show');
-  };
+  $('#btnExport').onclick = ()=>{ updateExportPreview(); $('#exportModal').classList.add('show'); };
   $$('#exportModal [data-exp-fmt]').forEach(b=>b.addEventListener('click', ()=>
     $$('#exportModal [data-exp-fmt]').forEach(x=>x.classList.toggle('active', x===b))));
-  $$('#exportModal [data-exp-q]').forEach(b=>b.addEventListener('click', ()=>
-    $$('#exportModal [data-exp-q]').forEach(x=>x.classList.toggle('active', x===b))));
+  $$('#exportModal [data-exp-q]').forEach(b=>b.addEventListener('click', ()=>{
+    $$('#exportModal [data-exp-q]').forEach(x=>x.classList.toggle('active', x===b));
+    updateExportPreview();
+  }));
   $('#btnDoExport').onclick = doExport;
 
   // AI
@@ -1521,8 +1782,7 @@ function initEvents(){
     if(!items) items = localHeadlines(product);
     res.innerHTML = items.map(t=>`<div class="ai-sug" data-text="${escapeHtml(t)}">${escapeHtml(t)} <span class="badge local">pakai</span></div>`).join('');
     res.querySelectorAll('.ai-sug').forEach(s=>s.onclick = ()=>{
-      $('#inHeadline').value = s.dataset.text;
-      toast('Headline diaplikasikan ke form','ok');
+      $('#inHeadline').value = s.dataset.text; toast('Headline diaplikasikan','ok');
       $('#aiModal').classList.remove('show');
     });
   };
@@ -1538,8 +1798,7 @@ function initEvents(){
     if(!items) items = localSub(product);
     res.innerHTML = items.map(t=>`<div class="ai-sug" data-text="${escapeHtml(t)}">${escapeHtml(t)} <span class="badge local">pakai</span></div>`).join('');
     res.querySelectorAll('.ai-sug').forEach(s=>s.onclick = ()=>{
-      $('#inSub').value = s.dataset.text;
-      toast('Subheadline diaplikasikan','ok');
+      $('#inSub').value = s.dataset.text; toast('Subheadline diaplikasikan','ok');
       $('#aiModal').classList.remove('show');
     });
   };
@@ -1555,8 +1814,7 @@ function initEvents(){
     if(!items) items = localContent(product);
     res.innerHTML = items.map(t=>`<div class="ai-sug" data-text="${escapeHtml(t)}" style="white-space:pre-line">${escapeHtml(t)} <span class="badge local">pakai</span></div>`).join('');
     res.querySelectorAll('.ai-sug').forEach(s=>s.onclick = ()=>{
-      $('#inContent').value = s.dataset.text;
-      toast('Isi konten diaplikasikan','ok');
+      $('#inContent').value = s.dataset.text; toast('Isi konten diaplikasikan','ok');
       $('#aiModal').classList.remove('show');
     });
   };
@@ -1567,16 +1825,14 @@ function initEvents(){
       <div class="ai-sug" style="cursor:default">
         <div style="margin-bottom:8px"><strong>🎨 Rekomendasi</strong></div>
         <div style="font-size:12px;line-height:1.6">${escapeHtml(rec.tip)}</div>
-        <div style="margin-top:10px;display:flex;gap:6px">
-          ${rec.colors.map(c=>`<div style="width:32px;height:32px;border-radius:8px;background:${c};border:1px solid #333"></div>`).join('')}
-        </div>
+        <div style="margin-top:10px;display:flex;gap:6px">${rec.colors.map(c=>`<div style="width:32px;height:32px;border-radius:8px;background:${c};border:1px solid #333"></div>`).join('')}</div>
         <div style="margin-top:8px;font-size:11px;color:var(--tx2)">Font: ${rec.font} / ${rec.subFont}</div>
       </div>
       <button class="btn full" id="aiApplyDesign" style="margin-top:8px">Terapkan ke elemen terpilih</button>`;
     $('#aiApplyDesign').onclick = ()=>{
       const el = getSelected();
-      if(el){ el.font = rec.font; updateElNode(el); syncTextTab(); pushHistory(); toast('Font diterapkan','ok'); }
-      else toast('Pilih elemen dulu di kanvas','err');
+      if(el && el.type==='text'){ el.font = rec.font; updateElNode(el); syncTextTab(); pushHistory(); toast('Font diterapkan','ok'); }
+      else toast('Pilih teks dulu di kanvas','err');
     };
   };
 
@@ -1585,9 +1841,7 @@ function initEvents(){
     if(e.target.matches('input, textarea, select')) return;
     if((e.ctrlKey||e.metaKey) && e.key==='z' && !e.shiftKey){ e.preventDefault(); undo(); }
     if((e.ctrlKey||e.metaKey) && (e.key==='y' || (e.key==='z' && e.shiftKey))){ e.preventDefault(); redo(); }
-    if(e.key==='Delete' || e.key==='Backspace'){
-      if(getSelected()){ e.preventDefault(); $('#btnDelEl').click(); }
-    }
+    if(e.key==='Delete' || e.key==='Backspace'){ if(getSelected()){ e.preventDefault(); $('#btnDelEl').click(); } }
     const el = getSelected();
     if(el && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
       e.preventDefault();
@@ -1596,14 +1850,13 @@ function initEvents(){
       if(e.key==='ArrowDown') el.y += step;
       if(e.key==='ArrowLeft') el.x -= step;
       if(e.key==='ArrowRight') el.x += step;
-      updateElNode(el);
+      updateElNode(el); updateFloatToolbar();
     }
   });
   document.addEventListener('keyup', e=>{
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key) && getSelected()) pushHistory();
   });
 
-  // Resize
   window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', ()=>setTimeout(fitStage, 120));
   window.addEventListener('beforeunload', ()=>saveProject(true));
@@ -1615,7 +1868,7 @@ function addNewText(){
     size: Math.min(64, state.width*0.06), color:'#ffffff', shadow:true
   });
   state.elements.push(el); renderAll(); selectElement(el.id);
-  switchTab('text'); pushHistory();
+  switchTab('text'); pushHistory(); autoSave();
   setTimeout(()=>$('#inElText').focus(), 100);
 }
 
@@ -1628,7 +1881,6 @@ function init(){
   if(loadProject()){
     toast('Proyek sebelumnya dipulihkan','ok');
   } else {
-    // First run: sample layout to demonstrate capabilities
     state.elements.push(createTextElement({
       role:'headline', text:'JUALAN DIEN', x:state.width*0.05, y:state.height*0.42,
       w:state.width*0.9, size:Math.min(110,state.width*0.11), weight:900,
@@ -1640,11 +1892,10 @@ function init(){
       size:Math.min(38,state.width*0.036), weight:500,
       color:'#333', align:'center', shadow:false
     }));
-    renderAll();
-    pushHistory();
-    toast('Selamat datang di Jualan DIEN','ok');
+    renderAll(); pushHistory();
+    toast('Selamat datang di Jualan DIEN v2','ok');
   }
-
+  syncGridButtons(); syncToolbarSettingButtons();
   setInterval(autoSave, 25000);
 }
 
