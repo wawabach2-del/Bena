@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5b35c9">
+<meta name="description" content="Asisten konten promosi untuk jualan online">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Jualin AI — Konten Jualan</title>
+<style>
+:root{--p:#5b35c9;--p2:#7c5ce7;--bg:#f6f5fb;--card:#fff;--ink:#211b35;--muted:#746e86;--line:#e8e3f2;--good:#16845b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:linear-gradient(135deg,#4d28b7,#8768ee);color:#fff;padding:24px 18px 22px;border-radius:0 0 24px 24px}
+.brand{font-size:25px;font-weight:850;letter-spacing:-.7px}.sub{opacity:.9;margin-top:4px;font-size:13px}
+.wrap{max-width:720px;margin:auto;padding:14px 14px 90px}.tabs{display:flex;gap:8px;margin:0 0 14px;overflow:auto}
+.tab{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.tab.active{background:var(--p);border-color:var(--p);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:13px;box-shadow:0 3px 14px #32205a08}
+h2{font-size:18px;margin:0 0 5px}p.hint{margin:0 0 15px;color:var(--muted);font-size:13px}
+label{display:block;font-size:13px;font-weight:750;margin:12px 0 6px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);border:1px solid #ddd6ec;border-radius:11px;background:#fff;padding:12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px #5b35c91a}
+textarea{min-height:78px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;font-weight:750;border:0;border-radius:12px;padding:12px 14px;cursor:pointer}
+.primary{background:var(--p);color:#fff;width:100%;margin-top:15px}
+.secondary{background:#eee9fb;color:var(--p)}.ghost{background:#f5f2fa;color:var(--ink);border:1px solid var(--line)}
+.result{white-space:pre-wrap;background:#faf9fe;border:1px solid var(--line);padding:13px;border-radius:12px;margin:10px 0;color:#2b2342}
+.result-title{font-weight:800;margin-top:15px}
+.rowbtn{display:flex;gap:8px;flex-wrap:wrap}.rowbtn button{flex:1}
+.small{font-size:12px;color:var(--muted)}.notice{background:#fff8df;border:1px solid #f1df9a;border-radius:12px;padding:11px;font-size:12px;color:#6b5311;margin-top:12px}
+.hidden{display:none!important}.metric{background:#f5f1ff;border-radius:12px;padding:12px}.metric .num{font-size:21px;font-weight:850;color:var(--p)}.metric .lbl{font-size:12px;color:var(--muted)}
+.history-item{border-bottom:1px solid var(--line);padding:10px 0}.history-item:last-child{border-bottom:0}
+footer{text-align:center;font-size:11px;color:var(--muted);padding:10px}
+@media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.wrap{padding-left:11px;padding-right:11px}.card{padding:14px}}
+</style>
+</head>
+<body>
+<header><div class="brand">✦ Jualin AI</div><div class="sub">Asisten konten promosi untuk jualan online</div></header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" data-tab="konten">✍️ Buat Konten</button>
+    <button class="tab" data-tab="kalkulator">🧮 Kalkulator Laba</button>
+    <button class="tab" data-tab="riwayat">📚 Riwayat</button>
+  </div>
+  <section id="konten">
+    <div class="card">
+      <h2>Buat konten promosi</h2><p class="hint">Isi detail produk, lalu buat beberapa pilihan teks jualan.</p>
+      <label for="produk">Nama produk *</label><input id="produk" placeholder="Contoh: Parfum Amber Noir">
+      <div class="grid">
+        <div><label for="platform">Platform</label><select id="platform"><option>Threads</option><option>Shopee</option><option>TikTok</option><option>WhatsApp</option><option>Instagram</option><option>Facebook</option></select></div>
+        <div><label for="gaya">Gaya bahasa</label><select id="gaya"><option value="santai">Santai & jujur</option><option value="soft">Soft selling</option><option value="heboh">Enerjik & menarik</option><option value="profesional">Profesional</option><option value="lucu">Lucu & gaul</option></select></div>
+      </div>
+      <label for="manfaat">Manfaat/keunggulan produk</label><textarea id="manfaat" placeholder="Contoh: aroma tahan lama, ukuran praktis, cocok untuk harian"></textarea>
+      <div class="grid">
+        <div><label for="target">Target pembeli</label><input id="target" placeholder="Contoh: pekerja aktif"></div>
+        <div><label for="harga">Harga (opsional)</label><input id="harga" inputmode="numeric" placeholder="Contoh: 25000"></div>
+      </div>
+      <label for="promo">Promo atau penawaran (opsional)</label><input id="promo" placeholder="Contoh: diskon 10%, gratis ongkir">
+      <label for="jenis">Jenis konten</label><select id="jenis"><option value="paket">Paket lengkap (hook, caption, CTA)</option><option value="hook">Hook saja</option><option value="caption">Caption promosi</option><option value="thread">Utas 4 bagian</option><option value="deskripsi">Deskripsi produk marketplace</option><option value="video">Skrip video 15 detik</option></select>
+      <button class="primary" id="generate">✦ Buat Konten</button>
+      <div class="notice">AI online aktif setelah URL Worker dipasang pada konfigurasi. Sebelum itu, aplikasi memakai template lokal. Jangan memasukkan klaim manfaat yang belum terbukti.</div>
+    </div>
+    <div class="card hidden" id="hasilCard">
+      <h2>Hasil konten</h2><p class="hint">Edit bila perlu, lalu salin untuk diposting.</p>
+      <div id="hasil"></div>
+      <div class="rowbtn"><button class="secondary" id="copyAll">Salin semua</button><button class="ghost" id="save">Simpan riwayat</button></div>
+    </div>
+  </section>
+  <section id="kalkulator" class="hidden">
+    <div class="card">
+      <h2>Kalkulator laba jualan</h2><p class="hint">Perkiraan sederhana per produk. Masukkan biaya dalam rupiah.</p>
+      <label>Harga jual (Rp)</label><input id="jual" inputmode="numeric" placeholder="25000">
+      <label>HPP produk (Rp)</label><input id="hpp" inputmode="numeric" placeholder="12000">
+      <div class="grid">
+        <div><label>Biaya marketplace (Rp)</label><input id="admin" inputmode="numeric" placeholder="2000"></div>
+        <div><label>Iklan per pesanan (Rp)</label><input id="iklan" inputmode="numeric" placeholder="1500"></div>
+      </div>
+      <label>Biaya lain (Rp)</label><input id="lain" inputmode="numeric" placeholder="0">
+      <button class="primary" id="hitung">Hitung laba</button>
+    </div>
+    <div class="card hidden" id="hasilLaba">
+      <div class="grid">
+        <div class="metric"><div class="lbl">Laba bersih estimasi</div><div class="num" id="laba">Rp0</div></div>
+        <div class="metric"><div class="lbl">Margin laba</div><div class="num" id="margin">0%</div></div>
+      </div>
+      <p id="statusLaba" class="small"></p>
+    </div>
+  </section>
+  <section id="riwayat" class="hidden">
+    <div class="card"><h2>Riwayat konten</h2><p class="hint">Disimpan di browser perangkat ini.</p><div id="riwayatList"></div><button class="ghost" id="hapusRiwayat">Hapus semua riwayat</button></div>
+  </section>
+  <footer>Jualin AI • Prototipe awal • Data riwayat tersimpan lokal di perangkat</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let latest='';
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));
+ ['konten','kalkulator','riwayat'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab));
+ if(b.dataset.tab==='riwayat') renderHistory();
+}));
+const rupiah=n=>'Rp'+Math.round(n).toLocaleString('id-ID');
+const AI_ENDPOINT = "PASTE_CLOUDFLARE_WORKER_URL_HERE";
+async function generate(){
+ const p=$('produk').value.trim(), m=$('manfaat').value.trim(), t=$('target').value.trim()||'pembeli online', h=$('harga').value.trim(), promo=$('promo').value.trim(), platform=$('platform').value, gaya=$('gaya').value, jenis=$('jenis').value;
+ if(!p){$('produk').focus();alert('Isi nama produk dulu ya.');return;}
+ const btn=$('generate'); btn.disabled=true; btn.textContent='Sedang membuat konten…';
+ try{
+   if(AI_ENDPOINT.startsWith('https://') && !AI_ENDPOINT.includes('PASTE_')){
+     const resp=await fetch(AI_ENDPOINT.replace(/\/$/,'')+'/api/generate',{
+       method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({product:p,benefits:m,target:t,platform,style:gaya,price:h,promo,type:jenis})
+     });
+     const data=await resp.json();
+     if(!resp.ok) throw new Error(data.error||'Layanan AI belum bisa digunakan.');
+     latest=data.text||'Tidak ada hasil dari AI.';
+     $('hasil').innerHTML='';
+     const title=document.createElement('div');title.className='result-title';title.textContent='Hasil dari AI';
+     const body=document.createElement('div');body.className='result';body.textContent=latest;
+     $('hasil').append(title,body);
+     $('hasilCard').classList.remove('hidden');
+     return;
+   }
+   // Fallback local template so the interface can be tested before the AI backend is configured.
+   const benefit=m||'praktis untuk menemani aktivitas sehari-hari';
+   const price=h?` Harga: ${rupiah(Number(h.replace(/[^0-9]/g,'')))}.`:'';
+   const offer=promo?` ✨ ${promo}.`:'';
+   const hooks={
+    santai:[`Lagi cari ${p} buat kebutuhan harian? Coba cek yang satu ini 👀`,`Jujur, kadang hal sederhana seperti ${p} bisa bikin aktivitas terasa lebih praktis.`],
+    soft:[`Kenalan dulu dengan ${p} — pilihan menarik untuk melengkapi kebutuhanmu.`,`Sedang mencari pilihan ${p}? Ini salah satu produk yang bisa kamu pertimbangkan.`],
+    heboh:[`STOP SCROLL! 👀 Yuk kenalan dengan ${p}!`,`Ada yang lagi cari ${p}? Simpan info ini dulu, siapa tahu cocok!`],
+    profesional:[`Perkenalkan ${p}, pilihan untuk membantu memenuhi kebutuhan Anda.`,`Pertimbangkan ${p} untuk melengkapi kebutuhan Anda secara praktis.`],
+    lucu:[`Dompet bilang santai, keranjang bilang: ${p} dulu nggak sih? 😂`,`Niatnya cuma lihat-lihat, eh malah ketemu ${p} 👀`]
+   };
+   const ctas={Threads:'Kalau mau detailnya, komen “INFO” ya 👇',Shopee:'Cek detail produk di etalase dan sesuaikan dengan kebutuhanmu 🛒',TikTok:'Simpan dulu videonya dan cek detail produk ya!',WhatsApp:'Mau tanya detail atau pesan? Chat aku ya 😊',Instagram:'Simpan postingan ini dan DM untuk tanya detailnya 💬',Facebook:'Tulis “INFO” di komentar kalau ingin detail produk.'};
+   const hook=hooks[gaya][0], caption=`${hook}\n\n${p} — ${benefit}.${price}${offer}\n\n${ctas[platform]}`;
+   let parts=[];
+   if(jenis==='hook') parts=[['Hook',hook]];
+   else if(jenis==='caption') parts=[['Caption',caption]];
+   else if(jenis==='deskripsi') parts=[['Deskripsi produk',`${p}\n\nKeunggulan: ${benefit}.\n${h?'Harga: '+rupiah(Number(h.replace(/[^0-9]/g,'')))+'.\n':''}${promo?'Promo: '+promo+'.\n':''}\nPilih produk sesuai kebutuhan. Pastikan membaca informasi produk sebelum membeli.`]];
+   else if(jenis==='video') parts=[['Skrip video 15 detik',`[0–3 detik] ${hook}\n[3–9 detik] Tampilkan produk ${p} dan jelaskan: ${benefit}.\n[9–12 detik] Tampilkan detail produk${h?' dan harga '+rupiah(Number(h.replace(/[^0-9]/g,''))):''}.${offer}\n[12–15 detik] ${ctas[platform]}`]];
+   else if(jenis==='thread') parts=[['Utas 1/4',hook],['Utas 2/4',`Kenalan dengan ${p}. ${benefit}.`],['Utas 3/4',`${h?'Harga '+rupiah(Number(h.replace(/[^0-9]/g,'')))+'. ':''}${promo?promo+'. ':''}Cek detail dan pastikan cocok dengan kebutuhanmu.`],['Utas 4/4',ctas[platform]]];
+   else parts=[['Hook',hook],['Caption',caption],['CTA',ctas[platform]],['Hashtag',`#${p.replace(/[^a-zA-Z0-9]/g,'')} #JualanOnline #RekomendasiProduk`]];
+   latest=parts.map(a=>a[0]+'\n'+a[1]).join('\n\n');
+   $('hasil').innerHTML='';
+   parts.forEach(a=>{const title=document.createElement('div');title.className='result-title';title.textContent=a[0];const body=document.createElement('div');body.className='result';body.textContent=a[1];const btn2=document.createElement('button');btn2.className='secondary';btn2.textContent='Salin bagian ini';btn2.onclick=()=>copy(a[1]);$('hasil').append(title,body,btn2);});
+   $('hasilCard').classList.remove('hidden');
+ }catch(err){alert('AI belum berhasil: '+err.message+'. Periksa URL Worker, koneksi internet, dan kuota API.');}
+ finally{btn.disabled=false;btn.textContent='✦ Buat Konten';}
+}
+
+function copy(s){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s).then(()=>alert('Teks disalin.')).catch(()=>fallbackCopy(s));}else fallbackCopy(s)}
+function fallbackCopy(s){const x=document.createElement('textarea');x.value=s;document.body.appendChild(x);x.select();try{document.execCommand('copy');alert('Teks disalin.')}catch(e){alert('Silakan pilih dan salin teks secara manual.')}x.remove()}
+$('generate').onclick=generate;$('copyAll').onclick=()=>copy(latest);
+function getHistory(){try{return JSON.parse(localStorage.getItem('jualin_history')||'[]')}catch(e){return []}}
+$('save').onclick=()=>{if(!latest)return;let a=getHistory();a.unshift({date:new Date().toLocaleString('id-ID'),product:$('produk').value.trim(),content:latest});localStorage.setItem('jualin_history',JSON.stringify(a.slice(0,30)));alert('Konten disimpan di perangkat ini.');};
+function renderHistory(){const a=getHistory(),box=$('riwayatList');box.innerHTML='';if(!a.length){box.textContent='Belum ada konten tersimpan.';return;}a.forEach((item,i)=>{const d=document.createElement('div');d.className='history-item';const title=document.createElement('strong');title.textContent=item.product+' • '+item.date;const body=document.createElement('p');body.className='small';body.textContent=item.content.slice(0,180)+(item.content.length>180?'…':'');const row=document.createElement('div');row.className='rowbtn';const cp=document.createElement('button');cp.className='secondary';cp.textContent='Salin';cp.onclick=()=>copy(item.content);const del=document.createElement('button');del.className='ghost';del.textContent='Hapus';del.onclick=()=>{let h=getHistory();h.splice(i,1);localStorage.setItem('jualin_history',JSON.stringify(h));renderHistory()};row.append(cp,del);d.append(title,body,row);box.append(d);});}
+$('hapusRiwayat').onclick=()=>{if(confirm('Hapus semua riwayat konten di perangkat ini?')){localStorage.removeItem('jualin_history');renderHistory()}};
+const num=id=>Number(($(id).value||'0').replace(/[^0-9.-]/g,''))||0;
+$('hitung').onclick=()=>{let jual=num('jual'),cost=num('hpp')+num('admin')+num('iklan')+num('lain'),laba=jual-cost,margin=jual?laba/jual*100:0;$('laba').textContent=rupiah(laba);$('margin').textContent=margin.toFixed(1)+'%';$('statusLaba').textContent=jual<=0?'Masukkan harga jual untuk menghitung.':laba<0?'Perhatian: biaya lebih besar daripada harga jual.':'Perkiraan setelah biaya yang dimasukkan; biaya lain yang belum dicatat belum termasuk.';$('hasilLaba').classList.remove('hidden')};
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
+</script>
+</body>
+</html>
