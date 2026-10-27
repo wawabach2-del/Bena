@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0f">
-<title>Jualan DIEN v2 — AI Auto Content Designer</title>
+<title>Jualan DIEN v2.1 — AI Auto Content Designer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Playfair+Display:wght@400;700&family=Bebas+Neue&family=Dancing+Script:wght@400;700&family=Fredoka:wght@400;600;700&family=Cormorant+Garamond:wght@400;700&family=Righteous&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
@@ -135,6 +135,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--grad);color:#fff}
 .badge.local{background:var(--s3);color:var(--tx2)}
 @media (max-height:700px){.panel{height:40vh;min-height:180px}}
+
+/* ===== TEMPLATE GALLERY ===== */
+.tpl-modal .modal{max-width:560px}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tpl-item{aspect-ratio:1;border-radius:8px;overflow:hidden;border:2px solid var(--bd);cursor:pointer;background:#fff;position:relative;transition:border-color .15s,transform .1s}
+.tpl-item:active{border-color:var(--ac);transform:scale(.97)}
+.tpl-item svg{width:100%;height:100%;display:block}
+.tpl-item .tpl-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;font-size:9px;font-weight:700;padding:14px 4px 5px;text-align:center;letter-spacing:.2px;pointer-events:none}
 </style>
 </head>
 <body>
@@ -144,7 +152,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="brand-mark">D</div>
     <div>
       <div class="brand-name">Jualan DIEN</div>
-      <div class="brand-tag">AI Auto Content Designer · v2</div>
+      <div class="brand-tag">AI Auto Content Designer · v2.1</div>
     </div>
   </div>
   <div class="hdr-actions">
@@ -380,6 +388,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div class="hint">Grid hanya panduan visual, tidak ikut diekspor</div>
     </div>
     <div class="field">
+      <label>Template Galeri Typografi</label>
+      <button class="btn full primary" id="btnTemplate">📐 Buka Template (15 Layout)</button>
+      <div class="hint">Layout siap pakai: editorial, serif, script, numbered, dll.</div>
+    </div>
+    <div class="field">
       <label>Layout Cepat (Grid)</label>
       <div class="grid" style="grid-template-columns:1fr 1fr">
         <button class="btn small" data-preset="banner-top">Banner Atas</button>
@@ -419,6 +432,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 </section>
 
 <div class="toast" id="toast"></div>
+
+<!-- TEMPLATE MODAL -->
+<div class="modal-back tpl-modal" id="templateModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3>📐 Template Layout Typografi</h3>
+      <button class="icon-btn" onclick="document.getElementById('templateModal').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div style="padding:10px;background:var(--s2);border-radius:10px;font-size:11px;color:var(--tx2);line-height:1.5;margin-bottom:12px">
+        Template akan menata ulang seluruh teks role-based. Foto Anda akan dipindahkan ke slot gambar baru. Teks manual (dekoratif) ditambahkan otomatis.
+      </div>
+      <div class="tpl-grid" id="tplGrid"></div>
+    </div>
+  </div>
+</div>
 
 <!-- AI MODAL -->
 <div class="modal-back" id="aiModal">
@@ -643,7 +672,6 @@ function renderAll(){
     if(el.type==='image') cvs.appendChild(createImageNode(el));
     else cvs.appendChild(createElNode(el));
   });
-  // ensure grid overlay stays on top
   const g = $('#gridOverlay');
   if(g) cvs.appendChild(g);
   renderGrid();
@@ -912,7 +940,7 @@ function pickTheme(info){
   return { headlineFont:'Inter', subFont:'Inter' };
 }
 
-/* ===== AUTO LAYOUT (smart) ===== */
+/* ===== AUTO LAYOUT ===== */
 function autoLayout(variantIdx = 0){
   const info = {
     headline: $('#inHeadline').value.trim(),
@@ -1001,7 +1029,7 @@ function checkOverflow(){
   if(has) toast('⚠️ Sebagian teks melebihi kanvas. Sesuaikan ukuran/posisi.','err');
 }
 
-/* ===== PRESETS (grid-based) ===== */
+/* ===== PRESETS ===== */
 const PRESETS = {
   'banner-top':   { headline:{x:0.05,y:0.05,w:0.90,h:0.16}, sub:{x:0.10,y:0.22,w:0.80,h:0.07}, content:{x:0.10,y:0.30,w:0.80,h:0.13} },
   'banner-bottom':{ headline:{x:0.05,y:0.60,w:0.90,h:0.16}, sub:{x:0.10,y:0.77,w:0.80,h:0.07}, content:{x:0.10,y:0.85,w:0.80,h:0.12} },
@@ -1106,7 +1134,6 @@ function placeImage(src, img){
   const cAr = state.width/state.height;
   let w,h,x,y;
   if(count === 0){
-    // background fill
     if(ar > cAr){ h = state.height; w = h*ar; } else { w = state.width; h = w/ar; }
     x = (state.width-w)/2; y = (state.height-h)/2;
   } else {
@@ -1311,7 +1338,7 @@ function updateExportPreview(){
   const qBtn = $$('#exportModal [data-exp-q]').find(b=>b.classList.contains('active'));
   const q = parseInt(qBtn?.dataset.expQ || '2');
   const d = exportDims(q);
-  const note = (d.w*q !== state.width*q) ? ' (dibatasi maks. 5000)' : '';
+  const note = (d.w !== state.width*q) ? ' (dibatasi maks. 5000)' : '';
   $('#expPreview').textContent = `Hasil: ${d.w} × ${d.h} px${note}`;
 }
 async function doExport(){
@@ -1321,7 +1348,6 @@ async function doExport(){
   const q = parseInt(qBtn?.dataset.expQ || '2');
   const d = exportDims(q);
 
-  // Pastikan semua gambar sudah termuat
   const imgEls = state.elements.filter(e=>e.type==='image' && e.visible!==false);
   for(const im of imgEls){
     if(!im.img || !im.img.complete || !im.img.naturalWidth){
@@ -1488,6 +1514,275 @@ async function callOnlineAI(prompt){
   }
 }
 
+/* ===== TEMPLATE GALLERY ===== */
+const TEMPLATES = [
+  {
+    id:'editorial-top', name:'Editorial Top', bg:'#f8f6f0',
+    images:[{x:0.30,y:0.08,w:0.20,h:0.22},{x:0.52,y:0.08,w:0.20,h:0.22}],
+    texts:[
+      {role:'headline', x:0.05,y:0.05,w:0.55,font:'Inter',weight:700,size:0.030,align:'left',color:'#111',lh:1.3},
+      {role:'subheadline', x:0.05,y:0.55,w:0.55,font:'Inter',weight:500,size:0.028,align:'right',color:'#333',lh:1.4},
+      {role:'content', x:0.05,y:0.72,w:0.55,font:'Inter',weight:400,size:0.018,align:'right',color:'#666',lh:1.5}
+    ]
+  },
+  {
+    id:'header-banner', name:'Header Banner', bg:'#f2f2f2',
+    images:[{x:0,y:0,w:1,h:0.42}],
+    texts:[
+      {role:'headline', x:0.05,y:0.48,w:0.55,font:'Inter',weight:700,size:0.040,align:'left',color:'#111',lh:1.2},
+      {role:'subheadline', x:0.05,y:0.58,w:0.55,font:'Inter',weight:400,size:0.026,align:'left',color:'#333',lh:1.4},
+      {role:'content', x:0.05,y:0.82,w:0.90,font:'Inter',weight:400,size:0.016,align:'left',color:'#666',lh:1.5}
+    ]
+  },
+  {
+    id:'serif-brand', name:'Serif Brand', bg:'#faf8f3',
+    images:[{x:0.55,y:0.22,w:0.38,h:0.32}],
+    texts:[
+      {role:'headline', x:0.05,y:0.06,w:0.55,font:'Playfair Display',weight:400,size:0.070,align:'left',color:'#111',lh:1.0,ls:2},
+      {role:'subheadline', x:0.55,y:0.10,w:0.40,font:'Inter',weight:400,size:0.020,align:'left',color:'#333',lh:1.4},
+      {role:'content', x:0.05,y:0.65,w:0.45,font:'Inter',weight:400,size:0.018,align:'left',color:'#666',lh:1.5}
+    ]
+  },
+  {
+    id:'script-emotions', name:'Script Emotions', bg:'#f5f5f0',
+    images:[{x:0.05,y:0.22,w:0.42,h:0.55},{x:0.52,y:0.22,w:0.43,h:0.55}],
+    texts:[
+      {role:'headline', x:0.05,y:0.06,w:0.90,font:'Dancing Script',weight:400,size:0.075,align:'left',color:'#111',lh:1.0},
+      {role:'subheadline', x:0.05,y:0.82,w:0.90,font:'Inter',weight:400,size:0.020,align:'left',color:'#555',lh:1.4},
+      {role:'content', x:0.05,y:0.90,w:0.90,font:'Inter',weight:400,size:0.014,align:'left',color:'#777',lh:1.4}
+    ]
+  },
+  {
+    id:'three-featured', name:'Three Featured', bg:'#ffffff',
+    images:[{x:0.05,y:0.08,w:0.27,h:0.20},{x:0.36,y:0.08,w:0.27,h:0.20},{x:0.67,y:0.08,w:0.27,h:0.20}],
+    texts:[
+      {role:'headline', x:0.05,y:0.35,w:0.55,font:'Inter',weight:700,size:0.030,align:'left',color:'#111',lh:1.3},
+      {role:'content', x:0.50,y:0.55,w:0.45,font:'Inter',weight:400,size:0.022,align:'left',color:'#333',lh:1.5},
+      {role:'subheadline', x:0.05,y:0.85,w:0.55,font:'Inter',weight:400,size:0.016,align:'left',color:'#666',lh:1.4}
+    ]
+  },
+  {
+    id:'full-overlay', name:'Full Overlay', bg:'#e8e8e8',
+    images:[{x:0,y:0,w:1,h:0.45}],
+    texts:[
+      {role:'headline', x:0.05,y:0.58,w:0.50,font:'Inter',weight:700,size:0.042,align:'left',color:'#111',lh:1.2},
+      {role:'subheadline', x:0.05,y:0.70,w:0.50,font:'Inter',weight:400,size:0.026,align:'left',color:'#333',lh:1.4},
+      {role:'content', x:0.55,y:0.58,w:0.42,font:'Inter',weight:400,size:0.016,align:'left',color:'#666',lh:1.5}
+    ]
+  },
+  {
+    id:'split-columns', name:'Split Columns', bg:'#f5f3ed',
+    images:[{x:0.55,y:0.15,w:0.40,h:0.40}],
+    texts:[
+      {role:'headline', x:0.05,y:0.08,w:0.45,font:'Inter',weight:700,size:0.026,align:'left',color:'#111',lh:1.3},
+      {role:'subheadline', x:0.55,y:0.60,w:0.40,font:'Inter',weight:400,size:0.020,align:'left',color:'#333',lh:1.4},
+      {role:'content', x:0.05,y:0.60,w:0.45,font:'Inter',weight:400,size:0.016,align:'left',color:'#666',lh:1.5}
+    ]
+  },
+  {
+    id:'listing-connections', name:'Listing', bg:'#f7f5ef',
+    images:[],
+    texts:[
+      {role:'headline', x:0.05,y:0.08,w:0.90,font:'Playfair Display',weight:400,size:0.058,align:'center',color:'#111',lh:1.1,ls:1},
+      {role:'subheadline', x:0.05,y:0.22,w:0.55,font:'Inter',weight:400,size:0.017,align:'left',color:'#555',lh:1.4},
+      {role:'content', x:0.05,y:0.32,w:0.55,font:'Inter',weight:400,size:0.015,align:'left',color:'#777',lh:1.5}
+    ],
+    extraTexts:[
+      {text:'01', x:0.65,y:0.35,w:0.05,font:'Inter',weight:600,size:0.020,align:'left',color:'#111',lh:1.2},
+      {text:'Content', x:0.72,y:0.35,w:0.25,font:'Inter',weight:500,size:0.018,align:'left',color:'#111',lh:1.3},
+      {text:'02', x:0.65,y:0.50,w:0.05,font:'Inter',weight:600,size:0.020,align:'left',color:'#111',lh:1.2},
+      {text:'Design', x:0.72,y:0.50,w:0.25,font:'Inter',weight:500,size:0.018,align:'left',color:'#111',lh:1.3},
+      {text:'03', x:0.65,y:0.65,w:0.05,font:'Inter',weight:600,size:0.020,align:'left',color:'#111',lh:1.2},
+      {text:'Strategy', x:0.72,y:0.65,w:0.25,font:'Inter',weight:500,size:0.018,align:'left',color:'#111',lh:1.3}
+    ]
+  },
+  {
+    id:'showcase-script', name:'Showcase Script', bg:'#f7f6f0',
+    images:[{x:0.05,y:0.22,w:0.42,h:0.42},{x:0.52,y:0.22,w:0.43,h:0.42}],
+    texts:[
+      {role:'headline', x:0.05,y:0.06,w:0.60,font:'Dancing Script',weight:400,size:0.070,align:'left',color:'#111',lh:1.0},
+      {role:'subheadline', x:0.05,y:0.70,w:0.90,font:'Inter',weight:400,size:0.020,align:'left',color:'#555',lh:1.4},
+      {role:'content', x:0.05,y:0.80,w:0.90,font:'Inter',weight:400,size:0.016,align:'left',color:'#666',lh:1.5}
+    ]
+  },
+  {
+    id:'numbered-menu', name:'Numbered Menu', bg:'#fafaf5',
+    images:[],
+    texts:[
+      {role:'headline', x:0.05,y:0.05,w:0.55,font:'Inter',weight:400,size:0.016,align:'left',color:'#999',lh:1.3},
+      {role:'subheadline', x:0.30,y:0.12,w:0.65,font:'Inter',weight:400,size:0.018,align:'left',color:'#555',lh:1.5},
+      {role:'content', x:0.05,y:0.62,w:0.30,font:'Inter',weight:400,size:0.014,align:'left',color:'#777',lh:1.5}
+    ],
+    extraTexts:[
+      {text:'01', x:0.05,y:0.30,w:0.05,font:'Inter',weight:400,size:0.018,align:'left',color:'#111',lh:1.2},
+      {text:'UI Design', x:0.15,y:0.32,w:0.35,font:'Playfair Display',weight:400,size:0.042,align:'left',color:'#111',lh:1.2,ls:1},
+      {text:'02', x:0.05,y:0.42,w:0.05,font:'Inter',weight:400,size:0.018,align:'left',color:'#111',lh:1.2},
+      {text:'Graphic Design', x:0.15,y:0.44,w:0.40,font:'Playfair Display',weight:400,size:0.042,align:'left',color:'#111',lh:1.2,ls:1},
+      {text:'03', x:0.05,y:0.54,w:0.05,font:'Inter',weight:400,size:0.018,align:'left',color:'#111',lh:1.2},
+      {text:'Content Strategy', x:0.15,y:0.56,w:0.45,font:'Playfair Display',weight:400,size:0.042,align:'left',color:'#111',lh:1.2,ls:1}
+    ]
+  },
+  {
+    id:'center-serif', name:'Center Serif', bg:'#faf8f2',
+    images:[{x:0.20,y:0.62,w:0.60,h:0.30}],
+    texts:[
+      {role:'headline', x:0.10,y:0.10,w:0.80,font:'Playfair Display',weight:400,size:0.095,align:'center',color:'#111',lh:1.0,ls:3},
+      {role:'subheadline', x:0.15,y:0.36,w:0.70,font:'Inter',weight:400,size:0.022,align:'center',color:'#333',lh:1.5},
+      {role:'content', x:0.15,y:0.50,w:0.70,font:'Inter',weight:400,size:0.016,align:'center',color:'#666',lh:1.5}
+    ]
+  },
+  {
+    id:'branding-list', name:'Branding List', bg:'#f8f6f0',
+    images:[{x:0.70,y:0.10,w:0.25,h:0.15},{x:0.70,y:0.40,w:0.25,h:0.15},{x:0.70,y:0.70,w:0.25,h:0.15}],
+    texts:[
+      {role:'headline', x:0.05,y:0.08,w:0.55,font:'Inter',weight:600,size:0.024,align:'left',color:'#111',lh:1.3},
+      {role:'subheadline', x:0.05,y:0.42,w:0.55,font:'Inter',weight:600,size:0.024,align:'left',color:'#111',lh:1.3},
+      {role:'content', x:0.05,y:0.72,w:0.55,font:'Inter',weight:600,size:0.024,align:'left',color:'#111',lh:1.3}
+    ]
+  },
+  {
+    id:'creating-story', name:'Creating Story', bg:'#f5f3ed',
+    images:[{x:0.05,y:0.35,w:0.90,h:0.55}],
+    texts:[
+      {role:'headline', x:0.05,y:0.08,w:0.90,font:'Dancing Script',weight:400,size:0.085,align:'center',color:'#111',lh:1.0},
+      {role:'subheadline', x:0.05,y:0.26,w:0.90,font:'Inter',weight:400,size:0.020,align:'center',color:'#666',lh:1.4},
+      {role:'content', x:0.05,y:0.92,w:0.90,font:'Inter',weight:400,size:0.013,align:'center',color:'#777',lh:1.3}
+    ]
+  },
+  {
+    id:'fuel-editorial', name:'Fuel Editorial', bg:'#f0eee6',
+    images:[{x:0.60,y:0.10,w:0.35,h:0.22},{x:0.55,y:0.45,w:0.40,h:0.42}],
+    texts:[
+      {role:'headline', x:0.05,y:0.08,w:0.45,font:'Playfair Display',weight:400,size:0.095,align:'left',color:'#111',lh:1.0,ls:1},
+      {role:'subheadline', x:0.05,y:0.26,w:0.45,font:'Inter',weight:400,size:0.018,align:'left',color:'#555',lh:1.4},
+      {role:'content', x:0.05,y:0.62,w:0.45,font:'Inter',weight:400,size:0.016,align:'left',color:'#666',lh:1.5}
+    ]
+  },
+  {
+    id:'true-sense', name:'True Sense', bg:'#fafaf5',
+    images:[{x:0.15,y:0.62,w:0.22,h:0.14},{x:0.40,y:0.62,w:0.22,h:0.14},{x:0.65,y:0.62,w:0.22,h:0.14}],
+    texts:[
+      {role:'headline', x:0.10,y:0.30,w:0.80,font:'Playfair Display',weight:400,size:0.105,align:'center',color:'#111',lh:1.0,ls:3},
+      {role:'subheadline', x:0.20,y:0.52,w:0.60,font:'Inter',weight:400,size:0.018,align:'center',color:'#555',lh:1.4},
+      {role:'content', x:0.10,y:0.82,w:0.80,font:'Inter',weight:400,size:0.014,align:'center',color:'#666',lh:1.4}
+    ]
+  }
+];
+
+function templatePreviewSVG(tpl){
+  const parts = [];
+  parts.push(`<rect width="100" height="100" fill="${tpl.bg||'#fff'}"/>`);
+  (tpl.images||[]).forEach(im=>{
+    parts.push(`<rect x="${(im.x*100).toFixed(2)}" y="${(im.y*100).toFixed(2)}" width="${(im.w*100).toFixed(2)}" height="${(im.h*100).toFixed(2)}" fill="#c8c8c8"/>`);
+  });
+  const drawTextBars = (t, isExtra)=>{
+    const txt = isExtra ? t.text : 'Lorem ipsum dolor sit amet';
+    const lines = isExtra ? 1 : (t.role==='headline' ? 2 : t.role==='subheadline' ? 2 : 3);
+    const lineH = Math.max(1.2, t.size * 60);
+    const words = (txt||'').split(/\s+/).filter(w=>w);
+    for(let i=0;i<lines;i++){
+      const w = isExtra ? Math.min(t.w*100, words.length * t.size * 40) : t.w * 100 * (0.85 - i*0.12);
+      const x = t.x*100 + (t.align==='center' ? (t.w*100-w)/2 : t.align==='right' ? t.w*100-w : 0);
+      parts.push(`<rect x="${x.toFixed(2)}" y="${(t.y*100 + i*lineH*1.35).toFixed(2)}" width="${w.toFixed(2)}" height="${(lineH*0.55).toFixed(2)}" fill="${t.color||'#333'}" rx="0.4"/>`);
+    }
+  };
+  (tpl.texts||[]).forEach(t=>drawTextBars(t, false));
+  (tpl.extraTexts||[]).forEach(t=>drawTextBars(t, true));
+  return `<svg viewBox="0 0 100 100" preserveAspectRatio="none">${parts.join('')}</svg>`;
+}
+
+function renderTemplateGallery(){
+  const grid = $('#tplGrid');
+  if(!grid) return;
+  grid.innerHTML = TEMPLATES.map(tpl=>`
+    <div class="tpl-item" data-tpl="${tpl.id}" title="${escapeHtml(tpl.name)}">
+      ${templatePreviewSVG(tpl)}
+      <div class="tpl-name">${escapeHtml(tpl.name)}</div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.tpl-item').forEach(item=>{
+    item.onclick = ()=>{
+      const tpl = TEMPLATES.find(x=>x.id===item.dataset.tpl);
+      if(tpl) applyTemplate(tpl);
+    };
+  });
+}
+
+function applyTemplate(tpl){
+  if(state.elements.length > 0){
+    if(!confirm(`Template "${tpl.name}" akan menata ulang seluruh desain.\n\nFoto Anda akan dipindahkan ke slot baru. Teks manual dekoratif akan ditambahkan. Lanjutkan?`)) return;
+  }
+
+  const userImages = state.elements.filter(e=>e.type==='image').map(img=>({
+    src:img.src, img:img.img, locked:img.locked, visible:img.visible
+  }));
+
+  const W = state.width, H = state.height;
+  const info = {
+    headline: $('#inHeadline').value.trim() || 'Headline Promosi',
+    sub: $('#inSub').value.trim() || 'Subheadline pendukung',
+    content: $('#inContent').value.trim() || 'Tulis isi konten promosi Anda di sini.'
+  };
+
+  state.bgColor = tpl.bg || '#ffffff';
+  $('#inBg').value = state.bgColor;
+  $('#inBgHex').value = state.bgColor;
+  $('#canvas').style.background = state.bgColor;
+
+  state.elements = [];
+  state.selectedId = null;
+
+  const slots = tpl.images || [];
+  const numToPlace = Math.min(userImages.length, slots.length);
+  for(let i=0;i<numToPlace;i++){
+    const slot = slots[i];
+    const src = userImages[i];
+    state.elements.push({
+      id: uid('img'), type:'image', role:'photo',
+      src: src.src, img: src.img,
+      x: Math.round(W*slot.x), y: Math.round(H*slot.y),
+      w: Math.round(W*slot.w), h: Math.round(H*slot.h),
+      zoom:1, rotation: slot.rotation || 0, opacity:1,
+      fit: slot.fit || 'cover',
+      locked: false, visible: true
+    });
+  }
+  if(userImages.length > slots.length){
+    setTimeout(()=>toast(`${userImages.length - slots.length} foto tidak terpakai (slot template hanya ${slots.length})`, 'err'), 400);
+  }
+
+  const placeText = (def, text)=>{
+    const el = createTextElement({
+      role: def.role,
+      text,
+      x: Math.round(W*def.x), y: Math.round(H*def.y), w: Math.round(W*def.w),
+      font: def.font, size: Math.round(W*def.size), weight: def.weight,
+      color: def.color, align: def.align,
+      lineHeight: def.lh || 1.3,
+      letterSpacing: def.ls || 0,
+      rotation: def.rotation || 0,
+      shadow: false, outline: false, bg: false
+    });
+    state.elements.push(el);
+  };
+  (tpl.texts||[]).forEach(t=>{
+    const text = t.role==='headline' ? info.headline
+               : t.role==='subheadline' ? info.sub
+               : t.role==='content' ? info.content : '';
+    if(text) placeText(t, text);
+  });
+  (tpl.extraTexts||[]).forEach(t=>{
+    const def = {...t, role:'manual'};
+    placeText(def, t.text);
+  });
+
+  renderAll();
+  pushHistory();
+  autoSave();
+  $('#templateModal').classList.remove('show');
+  toast(`Template "${tpl.name}" diterapkan`, 'ok');
+}
+
 /* ===== PERSISTENCE ===== */
 function saveProject(silent=false){
   try {
@@ -1519,7 +1814,6 @@ function loadProject(){
     if(typeof data.hideToolbarNearImage === 'boolean') state.hideToolbarNearImage = data.hideToolbarNearImage;
     state.elements = deserializeElements(data.elements || []);
 
-    // migration v1 → v2: single image background
     if(data.version === 1 && data.imageSrc && !state.elements.some(e=>e.type==='image')){
       const im = new Image();
       im.src = data.imageSrc;
@@ -1546,13 +1840,11 @@ function autoSave(){ clearTimeout(autoSaveT); autoSaveT = setTimeout(()=>savePro
 function initEvents(){
   $$('.tab').forEach(t=>t.addEventListener('click', ()=>switchTab(t.dataset.tab)));
 
-  // Images
   $('#btnCamera').onclick = ()=>$('#inputCamera').click();
   $('#btnGallery').onclick = ()=>$('#inputGallery').click();
   $('#inputCamera').onchange = e=>{ const f=e.target.files[0]; e.target.value=''; if(f) addImageFile(f); };
   $('#inputGallery').onchange = e=>{ const f=e.target.files[0]; e.target.value=''; if(f) addImageFile(f); };
 
-  // Canvas format
   $$('[data-format]').forEach(b=>b.addEventListener('click', ()=>{
     const f = b.dataset.format;
     const sizes = {'1:1':[1080,1080], '4:5':[1080,1350], '9:16':[1080,1920]};
@@ -1569,15 +1861,17 @@ function initEvents(){
     updateCanvasSize(); pushHistory(); autoSave();
   };
 
-  // Grid
   $$('[data-grid]').forEach(b=>b.addEventListener('click', ()=>{
     state.gridMode = b.dataset.grid;
     syncGridButtons(); renderGrid();
   }));
-  // Layout presets
   $$('[data-preset]').forEach(b=>b.addEventListener('click', ()=>applyPreset(b.dataset.preset)));
 
-  // Background
+  $('#btnTemplate').onclick = ()=>{
+    renderTemplateGallery();
+    $('#templateModal').classList.add('show');
+  };
+
   $('#inBg').oninput = e=>{
     state.bgColor = e.target.value;
     $('#inBgHex').value = e.target.value;
@@ -1589,7 +1883,6 @@ function initEvents(){
     if(/^#[0-9a-f]{6}$/i.test(v)){ $('#inBg').value = v; $('#inBg').dispatchEvent(new Event('input')); pushHistory(); autoSave(); }
   };
 
-  // Toolbar setting
   $$('[data-hidetb]').forEach(b=>b.addEventListener('click', ()=>{
     state.hideToolbarNearImage = b.dataset.hidetb === '1';
     syncToolbarSettingButtons();
@@ -1603,11 +1896,9 @@ function initEvents(){
     toast(state.hideToolbarNearImage ? 'Toolbar auto-sembunyi di atas gambar' : 'Toolbar selalu tampil');
   };
 
-  // Auto & Variasi
   $('#btnAuto').onclick = ()=>autoLayout(0);
   $('#btnVariasi').onclick = ()=>{ const idx = Math.floor(Math.random()*3); autoLayout(idx); toast('Variasi desain diterapkan','ok'); };
 
-  // Manual text
   $('#btnAddManual').onclick = ()=>{
     const text = $('#inManual').value.trim();
     if(!text){ toast('Isi teks manual dulu','err'); return; }
@@ -1621,7 +1912,6 @@ function initEvents(){
   $('#btnAddText').onclick = addNewText;
   $('#btnAddText2').onclick = addNewText;
 
-  // Text controls
   $('#inElText').oninput = e=>{ const el = getSelected(); if(!el||el.type!=='text') return; el.text=e.target.value; updateElNode(el); };
   $('#inElText').onchange = ()=>{ pushHistory(); autoSave(); };
   $('#selFont').onchange = e=>{ const el = getSelected(); if(!el||el.type!=='text') return; el.font=e.target.value; updateElNode(el); pushHistory(); autoSave(); };
@@ -1675,7 +1965,6 @@ function initEvents(){
     deselect(); renderAll(); pushHistory(); autoSave();
   };
 
-  // Image controls
   $('#rangeImgZoom').oninput = e=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.zoom=+e.target.value; $('#valImgZoom').textContent=(+el.zoom).toFixed(2)+'x'; updateElNode(el); };
   $('#rangeImgZoom').onchange = ()=>{ pushHistory(); autoSave(); };
   $('#btnZoomMinus').onclick = ()=>{ const el=getSelected(); if(!el||el.type!=='image') return; el.zoom=Math.max(0.5,+(el.zoom-0.05).toFixed(2)); $('#rangeImgZoom').value=el.zoom; $('#valImgZoom').textContent=el.zoom.toFixed(2)+'x'; updateElNode(el); pushHistory(); };
@@ -1710,11 +1999,9 @@ function initEvents(){
     toast('Foto diganti','ok');
   };
 
-  // Font upload
   $('#btnUploadFont').onclick = ()=>$('#inputFont').click();
   $('#inputFont').onchange = e=>{ const f=e.target.files[0]; e.target.value=''; if(f) uploadFont(f); };
 
-  // Float toolbar
   $('#floatTb').addEventListener('click', e=>{
     const btn = e.target.closest('button'); if(!btn) return;
     const el = getSelected(); if(!el||el.type!=='text') return;
@@ -1727,7 +2014,6 @@ function initEvents(){
     if(cmd==='del'){ $('#btnDelEl').click(); }
   });
 
-  // Layer actions
   $('#layerList').addEventListener('click', e=>{
     const btn = e.target.closest('button[data-act]'); if(!btn) return;
     const el = state.elements.find(x=>x.id===btn.dataset.id); if(!el) return;
@@ -1739,11 +2025,9 @@ function initEvents(){
     if(act==='down'){ const i=state.elements.indexOf(el); if(i>0){ [state.elements[i],state.elements[i-1]]=[state.elements[i-1],state.elements[i]]; renderAll(); pushHistory(); autoSave(); } }
   });
 
-  // Undo/Redo
   $('#btnUndo').onclick = undo;
   $('#btnRedo').onclick = redo;
 
-  // Save & Export
   $('#btnSave').onclick = ()=>saveProject(false);
   $('#btnExport').onclick = ()=>{ updateExportPreview(); $('#exportModal').classList.add('show'); };
   $$('#exportModal [data-exp-fmt]').forEach(b=>b.addEventListener('click', ()=>
@@ -1754,7 +2038,6 @@ function initEvents(){
   }));
   $('#btnDoExport').onclick = doExport;
 
-  // AI
   $('#btnAI').onclick = ()=>{
     $('#aiEndpoint').value = state.aiConfig.endpoint;
     $('#aiKey').value = state.aiConfig.key;
@@ -1836,7 +2119,6 @@ function initEvents(){
     };
   };
 
-  // Keyboard
   document.addEventListener('keydown', e=>{
     if(e.target.matches('input, textarea, select')) return;
     if((e.ctrlKey||e.metaKey) && e.key==='z' && !e.shiftKey){ e.preventDefault(); undo(); }
@@ -1877,6 +2159,7 @@ function init(){
   loadFontList();
   updateCanvasSize();
   initEvents();
+  renderTemplateGallery();
 
   if(loadProject()){
     toast('Proyek sebelumnya dipulihkan','ok');
@@ -1893,7 +2176,7 @@ function init(){
       color:'#333', align:'center', shadow:false
     }));
     renderAll(); pushHistory();
-    toast('Selamat datang di Jualan DIEN v2','ok');
+    toast('Selamat datang di Jualan DIEN v2.1','ok');
   }
   syncGridButtons(); syncToolbarSettingButtons();
   setInterval(autoSave, 25000);
